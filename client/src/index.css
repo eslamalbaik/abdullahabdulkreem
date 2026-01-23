@@ -24,8 +24,8 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   
-  --font-sans: 'Noto Kufi Arabic', sans-serif;
-  --font-serif: 'Noto Naskh Arabic', serif;
+  --font-sans: 'IBM Plex Sans Arabic', sans-serif;
+  --font-serif: 'IBM Plex Sans Arabic', sans-serif;
   
   --radius-sm: 0rem;
   --radius-md: 0rem;
