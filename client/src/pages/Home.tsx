@@ -38,8 +38,8 @@ export default function Home() {
             className="max-w-4xl"
           >
             <h1 className="text-6xl md:text-8xl font-serif font-medium leading-[1.1] tracking-tight mb-8">
-              هوية بصرية<br />
-              <span className="italic text-muted-foreground">للطموحين.</span>
+              نحوّل فكرتك<br />
+              <span className="italic text-muted-foreground">إلى نظام بصري واضح.</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed mb-10">
               أساعد العلامات التجارية الطموحة في تحديد لغتها البصرية من خلال التصميم الاستراتيجي والإخراج الفني.
