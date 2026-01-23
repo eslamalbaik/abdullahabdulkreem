@@ -31,29 +31,51 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-4xl"
-          >
-            <h1 className="font-serif font-medium tracking-tight mb-8">
-              <span className="block text-6xl md:text-8xl leading-[1.1]">نحوّل فكرتك</span>
-              <span className="block text-4xl md:text-5xl leading-[1.2] mt-2">إلى نظام بصري واضح.</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed mb-10">
-              أساعد العلامات التجارية الطموحة في تحديد لغتها البصرية من خلال التصميم الاستراتيجي والإخراج الفني.
-            </p>
-            
-            <div className="flex gap-6">
-              <Link href="/portfolio" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-primary pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-all" data-testid="link-portfolio">
-                شاهد أعمالي <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-              </Link>
-              <Link href="/contact" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-transparent pb-1 hover:border-primary transition-all" data-testid="link-contact">
-                تواصل معي
-              </Link>
-            </div>
-          </motion.div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="max-w-xl"
+            >
+              <h1 className="font-serif font-medium tracking-tight mb-8">
+                <span className="block text-5xl md:text-7xl leading-[1.1]">نحوّل فكرتك</span>
+                <span className="block text-3xl md:text-4xl leading-[1.2] mt-2">إلى نظام بصري واضح.</span>
+              </h1>
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed mb-10">
+                أساعد العلامات التجارية الطموحة في تحديد لغتها البصرية من خلال التصميم الاستراتيجي والإخراج الفني.
+              </p>
+              
+              <div className="flex gap-6">
+                <Link href="/portfolio" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-primary pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-all" data-testid="link-portfolio">
+                  شاهد أعمالي <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                </Link>
+                <Link href="/contact" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-transparent pb-1 hover:border-primary transition-all" data-testid="link-contact">
+                  تواصل معي
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+              animate={{ opacity: 1, scale: 1, rotate: -3 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+              className="hidden md:flex justify-center"
+            >
+              <div className="relative w-80 h-80 lg:w-96 lg:h-96">
+                <div 
+                  className="w-full h-full overflow-hidden shadow-2xl border-4 border-primary/20"
+                  style={{ transform: "rotate(-3deg)" }}
+                >
+                  <img 
+                    src="/profile.png" 
+                    alt="صورتي"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
