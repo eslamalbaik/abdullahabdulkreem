@@ -20,15 +20,7 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="/hero-texture.png" 
-            alt="خلفية" 
-            className="w-full h-full object-cover opacity-20 dark:opacity-10"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-        </div>
+      <section className="relative min-h-[90vh] flex items-center pt-20 bg-background">
 
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -57,22 +49,17 @@ export default function Home() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
-              animate={{ opacity: 1, scale: 1, rotate: -3 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
               className="hidden md:flex justify-center"
             >
-              <div className="relative w-80 h-80 lg:w-96 lg:h-96">
-                <div 
-                  className="w-full h-full overflow-hidden shadow-2xl border-4 border-primary/20"
-                  style={{ transform: "rotate(-3deg)" }}
-                >
-                  <img 
-                    src="/profile.png" 
-                    alt="صورتي"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              <div className="w-80 h-80 lg:w-96 lg:h-96 overflow-hidden shadow-2xl border-4 border-primary/20">
+                <img 
+                  src="/profile.png" 
+                  alt="صورتي"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </motion.div>
           </div>
