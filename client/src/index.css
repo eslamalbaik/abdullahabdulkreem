@@ -24,8 +24,8 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Noto Kufi Arabic', sans-serif;
+  --font-serif: 'Noto Naskh Arabic', serif;
   
   --radius-sm: 0rem;
   --radius-md: 0rem;
@@ -34,9 +34,8 @@
 }
 
 :root {
-  /* Elegant, High-Contrast Monochrome Theme */
-  --background: 0 0% 98%;      /* Very light grey/white */
-  --foreground: 0 0% 10%;      /* Soft Black */
+  --background: 0 0% 98%;
+  --foreground: 0 0% 10%;
 
   --card: 0 0% 100%;
   --card-foreground: 0 0% 10%;
@@ -44,16 +43,16 @@
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 10%;
 
-  --primary: 0 0% 10%;         /* Black buttons */
+  --primary: 0 0% 10%;
   --primary-foreground: 0 0% 98%;
 
-  --secondary: 0 0% 94%;       /* Light grey accents */
+  --secondary: 0 0% 94%;
   --secondary-foreground: 0 0% 10%;
 
   --muted: 0 0% 94%;
   --muted-foreground: 0 0% 45%;
 
-  --accent: 30 15% 90%;        /* Very subtle warm beige for hover states */
+  --accent: 30 15% 90%;
   --accent-foreground: 0 0% 10%;
 
   --destructive: 0 84.2% 60.2%;
@@ -63,7 +62,7 @@
   --input: 0 0% 90%;
   --ring: 0 0% 10%;
 
-  --radius: 0rem; /* Sharp corners for editorial look */
+  --radius: 0rem;
 }
 
 .dark {
@@ -99,6 +98,9 @@
 @layer base {
   * {
     @apply border-border;
+  }
+  html {
+    direction: rtl;
   }
   body {
     @apply font-sans antialiased bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
