@@ -1,9 +1,22 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
-import { projects, products } from "@/lib/data";
+import { useQuery } from "@tanstack/react-query";
+import { fetchFeaturedProjects, fetchProducts } from "@/lib/api";
 
 export default function Home() {
+  const { data: projects = [], isLoading: projectsLoading } = useQuery({
+    queryKey: ["featuredProjects"],
+    queryFn: fetchFeaturedProjects,
+  });
+
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+  });
+
+  const products = allProducts.slice(0, 3);
+
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -34,12 +47,12 @@ export default function Home() {
             
             <div className="flex gap-6">
               <Link href="/portfolio">
-                <a className="group inline-flex items-center gap-2 text-lg font-medium border-b border-primary pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-all">
+                <a className="group inline-flex items-center gap-2 text-lg font-medium border-b border-primary pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-all" data-testid="link-portfolio">
                   View Work <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Link>
               <Link href="/contact">
-                <a className="group inline-flex items-center gap-2 text-lg font-medium border-b border-transparent pb-1 hover:border-primary transition-all">
+                <a className="group inline-flex items-center gap-2 text-lg font-medium border-b border-transparent pb-1 hover:border-primary transition-all" data-testid="link-contact">
                   Get in Touch
                 </a>
               </Link>
@@ -58,33 +71,46 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-x-12 gap-y-20">
-            {projects.slice(0, 2).map((project, i) => (
-              <motion.div 
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
-                className="group cursor-pointer"
-              >
-                <div className="aspect-[4/3] overflow-hidden mb-6 bg-secondary/50">
-                  <img 
-                    src={project.image} 
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+          {projectsLoading ? (
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-20">
+              {[1, 2].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-[4/3] bg-secondary/50 mb-6" />
+                  <div className="h-8 bg-secondary/50 w-2/3 mb-2" />
+                  <div className="h-4 bg-secondary/50 w-1/3" />
                 </div>
-                <div className="flex justify-between items-start border-t border-border pt-4">
-                  <div>
-                    <h3 className="text-2xl font-serif mb-1 group-hover:underline decoration-1 underline-offset-4">{project.title}</h3>
-                    <p className="text-muted-foreground">{project.category}</p>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-x-12 gap-y-20">
+              {projects.slice(0, 2).map((project, i) => (
+                <motion.div 
+                  key={project.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.2 }}
+                  className="group cursor-pointer"
+                  data-testid={`project-${project.id}`}
+                >
+                  <div className="aspect-[4/3] overflow-hidden mb-6 bg-secondary/50">
+                    <img 
+                      src={project.image} 
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
                   </div>
-                  <span className="text-muted-foreground font-mono text-sm">{project.year}</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                  <div className="flex justify-between items-start border-t border-border pt-4">
+                    <div>
+                      <h3 className="text-2xl font-serif mb-1 group-hover:underline decoration-1 underline-offset-4">{project.title}</h3>
+                      <p className="text-muted-foreground">{project.category}</p>
+                    </div>
+                    <span className="text-muted-foreground font-mono text-sm">{project.year}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -98,26 +124,38 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <div key={product.id} className="group bg-background p-4 border border-border/50 hover:border-primary/20 transition-colors">
-                <div className="aspect-square overflow-hidden bg-secondary mb-4">
-                  <img 
-                    src={product.image} 
-                    alt={product.title} 
-                    className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity" 
-                  />
+          {productsLoading ? (
+            <div className="grid md:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-square bg-secondary mb-4" />
+                  <div className="h-4 bg-secondary w-1/3 mb-2" />
+                  <div className="h-6 bg-secondary w-2/3" />
                 </div>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1 block">{product.category}</span>
-                    <h4 className="text-lg font-medium leading-snug">{product.title}</h4>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {products.map((product) => (
+                <div key={product.id} className="group bg-background p-4 border border-border/50 hover:border-primary/20 transition-colors" data-testid={`product-${product.id}`}>
+                  <div className="aspect-square overflow-hidden bg-secondary mb-4">
+                    <img 
+                      src={product.image} 
+                      alt={product.title} 
+                      className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity" 
+                    />
                   </div>
-                  <span className="font-mono">${product.price}</span>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1 block">{product.category}</span>
+                      <h4 className="text-lg font-medium leading-snug">{product.title}</h4>
+                    </div>
+                    <span className="font-mono">${product.price}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
