@@ -1,0 +1,51 @@
+import { motion } from "framer-motion";
+import { products } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+
+export default function Shop() {
+  const templates = products.filter(p => p.category === "Templates");
+
+  return (
+    <div className="pt-32 pb-24 container mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="mb-16 text-center max-w-2xl mx-auto"
+      >
+        <h1 className="text-5xl font-serif mb-6">Shop</h1>
+        <p className="text-lg text-muted-foreground">
+          Digital tools and templates to help you streamline your design process and elevate your client deliverables.
+        </p>
+      </motion.div>
+
+      <div className="grid md:grid-cols-3 gap-10">
+        {templates.map((product, i) => (
+          <motion.div 
+            key={product.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="group flex flex-col"
+          >
+            <div className="aspect-[4/5] bg-secondary mb-6 relative overflow-hidden">
+              <img 
+                src={product.image} 
+                alt={product.title}
+                className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+              <div className="absolute bottom-4 left-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <Button className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg">
+                  Add to Cart — ${product.price}
+                </Button>
+              </div>
+            </div>
+            <h3 className="text-xl font-serif mb-1">{product.title}</h3>
+            <p className="text-muted-foreground text-sm mb-3">Professional Template</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
