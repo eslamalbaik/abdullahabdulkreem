@@ -15,8 +15,10 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-serif font-bold tracking-tighter hover:opacity-80 transition-opacity">
-          ELENA GRID
+        <Link href="/">
+          <a className="text-2xl font-serif font-bold tracking-tighter hover:opacity-80 transition-opacity">
+            ELENA GRID
+          </a>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -36,9 +38,10 @@ export default function Navbar() {
           ))}
         </div>
 
+        {/* Mobile Menu Placeholder - keeping it simple for now */}
         <div className="md:hidden">
-          <Link href="/menu" className="text-sm font-medium">
-            MENU
+          <Link href="/menu">
+            <a className="text-sm font-medium">MENU</a>
           </Link>
         </div>
       </div>
