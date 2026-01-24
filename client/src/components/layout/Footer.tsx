@@ -110,38 +110,38 @@ export default function Footer() {
       <div className="container mx-auto px-6">
         {isHomePage && (
           <div className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <h4 className="font-serif font-semibold text-xl">قالوا عن عبدالله</h4>
-              <div className="flex gap-2">
-                <button 
-                  onClick={prevSlide}
-                  className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
-                  data-testid="btn-prev-testimonial"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={nextSlide}
-                  className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
-                  data-testid="btn-next-testimonial"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
+            <h4 className="font-serif font-semibold text-xl mb-6 text-center">قالوا عن عبدالله</h4>
             
-            <div className="grid md:grid-cols-3 gap-4">
-              {visibleTestimonials.map((testimonial, index) => (
-                <div key={currentIndex + index} className="bg-background/50 p-5 rounded-lg border border-border/50">
-                  <div className="flex items-center gap-1 mb-3">
-                    <span className="text-yellow-500">{"★".repeat(testimonial.rating)}</span>
+            <div className="relative flex items-center">
+              <button 
+                onClick={prevSlide}
+                className="absolute right-0 md:-right-6 z-10 p-3 rounded-full border border-border bg-background hover:bg-primary hover:text-white transition-colors shadow-lg"
+                data-testid="btn-prev-testimonial"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+              
+              <div className="grid md:grid-cols-3 gap-4 mx-12 md:mx-16 flex-1">
+                {visibleTestimonials.map((testimonial, index) => (
+                  <div key={currentIndex + index} className="bg-background/50 p-5 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-1 mb-3">
+                      <span className="text-yellow-500">{"★".repeat(testimonial.rating)}</span>
+                    </div>
+                    <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+                      "{testimonial.text}"
+                    </p>
+                    <p className="text-xs text-foreground font-medium">— {testimonial.author}، {testimonial.role}</p>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                    "{testimonial.text}"
-                  </p>
-                  <p className="text-xs text-foreground font-medium">— {testimonial.author}، {testimonial.role}</p>
-                </div>
-              ))}
+                ))}
+              </div>
+              
+              <button 
+                onClick={nextSlide}
+                className="absolute left-0 md:-left-6 z-10 p-3 rounded-full border border-border bg-background hover:bg-primary hover:text-white transition-colors shadow-lg"
+                data-testid="btn-next-testimonial"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
             </div>
           </div>
         )}
