@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, ChevronLeft, ChevronRight, Mail, CheckCircle } from "lucide-react";
 
 const testimonials = [
@@ -61,22 +62,21 @@ export default function Footer() {
   
   const isHomePage = location === "/";
   
-  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
+  const getVisibleTestimonials = () => {
+    const len = testimonials.length;
+    const prev = (currentIndex - 1 + len) % len;
+    const next = (currentIndex + 1) % len;
+    return [testimonials[prev], testimonials[currentIndex], testimonials[next]];
+  };
+  
+  const visibleTestimonials = getVisibleTestimonials();
   
   const nextSlide = () => {
-    if (currentIndex + 3 < testimonials.length) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setCurrentIndex(0);
-    }
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
   
   const prevSlide = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } else {
-      setCurrentIndex(testimonials.length - 3);
-    }
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   const validateEmail = (email: string) => {
@@ -122,27 +122,39 @@ export default function Footer() {
               </button>
               
               <div className="flex items-center justify-center gap-4 mx-12 md:mx-16 flex-1">
-                {visibleTestimonials.map((testimonial, index) => {
-                  const isCenter = index === 1;
-                  return (
-                    <div 
-                      key={currentIndex + index} 
-                      className={`bg-background/50 rounded-xl border border-border/50 transition-all duration-300 ${
-                        isCenter 
-                          ? 'p-6 md:p-8 scale-105 z-10 shadow-xl flex-1 max-w-md' 
-                          : 'p-4 md:p-5 scale-90 opacity-60 blur-[1px] hidden md:block flex-1 max-w-xs'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1 mb-3">
-                        <span className={`text-yellow-500 ${isCenter ? 'text-lg' : 'text-sm'}`}>{"★".repeat(testimonial.rating)}</span>
-                      </div>
-                      <p className={`text-muted-foreground leading-relaxed mb-4 ${isCenter ? 'text-base md:text-lg' : 'text-sm'}`}>
-                        "{testimonial.text}"
-                      </p>
-                      <p className={`text-foreground font-medium ${isCenter ? 'text-sm' : 'text-xs'}`}>— {testimonial.author}، {testimonial.role}</p>
-                    </div>
-                  );
-                })}
+                <AnimatePresence mode="popLayout">
+                  {visibleTestimonials.map((testimonial, index) => {
+                    const isCenter = index === 1;
+                    return (
+                      <motion.div 
+                        key={testimonial.author}
+                        layout
+                        initial={{ opacity: 0, scale: 0.8, x: index === 0 ? 100 : index === 2 ? -100 : 0 }}
+                        animate={{ 
+                          opacity: isCenter ? 1 : 0.6, 
+                          scale: isCenter ? 1.05 : 0.9,
+                          x: 0,
+                          filter: isCenter ? 'blur(0px)' : 'blur(2px)'
+                        }}
+                        exit={{ opacity: 0, scale: 0.8, x: index === 0 ? -100 : index === 2 ? 100 : 0 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        className={`bg-background/50 rounded-xl border border-border/50 ${
+                          isCenter 
+                            ? 'p-6 md:p-8 z-10 shadow-xl flex-1 max-w-md' 
+                            : 'p-4 md:p-5 hidden md:block flex-1 max-w-xs'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1 mb-3">
+                          <span className={`text-yellow-500 ${isCenter ? 'text-lg' : 'text-sm'}`}>{"★".repeat(testimonial.rating)}</span>
+                        </div>
+                        <p className={`text-muted-foreground leading-relaxed mb-4 ${isCenter ? 'text-base md:text-lg' : 'text-sm'}`}>
+                          "{testimonial.text}"
+                        </p>
+                        <p className={`text-foreground font-medium ${isCenter ? 'text-sm' : 'text-xs'}`}>— {testimonial.author}، {testimonial.role}</p>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
               
               <button 
