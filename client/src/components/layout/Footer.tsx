@@ -25,10 +25,9 @@ export default function Footer() {
           <div>
             <h4 className="font-serif font-semibold mb-4">تابعني</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">انستغرام</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">تويتر</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">لينكدإن</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">بيهانس</a></li>
+              <li><a href="https://www.instagram.com/a21_des/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">انستغرام</a></li>
+              <li><a href="https://x.com/A21_Des" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">اكس / تويتر</a></li>
+              <li><a href="https://www.behance.net/abdullahslwmh1" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">بيهانس</a></li>
             </ul>
           </div>
         </div>
