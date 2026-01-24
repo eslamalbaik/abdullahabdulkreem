@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Instagram, ChevronLeft, ChevronRight, Mail, CheckCircle } from "lucide-react";
 
 const testimonials = [
@@ -51,11 +52,14 @@ function BehanceIcon({ className }: { className?: string }) {
 }
 
 export default function Footer() {
+  const [location] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const isHomePage = location === "/";
   
   const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
   
@@ -104,41 +108,43 @@ export default function Footer() {
   return (
     <footer className="bg-secondary/30 pt-20 pb-10 border-t border-border mt-auto">
       <div className="container mx-auto px-6">
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-6">
-            <h4 className="font-serif font-semibold text-xl">قالوا عن عبدالله</h4>
-            <div className="flex gap-2">
-              <button 
-                onClick={prevSlide}
-                className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
-                data-testid="btn-prev-testimonial"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={nextSlide}
-                className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
-                data-testid="btn-next-testimonial"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+        {isHomePage && (
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h4 className="font-serif font-semibold text-xl">قالوا عن عبدالله</h4>
+              <div className="flex gap-2">
+                <button 
+                  onClick={prevSlide}
+                  className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
+                  data-testid="btn-prev-testimonial"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={nextSlide}
+                  className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
+                  data-testid="btn-next-testimonial"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4">
+              {visibleTestimonials.map((testimonial, index) => (
+                <div key={currentIndex + index} className="bg-background/50 p-5 rounded-lg border border-border/50">
+                  <div className="flex items-center gap-1 mb-3">
+                    <span className="text-yellow-500">{"★".repeat(testimonial.rating)}</span>
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+                    "{testimonial.text}"
+                  </p>
+                  <p className="text-xs text-foreground font-medium">— {testimonial.author}، {testimonial.role}</p>
+                </div>
+              ))}
             </div>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-4">
-            {visibleTestimonials.map((testimonial, index) => (
-              <div key={currentIndex + index} className="bg-background/50 p-5 rounded-lg border border-border/50">
-                <div className="flex items-center gap-1 mb-3">
-                  <span className="text-yellow-500">{"★".repeat(testimonial.rating)}</span>
-                </div>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                  "{testimonial.text}"
-                </p>
-                <p className="text-xs text-foreground font-medium">— {testimonial.author}، {testimonial.role}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-12 mb-16">
           <div>
