@@ -35,7 +35,8 @@ export default function Home() {
                 <span className="block text-5xl md:text-6xl leading-[1.2] mt-2">إلى نظام بصري واضح.</span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed mb-10">
-                أساعد العلامات التجارية الطموحة في تحديد لغتها البصرية من خلال التصميم الاستراتيجي والإخراج الفني.
+                أساعد العلامات التجارية الطموحة في تحديد لغتها البصرية<br />
+                من خلال التصميم الاستراتيجي والإخراج الفني.
               </p>
               
               <div className="flex gap-6">
