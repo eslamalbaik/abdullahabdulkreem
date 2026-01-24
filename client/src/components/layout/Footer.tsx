@@ -35,7 +35,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border/50 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} إيلينا غريد. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} عبدالله عبدالكريم. جميع الحقوق محفوظة.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <a href="#" className="hover:text-foreground">سياسة الخصوصية</a>
             <a href="#" className="hover:text-foreground">شروط الاستخدام</a>
