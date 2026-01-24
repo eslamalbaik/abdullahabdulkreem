@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Instagram, ChevronLeft, ChevronRight } from "lucide-react";
+import { Instagram, ChevronLeft, ChevronRight, Mail, CheckCircle } from "lucide-react";
 
 const testimonials = [
   {
@@ -52,6 +52,10 @@ function BehanceIcon({ className }: { className?: string }) {
 
 export default function Footer() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
   
@@ -69,6 +73,32 @@ export default function Footer() {
     } else {
       setCurrentIndex(testimonials.length - 3);
     }
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError("");
+    
+    if (!email.trim()) {
+      setEmailError("يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      setEmailError("يرجى إدخال بريد إلكتروني صحيح");
+      return;
+    }
+    
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsLoading(false);
+    setIsSubscribed(true);
+    setEmail("");
   };
 
   return (
@@ -127,6 +157,50 @@ export default function Footer() {
                 <BehanceIcon className="w-6 h-6" />
               </a>
             </div>
+          </div>
+          
+          <div>
+            <h4 className="font-serif font-semibold text-xl mb-4">اشترك في النشرة البريدية</h4>
+            <p className="text-muted-foreground mb-6">
+              احصل على نصائح في التصميم والهوية البصرية مباشرة في بريدك الإلكتروني.
+            </p>
+            
+            {isSubscribed ? (
+              <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <p className="text-green-600">شكراً لاشتراكك! سنتواصل معك قريباً.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="space-y-3">
+                <div className="relative">
+                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <input
+                    type="email"
+                    placeholder="بريدك الإلكتروني"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError("");
+                    }}
+                    className={`w-full pr-10 pl-4 py-3 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
+                      emailError ? "border-red-500" : "border-border"
+                    }`}
+                    data-testid="input-newsletter-email"
+                  />
+                </div>
+                {emailError && (
+                  <p className="text-red-500 text-sm">{emailError}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  data-testid="btn-subscribe-newsletter"
+                >
+                  {isLoading ? "جاري الاشتراك..." : "اشترك الآن"}
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
