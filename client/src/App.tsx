@@ -10,6 +10,7 @@ import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import Identities from "@/pages/Identities";
 import IdentityDetail from "@/pages/IdentityDetail";
+import ProjectDetail from "@/pages/ProjectDetail";
 import Admin from "@/pages/Admin";
 import Shop from "@/pages/Shop";
 import Courses from "@/pages/Courses";
@@ -21,6 +22,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/portfolio" component={Portfolio} />
+      <Route path="/portfolio/:id" component={ProjectDetail} />
       <Route path="/identities" component={Identities} />
       <Route path="/identities/:id" component={IdentityDetail} />
       <Route path="/shop" component={Shop} />
