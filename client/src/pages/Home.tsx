@@ -51,13 +51,20 @@ export default function Home() {
                 من خلال التصميم الاستراتيجي والإخراج الفني.
               </p>
               
-              <div className="flex gap-6">
+              <div className="flex gap-6 items-center">
                 <Link href="/portfolio" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-primary pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-all" data-testid="link-portfolio">
                   شاهد أعمالي <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </Link>
                 <Link href="/contact" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-transparent pb-1 hover:border-primary transition-all" data-testid="link-contact">
                   تواصل معي
                 </Link>
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                  </span>
+                  <span className="text-sm font-medium text-muted-foreground">متاح لمشاريع مختارة</span>
+                </div>
               </div>
             </motion.div>
 
@@ -65,15 +72,8 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="hidden md:flex flex-col items-center"
+              className="hidden md:flex justify-center"
             >
-              <div className="flex items-center gap-2 mb-4">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span className="text-sm font-medium text-muted-foreground">متاح لمشاريع مختارة</span>
-              </div>
               <div className="w-80 h-80 lg:w-96 lg:h-96 overflow-hidden shadow-2xl border-4 border-primary/20 rounded-3xl">
                 <img 
                   src="/profile.png" 
