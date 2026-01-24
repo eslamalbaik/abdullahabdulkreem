@@ -167,7 +167,7 @@ export default function ProjectDetail() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="w-full aspect-video overflow-hidden bg-secondary/50 rounded-xl"
+                  className="w-full aspect-video overflow-hidden bg-secondary/50 rounded-3xl"
                 >
                   <img
                     src={img}
