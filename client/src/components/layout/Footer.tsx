@@ -1,4 +1,3 @@
-import { Link } from "wouter";
 import { Instagram } from "lucide-react";
 
 function XIcon({ className }: { className?: string }) {
@@ -40,14 +39,28 @@ export default function Footer() {
             </div>
           </div>
           
-          <div>
-            <h4 className="font-serif font-semibold mb-4">خريطة الموقع</h4>
-            <ul className="space-y-3">
-              <li><Link href="/portfolio" className="text-muted-foreground hover:text-foreground transition-colors">أعمالي</Link></li>
-              <li><Link href="/shop" className="text-muted-foreground hover:text-foreground transition-colors">المتجر</Link></li>
-              <li><Link href="/courses" className="text-muted-foreground hover:text-foreground transition-colors">الدورات</Link></li>
-              <li><Link href="/blog" className="text-muted-foreground hover:text-foreground transition-colors">المدونة</Link></li>
-            </ul>
+          <div className="col-span-2">
+            <h4 className="font-serif font-semibold mb-4">قالوا عن عبدالله</h4>
+            <div className="space-y-4">
+              <div className="bg-background/50 p-4 rounded-lg border border-border/50">
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-yellow-500">★★★★★</span>
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-2">
+                  "تعاملت مع عبدالله في بناء هوية مشروعي وكانت النتيجة أكثر من رائعة. احترافية عالية وفهم عميق لاحتياجات العميل."
+                </p>
+                <p className="text-xs text-foreground font-medium">— محمد العتيبي، مؤسس مقهى الفنجان</p>
+              </div>
+              <div className="bg-background/50 p-4 rounded-lg border border-border/50">
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-yellow-500">★★★★★</span>
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-2">
+                  "عبدالله مصمم مبدع ويهتم بأدق التفاصيل. الهوية البصرية اللي صممها لنا رفعت مستوى علامتنا التجارية بشكل ملحوظ."
+                </p>
+                <p className="text-xs text-foreground font-medium">— سارة الحربي، مديرة شركة نمو</p>
+              </div>
+            </div>
           </div>
         </div>
 
