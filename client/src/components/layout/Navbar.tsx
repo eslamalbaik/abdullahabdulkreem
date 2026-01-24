@@ -5,7 +5,9 @@ export default function Navbar() {
   const [location] = useLocation();
 
   const links = [
+    { href: "/", label: "الرئيسية" },
     { href: "/portfolio", label: "أعمالي" },
+    { href: "/identities", label: "هويات بصرية" },
     { href: "/shop", label: "المتجر" },
     { href: "/courses", label: "الدورات" },
     { href: "/contact", label: "تواصل" },

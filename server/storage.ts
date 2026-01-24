@@ -1,11 +1,12 @@
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import {
-  users, projects, products, articles, contacts,
+  users, projects, products, articles, identities, contacts,
   type User, type InsertUser,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
+  type Identity, type InsertIdentity,
   type Contact, type InsertContact
 } from "@shared/schema";
 
@@ -24,6 +25,9 @@ export interface IStorage {
   
   getArticles(): Promise<Article[]>;
   getArticleBySlug(slug: string): Promise<Article | undefined>;
+  
+  getIdentities(): Promise<Identity[]>;
+  getIdentityById(id: number): Promise<Identity | undefined>;
   
   createContact(contact: InsertContact): Promise<Contact>;
 }
@@ -77,6 +81,15 @@ export class DatabaseStorage implements IStorage {
   async getArticleBySlug(slug: string): Promise<Article | undefined> {
     const [article] = await db.select().from(articles).where(eq(articles.slug, slug));
     return article;
+  }
+
+  async getIdentities(): Promise<Identity[]> {
+    return db.select().from(identities).orderBy(identities.createdAt);
+  }
+
+  async getIdentityById(id: number): Promise<Identity | undefined> {
+    const [identity] = await db.select().from(identities).where(eq(identities.id, id));
+    return identity;
   }
 
   async createContact(insertContact: InsertContact): Promise<Contact> {

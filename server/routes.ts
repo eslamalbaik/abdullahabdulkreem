@@ -86,6 +86,29 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/identities", async (_req, res) => {
+    try {
+      const identities = await storage.getIdentities();
+      res.json(identities);
+    } catch (error) {
+      console.error("Error fetching identities:", error);
+      res.status(500).json({ error: "Failed to fetch identities" });
+    }
+  });
+
+  app.get("/api/identities/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const identity = await storage.getIdentityById(id);
+      if (!identity) {
+        return res.status(404).json({ error: "Identity not found" });
+      }
+      res.json(identity);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch identity" });
+    }
+  });
+
   app.post("/api/contact", async (req, res) => {
     try {
       const result = insertContactSchema.safeParse(req.body);
