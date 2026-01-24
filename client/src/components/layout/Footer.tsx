@@ -1,4 +1,38 @@
-import { Instagram } from "lucide-react";
+import { useState } from "react";
+import { Instagram, ChevronLeft, ChevronRight } from "lucide-react";
+
+const testimonials = [
+  {
+    rating: 5,
+    text: "تعاملت مع عبدالله في بناء هوية مشروعي وكانت النتيجة أكثر من رائعة. احترافية عالية وفهم عميق لاحتياجات العميل.",
+    author: "محمد العتيبي",
+    role: "مؤسس مقهى الفنجان"
+  },
+  {
+    rating: 5,
+    text: "عبدالله مصمم مبدع ويهتم بأدق التفاصيل. الهوية البصرية اللي صممها لنا رفعت مستوى علامتنا التجارية بشكل ملحوظ.",
+    author: "سارة الحربي",
+    role: "مديرة شركة نمو"
+  },
+  {
+    rating: 5,
+    text: "من أفضل المصممين اللي تعاملت معهم. يفهم رؤيتك ويحولها لهوية بصرية متكاملة تعكس جوهر العلامة.",
+    author: "خالد الشمري",
+    role: "مؤسس متجر أصيل"
+  },
+  {
+    rating: 5,
+    text: "العمل مع عبدالله كان تجربة ممتازة. التزام بالمواعيد وجودة عالية في التصميم.",
+    author: "نورة القحطاني",
+    role: "صاحبة مشروع زهرة"
+  },
+  {
+    rating: 5,
+    text: "أنصح بشدة بالتعامل مع عبدالله. هوية علامتنا التجارية الآن أقوى وأوضح بفضل عمله المميز.",
+    author: "فهد المالكي",
+    role: "مدير شركة تقنية"
+  }
+];
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -17,11 +51,67 @@ function BehanceIcon({ className }: { className?: string }) {
 }
 
 export default function Footer() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const visibleTestimonials = testimonials.slice(currentIndex, currentIndex + 3);
+  
+  const nextSlide = () => {
+    if (currentIndex + 3 < testimonials.length) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      setCurrentIndex(0);
+    }
+  };
+  
+  const prevSlide = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    } else {
+      setCurrentIndex(testimonials.length - 3);
+    }
+  };
+
   return (
     <footer className="bg-secondary/30 pt-20 pb-10 border-t border-border mt-auto">
       <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-4 gap-12 mb-16">
-          <div className="col-span-2">
+        <div className="mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <h4 className="font-serif font-semibold text-xl">قالوا عن عبدالله</h4>
+            <div className="flex gap-2">
+              <button 
+                onClick={prevSlide}
+                className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
+                data-testid="btn-prev-testimonial"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={nextSlide}
+                className="p-2 rounded-full border border-border hover:bg-primary hover:text-white transition-colors"
+                data-testid="btn-next-testimonial"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-4">
+            {visibleTestimonials.map((testimonial, index) => (
+              <div key={currentIndex + index} className="bg-background/50 p-5 rounded-lg border border-border/50">
+                <div className="flex items-center gap-1 mb-3">
+                  <span className="text-yellow-500">{"★".repeat(testimonial.rating)}</span>
+                </div>
+                <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+                  "{testimonial.text}"
+                </p>
+                <p className="text-xs text-foreground font-medium">— {testimonial.author}، {testimonial.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12 mb-16">
+          <div>
             <img src="/logo.png" alt="الشعار" className="h-24 mb-6" />
             <p className="text-muted-foreground max-w-sm leading-relaxed">
               مصمم هويات بصرية مختص في بناء وتطوير العلامات التجارية، أعمل على تحويل الأفكار إلى أنظمة بصرية واضحة تخدم أهداف العمل وتعكس جوهر العلامة. أركّز على التحليل والاستراتيجية قبل التصميم لضمان هوية قابلة للتطبيق والنمو.
@@ -36,30 +126,6 @@ export default function Footer() {
               <a href="https://www.behance.net/abdullahslwmh1" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <BehanceIcon className="w-6 h-6" />
               </a>
-            </div>
-          </div>
-          
-          <div className="col-span-2">
-            <h4 className="font-serif font-semibold mb-4">قالوا عن عبدالله</h4>
-            <div className="space-y-4">
-              <div className="bg-background/50 p-4 rounded-lg border border-border/50">
-                <div className="flex items-center gap-1 mb-2">
-                  <span className="text-yellow-500">★★★★★</span>
-                </div>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-2">
-                  "تعاملت مع عبدالله في بناء هوية مشروعي وكانت النتيجة أكثر من رائعة. احترافية عالية وفهم عميق لاحتياجات العميل."
-                </p>
-                <p className="text-xs text-foreground font-medium">— محمد العتيبي، مؤسس مقهى الفنجان</p>
-              </div>
-              <div className="bg-background/50 p-4 rounded-lg border border-border/50">
-                <div className="flex items-center gap-1 mb-2">
-                  <span className="text-yellow-500">★★★★★</span>
-                </div>
-                <p className="text-muted-foreground text-sm leading-relaxed mb-2">
-                  "عبدالله مصمم مبدع ويهتم بأدق التفاصيل. الهوية البصرية اللي صممها لنا رفعت مستوى علامتنا التجارية بشكل ملحوظ."
-                </p>
-                <p className="text-xs text-foreground font-medium">— سارة الحربي، مديرة شركة نمو</p>
-              </div>
             </div>
           </div>
         </div>
