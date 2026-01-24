@@ -1,96 +1,78 @@
-import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+// shared/schema.ts
 import { z } from "zod";
 
-export * from "./models/auth";
-
-export const projects = pgTable("projects", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull(),
-  image: text("image").notNull(),
-  year: text("year").notNull(),
-  description: text("description"),
-  featured: boolean("featured").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// ===== Projects =====
+export const projectSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  category: z.string(),
+  image: z.string(),
+  year: z.string(),
+  description: z.string().optional(),
+  featured: z.boolean().default(false),
+  createdAt: z.string(),
 });
 
-export const insertProjectSchema = createInsertSchema(projects).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertProject = z.infer<typeof insertProjectSchema>;
-export type Project = typeof projects.$inferSelect;
+export type Project = z.infer<typeof projectSchema>;
+export type InsertProject = Omit<Project, "id" | "createdAt">;
 
-export const products = pgTable("products", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull(),
-  price: integer("price").notNull(),
-  image: text("image").notNull(),
-  description: text("description"),
-  featured: boolean("featured").default(false),
-  stripeProductId: text("stripe_product_id"),
-  stripePriceId: text("stripe_price_id"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// ===== Products =====
+export const productSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  category: z.string(),
+  price: z.number(),
+  image: z.string(),
+  description: z.string().optional(),
+  featured: z.boolean().default(false),
+  stripeProductId: z.string().optional(),
+  stripePriceId: z.string().optional(),
+  createdAt: z.string(),
 });
 
-export const insertProductSchema = createInsertSchema(products).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertProduct = z.infer<typeof insertProductSchema>;
-export type Product = typeof products.$inferSelect;
+export type Product = z.infer<typeof productSchema>;
+export type InsertProduct = Omit<Product, "id" | "createdAt">;
 
-export const articles = pgTable("articles", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  excerpt: text("excerpt").notNull(),
-  content: text("content"),
-  date: text("date").notNull(),
-  readTime: text("read_time").notNull(),
-  published: boolean("published").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// ===== Articles =====
+export const articleSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  slug: z.string(),
+  excerpt: z.string(),
+  content: z.string().optional(),
+  date: z.string(),
+  readTime: z.string(),
+  published: z.boolean().default(false),
+  createdAt: z.string(),
 });
 
-export const insertArticleSchema = createInsertSchema(articles).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertArticle = z.infer<typeof insertArticleSchema>;
-export type Article = typeof articles.$inferSelect;
+export type Article = z.infer<typeof articleSchema>;
+export type InsertArticle = Omit<Article, "id" | "createdAt">;
 
-export const identities = pgTable("identities", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  price: integer("price").notNull(),
-  image: text("image").notNull(),
-  includes: text("includes").array().notNull(),
-  featured: boolean("featured").default(false),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// ===== Identities =====
+export const identitySchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  description: z.string(),
+  price: z.number(),
+  image: z.string(),
+  includes: z.array(z.string()),
+  featured: z.boolean().default(false),
+  createdAt: z.string(),
 });
 
-export const insertIdentitySchema = createInsertSchema(identities).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertIdentity = z.infer<typeof insertIdentitySchema>;
-export type Identity = typeof identities.$inferSelect;
+export type Identity = z.infer<typeof identitySchema>;
+export type InsertIdentity = Omit<Identity, "id" | "createdAt">;
 
-export const contacts = pgTable("contacts", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  projectType: text("project_type").notNull(),
-  message: text("message").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+// ===== Contacts =====
+export const contactSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  projectType: z.string(),
+  message: z.string(),
+  createdAt: z.string(),
 });
 
-export const insertContactSchema = createInsertSchema(contacts).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertContact = z.infer<typeof insertContactSchema>;
-export type Contact = typeof contacts.$inferSelect;
+export type Contact = z.infer<typeof contactSchema>;
+export type InsertContact = Omit<Contact, "id" | "createdAt">;
