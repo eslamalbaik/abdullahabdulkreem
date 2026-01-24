@@ -121,18 +121,28 @@ export default function Footer() {
                 <ChevronRight className="w-6 h-6" />
               </button>
               
-              <div className="grid md:grid-cols-3 gap-4 mx-12 md:mx-16 flex-1">
-                {visibleTestimonials.map((testimonial, index) => (
-                  <div key={currentIndex + index} className="bg-background/50 p-5 rounded-lg border border-border/50">
-                    <div className="flex items-center gap-1 mb-3">
-                      <span className="text-yellow-500">{"★".repeat(testimonial.rating)}</span>
+              <div className="flex items-center justify-center gap-4 mx-12 md:mx-16 flex-1">
+                {visibleTestimonials.map((testimonial, index) => {
+                  const isCenter = index === 1;
+                  return (
+                    <div 
+                      key={currentIndex + index} 
+                      className={`bg-background/50 rounded-xl border border-border/50 transition-all duration-300 ${
+                        isCenter 
+                          ? 'p-6 md:p-8 scale-105 z-10 shadow-xl flex-1 max-w-md' 
+                          : 'p-4 md:p-5 scale-90 opacity-60 blur-[1px] hidden md:block flex-1 max-w-xs'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1 mb-3">
+                        <span className={`text-yellow-500 ${isCenter ? 'text-lg' : 'text-sm'}`}>{"★".repeat(testimonial.rating)}</span>
+                      </div>
+                      <p className={`text-muted-foreground leading-relaxed mb-4 ${isCenter ? 'text-base md:text-lg' : 'text-sm'}`}>
+                        "{testimonial.text}"
+                      </p>
+                      <p className={`text-foreground font-medium ${isCenter ? 'text-sm' : 'text-xs'}`}>— {testimonial.author}، {testimonial.role}</p>
                     </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-                      "{testimonial.text}"
-                    </p>
-                    <p className="text-xs text-foreground font-medium">— {testimonial.author}، {testimonial.role}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               
               <button 
