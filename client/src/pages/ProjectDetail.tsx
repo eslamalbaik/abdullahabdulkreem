@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight, ExternalLink, MapPin, Calendar, Briefcase, Package } from "lucide-react";
 
 interface Project {
   id: number;
@@ -10,6 +10,9 @@ interface Project {
   image: string;
   images?: string[] | null;
   year: string;
+  country?: string;
+  field?: string;
+  package?: string;
   description?: string;
   strategy?: string;
   behanceUrl?: string;
@@ -63,8 +66,6 @@ export default function ProjectDetail() {
     );
   }
 
-  const allImages = [project.image, ...(project.images || [])];
-
   return (
     <div className="pt-32 pb-24">
       <div className="container mx-auto px-6">
@@ -82,15 +83,54 @@ export default function ProjectDetail() {
             العودة للأعمال
           </Link>
 
-          <div className="flex items-center gap-4 mb-4">
-            <span className="text-sm text-muted-foreground">{project.category}</span>
-            <span className="text-sm text-muted-foreground">•</span>
-            <span className="text-sm text-muted-foreground font-mono">{project.year}</span>
-          </div>
-
           <h1 className="text-5xl md:text-6xl font-serif mb-8">{project.title}</h1>
 
-          <div className="aspect-video overflow-hidden bg-secondary/50 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 p-6 bg-secondary/20 rounded-xl">
+            {project.country && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">الدولة</p>
+                  <p className="font-medium">{project.country}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">العام</p>
+                <p className="font-medium">{project.year}</p>
+              </div>
+            </div>
+            {project.field && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Briefcase className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">المجال</p>
+                  <p className="font-medium">{project.field}</p>
+                </div>
+              </div>
+            )}
+            {project.package && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Package className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">الباقة</p>
+                  <p className="font-medium">{project.package}</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="aspect-video overflow-hidden bg-secondary/50 mb-8">
             <img
               src={project.image}
               alt={project.title}
@@ -119,26 +159,23 @@ export default function ProjectDetail() {
           </div>
 
           {project.images && project.images.length > 0 && (
-            <div className="mb-16">
-              <h2 className="text-2xl font-serif mb-8">معرض الصور</h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                {project.images.map((img, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="aspect-[4/3] overflow-hidden bg-secondary/50"
-                  >
-                    <img
-                      src={img}
-                      alt={`${project.title} - صورة ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                    />
-                  </motion.div>
-                ))}
-              </div>
+            <div className="mb-16 space-y-6">
+              {project.images.map((img, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="w-full overflow-hidden bg-secondary/50"
+                >
+                  <img
+                    src={img}
+                    alt={`${project.title} - صورة ${index + 1}`}
+                    className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
+                  />
+                </motion.div>
+              ))}
             </div>
           )}
 
