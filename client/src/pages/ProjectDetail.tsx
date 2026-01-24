@@ -159,7 +159,7 @@ export default function ProjectDetail() {
           </div>
 
           {project.images && project.images.length > 0 && (
-            <div className="mb-16 space-y-6">
+            <div className="mb-16 space-y-6 max-w-[60%] mx-auto">
               {project.images.map((img, index) => (
                 <motion.div
                   key={index}
