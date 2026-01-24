@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/" className="hover:opacity-80 transition-opacity">
-          <img src="/logo.png" alt="الشعار" className="h-10" />
+          <img src="/logo.png" alt="الشعار" className="h-20" />
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

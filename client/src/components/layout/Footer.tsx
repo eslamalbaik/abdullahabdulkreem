@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-2">
-            <img src="/logo.png" alt="الشعار" className="h-12 mb-6" />
+            <img src="/logo.png" alt="الشعار" className="h-24 mb-6" />
             <p className="text-muted-foreground max-w-sm leading-relaxed">
               أصمم هويات بصرية مميزة للعلامات التجارية التي تجرؤ على الاختلاف.
               مقرّي في كوبنهاغن، وأعمل مع عملاء حول العالم.
