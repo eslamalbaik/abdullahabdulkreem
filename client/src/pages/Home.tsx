@@ -3,6 +3,14 @@ import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFeaturedProjects, fetchProducts } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
+
+interface ClientLogo {
+  id: number;
+  name: string;
+  image: string;
+  order: number;
+}
 
 export default function Home() {
   const { data: projects = [], isLoading: projectsLoading } = useQuery({
@@ -13,6 +21,10 @@ export default function Home() {
   const { data: allProducts = [], isLoading: productsLoading } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
+  });
+
+  const { data: clientLogos = [] } = useQuery<ClientLogo[]>({
+    queryKey: ["/api/client-logos"],
   });
 
   const products = allProducts.slice(0, 3);
@@ -68,24 +80,26 @@ export default function Home() {
       </section>
 
       {/* Logo Marquee */}
-      <section className="py-12 bg-secondary/30 overflow-hidden">
-        <div className="relative">
-          <div className="flex animate-marquee-rtl gap-16 whitespace-nowrap">
-            {[...Array(2)].map((_, setIndex) => (
-              <div key={setIndex} className="flex gap-16 items-center shrink-0">
-                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&auto=format" alt="شعار 1" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=80&fit=crop&auto=format" alt="شعار 2" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=200&h=80&fit=crop&auto=format" alt="شعار 3" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&auto=format" alt="شعار 4" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=80&fit=crop&auto=format" alt="شعار 5" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=200&h=80&fit=crop&auto=format" alt="شعار 6" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&auto=format" alt="شعار 7" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=80&fit=crop&auto=format" alt="شعار 8" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
-              </div>
-            ))}
+      {clientLogos.length > 0 && (
+        <section className="py-12 bg-secondary/30 overflow-hidden">
+          <div className="relative">
+            <div className="flex animate-marquee-rtl gap-16 whitespace-nowrap">
+              {[...Array(2)].map((_, setIndex) => (
+                <div key={setIndex} className="flex gap-16 items-center shrink-0">
+                  {clientLogos.map((logo) => (
+                    <img 
+                      key={`${setIndex}-${logo.id}`}
+                      src={logo.image} 
+                      alt={logo.name} 
+                      className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" 
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Featured Work */}
       <section className="py-24 bg-background">

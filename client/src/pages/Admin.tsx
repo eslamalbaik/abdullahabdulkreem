@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette } from "lucide-react";
+import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 interface Project {
@@ -35,7 +35,14 @@ interface Identity {
   featured: boolean;
 }
 
-type Tab = "projects" | "products" | "identities";
+interface ClientLogo {
+  id: number;
+  name: string;
+  image: string;
+  order: number;
+}
+
+type Tab = "projects" | "products" | "identities" | "logos";
 
 export default function Admin() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -59,6 +66,11 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: clientLogos = [] } = useQuery<ClientLogo[]>({
+    queryKey: ["/api/client-logos"],
+    enabled: isAuthenticated,
+  });
+
   const deleteProjectMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/projects/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/projects"] }),
@@ -72,6 +84,11 @@ export default function Admin() {
   const deleteIdentityMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/identities/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/identities"] }),
+  });
+
+  const deleteLogoMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/client-logos/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/client-logos"] }),
   });
 
   if (isLoading) {
@@ -106,6 +123,7 @@ export default function Admin() {
     { id: "projects" as Tab, label: "الأعمال", icon: LayoutGrid },
     { id: "products" as Tab, label: "المنتجات", icon: Package },
     { id: "identities" as Tab, label: "الهويات", icon: Palette },
+    { id: "logos" as Tab, label: "شعارات العملاء", icon: Image },
   ];
 
   const handleDelete = (id: number) => {
@@ -113,6 +131,7 @@ export default function Admin() {
       if (activeTab === "projects") deleteProjectMutation.mutate(id);
       if (activeTab === "products") deleteProductMutation.mutate(id);
       if (activeTab === "identities") deleteIdentityMutation.mutate(id);
+      if (activeTab === "logos") deleteLogoMutation.mutate(id);
     }
   };
 
@@ -169,6 +188,7 @@ export default function Admin() {
             {activeTab === "projects" && "الأعمال"}
             {activeTab === "products" && "المنتجات"}
             {activeTab === "identities" && "الهويات البصرية"}
+            {activeTab === "logos" && "شعارات العملاء"}
           </h2>
           <button
             onClick={handleAdd}
@@ -303,6 +323,52 @@ export default function Admin() {
           </div>
         )}
 
+        {activeTab === "logos" && (
+          <div className="grid gap-4">
+            {clientLogos.map((logo) => (
+              <motion.div
+                key={logo.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
+              >
+                <img
+                  src={logo.image}
+                  alt={logo.name}
+                  className="w-20 h-12 object-contain rounded-lg bg-white p-1"
+                />
+                <div className="flex-1">
+                  <h3 className="font-semibold">{logo.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    الترتيب: {logo.order}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(logo)}
+                    className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid={`button-edit-logo-${logo.id}`}
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(logo.id)}
+                    className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                    data-testid={`button-delete-logo-${logo.id}`}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+            {clientLogos.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                لا توجد شعارات. أضف شعارات عملائك لتظهر في الصفحة الرئيسية.
+              </p>
+            )}
+          </div>
+        )}
+
         {showForm && (
           <AdminForm
             type={activeTab}
@@ -349,6 +415,12 @@ function AdminForm({
         description: item?.description || "",
         featured: item?.featured || false,
       };
+    } else if (type === "logos") {
+      return {
+        name: item?.name || "",
+        image: item?.image || "",
+        order: item?.order || 0,
+      };
     } else {
       return {
         title: item?.title || "",
@@ -363,12 +435,14 @@ function AdminForm({
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      const endpoint = `/api/admin/${type}${isEditing ? `/${item.id}` : ""}`;
+      const apiType = type === "logos" ? "client-logos" : type;
+      const endpoint = `/api/admin/${apiType}${isEditing ? `/${item.id}` : ""}`;
       const method = isEditing ? "PUT" : "POST";
       return apiRequest(method, endpoint, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/${type}`] });
+      const queryKey = type === "logos" ? "/api/client-logos" : `/api/${type}`;
+      queryClient.invalidateQueries({ queryKey: [queryKey] });
       onClose();
     },
   });
@@ -400,20 +474,62 @@ function AdminForm({
           {type === "projects" && "عمل"}
           {type === "products" && "منتج"}
           {type === "identities" && "هوية"}
+          {type === "logos" && "شعار عميل"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">العنوان</label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-              data-testid="input-title"
-            />
-          </div>
+          {type === "logos" ? (
+            <div>
+              <label className="block text-sm font-medium mb-2">اسم العميل</label>
+              <input
+                type="text"
+                value={(formData as any).name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+                data-testid="input-name"
+              />
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium mb-2">العنوان</label>
+              <input
+                type="text"
+                value={(formData as any).title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+                data-testid="input-title"
+              />
+            </div>
+          )}
+
+          {type === "logos" && (
+            <div>
+              <label className="block text-sm font-medium mb-2">الترتيب (رقم)</label>
+              <input
+                type="number"
+                value={(formData as any).order}
+                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                data-testid="input-order"
+              />
+            </div>
+          )}
+
+          {type === "logos" && (
+            <div>
+              <label className="block text-sm font-medium mb-2">رابط الشعار</label>
+              <input
+                type="url"
+                value={(formData as any).image}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+                data-testid="input-logo-image"
+              />
+            </div>
+          )}
 
           {type === "projects" && (
             <>
@@ -496,41 +612,45 @@ function AdminForm({
             </>
           )}
 
-          <div>
-            <label className="block text-sm font-medium mb-2">رابط الصورة</label>
-            <input
-              type="url"
-              value={(formData as any).image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-              data-testid="input-image"
-            />
-          </div>
+          {type !== "logos" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">رابط الصورة</label>
+                <input
+                  type="url"
+                  value={(formData as any).image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                  data-testid="input-image"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-2">الوصف</label>
-            <textarea
-              value={(formData as any).description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
-              data-testid="input-description"
-            />
-          </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">الوصف</label>
+                <textarea
+                  value={(formData as any).description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                  data-testid="input-description"
+                />
+              </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={(formData as any).featured}
-              onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-              className="w-4 h-4 rounded border-border"
-              data-testid="input-featured"
-            />
-            <label htmlFor="featured" className="text-sm font-medium">
-              مميز (يظهر في الصفحة الرئيسية)
-            </label>
-          </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={(formData as any).featured}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                  className="w-4 h-4 rounded border-border"
+                  data-testid="input-featured"
+                />
+                <label htmlFor="featured" className="text-sm font-medium">
+                  مميز (يظهر في الصفحة الرئيسية)
+                </label>
+              </div>
+            </>
+          )}
 
           <div className="flex gap-4 pt-4">
             <button

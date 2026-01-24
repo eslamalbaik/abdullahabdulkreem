@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema } from "@shared/schema";
+import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema } from "@shared/schema";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 
 export async function registerRoutes(
@@ -244,6 +244,57 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting identity:", error);
       res.status(500).json({ error: "Failed to delete identity" });
+    }
+  });
+
+  // Client Logos routes
+  app.get("/api/client-logos", async (_req, res) => {
+    try {
+      const logos = await storage.getClientLogos();
+      res.json(logos);
+    } catch (error) {
+      console.error("Error fetching client logos:", error);
+      res.status(500).json({ error: "Failed to fetch client logos" });
+    }
+  });
+
+  app.post("/api/admin/client-logos", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertClientLogoSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid logo data", details: result.error.issues });
+      }
+      const logo = await storage.createClientLogo(result.data);
+      res.status(201).json(logo);
+    } catch (error) {
+      console.error("Error creating client logo:", error);
+      res.status(500).json({ error: "Failed to create client logo" });
+    }
+  });
+
+  app.put("/api/admin/client-logos/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      const result = insertClientLogoSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid logo data", details: result.error.issues });
+      }
+      const logo = await storage.updateClientLogo(id, result.data);
+      res.json(logo);
+    } catch (error) {
+      console.error("Error updating client logo:", error);
+      res.status(500).json({ error: "Failed to update client logo" });
+    }
+  });
+
+  app.delete("/api/admin/client-logos/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      await storage.deleteClientLogo(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting client logo:", error);
+      res.status(500).json({ error: "Failed to delete client logo" });
     }
   });
 

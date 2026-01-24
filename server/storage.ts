@@ -1,12 +1,13 @@
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import {
-  projects, products, articles, identities, contacts,
+  projects, products, articles, identities, contacts, clientLogos,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
   type Identity, type InsertIdentity,
-  type Contact, type InsertContact
+  type Contact, type InsertContact,
+  type ClientLogo, type InsertClientLogo
 } from "@shared/schema";
 
 export interface IStorage {
@@ -34,6 +35,11 @@ export interface IStorage {
   deleteIdentity(id: number): Promise<void>;
   
   createContact(contact: InsertContact): Promise<Contact>;
+  
+  getClientLogos(): Promise<ClientLogo[]>;
+  createClientLogo(logo: InsertClientLogo): Promise<ClientLogo>;
+  updateClientLogo(id: number, logo: InsertClientLogo): Promise<ClientLogo>;
+  deleteClientLogo(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -126,6 +132,24 @@ export class DatabaseStorage implements IStorage {
   async createContact(insertContact: InsertContact): Promise<Contact> {
     const [contact] = await db.insert(contacts).values(insertContact).returning();
     return contact;
+  }
+
+  async getClientLogos(): Promise<ClientLogo[]> {
+    return db.select().from(clientLogos).orderBy(asc(clientLogos.order));
+  }
+
+  async createClientLogo(insertLogo: InsertClientLogo): Promise<ClientLogo> {
+    const [logo] = await db.insert(clientLogos).values(insertLogo).returning();
+    return logo;
+  }
+
+  async updateClientLogo(id: number, insertLogo: InsertClientLogo): Promise<ClientLogo> {
+    const [logo] = await db.update(clientLogos).set(insertLogo).where(eq(clientLogos.id, id)).returning();
+    return logo;
+  }
+
+  async deleteClientLogo(id: number): Promise<void> {
+    await db.delete(clientLogos).where(eq(clientLogos.id, id));
   }
 }
 

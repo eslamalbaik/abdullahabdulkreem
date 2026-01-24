@@ -89,6 +89,19 @@ export const insertContactSchema = createInsertSchema(contacts).omit({ id: true,
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type Contact = typeof contacts.$inferSelect;
 
+// ===== Client Logos =====
+export const clientLogos = pgTable("client_logos", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  image: text("image").notNull(),
+  order: integer("order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertClientLogoSchema = createInsertSchema(clientLogos).omit({ id: true, createdAt: true });
+export type InsertClientLogo = z.infer<typeof insertClientLogoSchema>;
+export type ClientLogo = typeof clientLogos.$inferSelect;
+
 // ===== Users (for Replit Auth) =====
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),
