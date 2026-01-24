@@ -65,8 +65,15 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-              className="hidden md:flex justify-center"
+              className="hidden md:flex flex-col items-center"
             >
+              <div className="flex items-center gap-2 mb-4">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span className="text-sm font-medium text-muted-foreground">متاح لمشاريع مختارة</span>
+              </div>
               <div className="w-80 h-80 lg:w-96 lg:h-96 overflow-hidden shadow-2xl border-4 border-primary/20 rounded-3xl">
                 <img 
                   src="/profile.png" 
