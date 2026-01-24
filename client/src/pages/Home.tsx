@@ -67,6 +67,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Logo Marquee */}
+      <section className="py-12 bg-secondary/30 overflow-hidden">
+        <div className="relative">
+          <div className="flex animate-marquee-rtl gap-16 whitespace-nowrap">
+            {[...Array(2)].map((_, setIndex) => (
+              <div key={setIndex} className="flex gap-16 items-center shrink-0">
+                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&auto=format" alt="شعار 1" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=80&fit=crop&auto=format" alt="شعار 2" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=200&h=80&fit=crop&auto=format" alt="شعار 3" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&auto=format" alt="شعار 4" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=80&fit=crop&auto=format" alt="شعار 5" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=200&h=80&fit=crop&auto=format" alt="شعار 6" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop&auto=format" alt="شعار 7" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+                <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=200&h=80&fit=crop&auto=format" alt="شعار 8" className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Featured Work */}
       <section className="py-24 bg-background">
         <div className="container mx-auto px-6">

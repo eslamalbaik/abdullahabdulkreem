@@ -114,3 +114,16 @@
     @apply font-serif tracking-tight;
   }
 }
+
+@keyframes marquee-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+
+.animate-marquee-rtl {
+  animation: marquee-rtl 25s linear infinite;
+}
