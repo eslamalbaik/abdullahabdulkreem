@@ -8,8 +8,11 @@ export const projects = pgTable("projects", {
   title: text("title").notNull(),
   category: text("category").notNull(),
   image: text("image").notNull(),
+  images: text("images").array(),
   year: text("year").notNull(),
   description: text("description"),
+  strategy: text("strategy"),
+  behanceUrl: text("behance_url"),
   featured: boolean("featured").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
