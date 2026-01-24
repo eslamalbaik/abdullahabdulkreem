@@ -30,11 +30,11 @@ export default function Home() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="max-w-xl"
             >
-              <h1 className="font-serif font-medium tracking-tight mb-8">
-                <span className="block text-5xl md:text-7xl leading-[1.1]">نحوّل فكرتك</span>
-                <span className="block text-3xl md:text-4xl leading-[1.2] mt-2">إلى نظام بصري واضح.</span>
+              <h1 className="font-serif font-medium tracking-tight mb-4">
+                <span className="block text-6xl md:text-8xl leading-[1.1]">نحوّل فكرتك</span>
+                <span className="block text-5xl md:text-6xl leading-[1.2] mt-2">إلى نظام بصري واضح.</span>
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed mb-10">
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed mb-10">
                 أساعد العلامات التجارية الطموحة في تحديد لغتها البصرية من خلال التصميم الاستراتيجي والإخراج الفني.
               </p>
               
