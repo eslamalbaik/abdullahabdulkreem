@@ -10,6 +10,7 @@ import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import Identities from "@/pages/Identities";
 import IdentityDetail from "@/pages/IdentityDetail";
+import Admin from "@/pages/Admin";
 import Shop from "@/pages/Shop";
 import Courses from "@/pages/Courses";
 import Contact from "@/pages/Contact";
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/shop" component={Shop} />
       <Route path="/courses" component={Courses} />
       <Route path="/contact" component={Contact} />
+      <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,8 +1,7 @@
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import {
-  users, projects, products, articles, identities, contacts,
-  type User, type InsertUser,
+  projects, products, articles, identities, contacts,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
@@ -11,43 +10,33 @@ import {
 } from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
-  
   getProjects(): Promise<Project[]>;
   getFeaturedProjects(): Promise<Project[]>;
   getProjectById(id: number): Promise<Project | undefined>;
+  createProject(project: InsertProject): Promise<Project>;
+  updateProject(id: number, project: InsertProject): Promise<Project>;
+  deleteProject(id: number): Promise<void>;
   
   getProducts(): Promise<Product[]>;
   getProductsByCategory(category: string): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
+  createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: number, product: InsertProduct): Promise<Product>;
+  deleteProduct(id: number): Promise<void>;
   
   getArticles(): Promise<Article[]>;
   getArticleBySlug(slug: string): Promise<Article | undefined>;
   
   getIdentities(): Promise<Identity[]>;
   getIdentityById(id: number): Promise<Identity | undefined>;
+  createIdentity(identity: InsertIdentity): Promise<Identity>;
+  updateIdentity(id: number, identity: InsertIdentity): Promise<Identity>;
+  deleteIdentity(id: number): Promise<void>;
   
   createContact(contact: InsertContact): Promise<Contact>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
-  }
-
   async getProjects(): Promise<Project[]> {
     return db.select().from(projects).orderBy(projects.createdAt);
   }
@@ -61,6 +50,20 @@ export class DatabaseStorage implements IStorage {
     return project;
   }
 
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db.insert(projects).values(insertProject).returning();
+    return project;
+  }
+
+  async updateProject(id: number, insertProject: InsertProject): Promise<Project> {
+    const [project] = await db.update(projects).set(insertProject).where(eq(projects.id, id)).returning();
+    return project;
+  }
+
+  async deleteProject(id: number): Promise<void> {
+    await db.delete(projects).where(eq(projects.id, id));
+  }
+
   async getProducts(): Promise<Product[]> {
     return db.select().from(products).orderBy(products.createdAt);
   }
@@ -72,6 +75,20 @@ export class DatabaseStorage implements IStorage {
   async getProductById(id: number): Promise<Product | undefined> {
     const [product] = await db.select().from(products).where(eq(products.id, id));
     return product;
+  }
+
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    const [product] = await db.insert(products).values(insertProduct).returning();
+    return product;
+  }
+
+  async updateProduct(id: number, insertProduct: InsertProduct): Promise<Product> {
+    const [product] = await db.update(products).set(insertProduct).where(eq(products.id, id)).returning();
+    return product;
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    await db.delete(products).where(eq(products.id, id));
   }
 
   async getArticles(): Promise<Article[]> {
@@ -90,6 +107,20 @@ export class DatabaseStorage implements IStorage {
   async getIdentityById(id: number): Promise<Identity | undefined> {
     const [identity] = await db.select().from(identities).where(eq(identities.id, id));
     return identity;
+  }
+
+  async createIdentity(insertIdentity: InsertIdentity): Promise<Identity> {
+    const [identity] = await db.insert(identities).values(insertIdentity).returning();
+    return identity;
+  }
+
+  async updateIdentity(id: number, insertIdentity: InsertIdentity): Promise<Identity> {
+    const [identity] = await db.update(identities).set(insertIdentity).where(eq(identities.id, id)).returning();
+    return identity;
+  }
+
+  async deleteIdentity(id: number): Promise<void> {
+    await db.delete(identities).where(eq(identities.id, id));
   }
 
   async createContact(insertContact: InsertContact): Promise<Contact> {

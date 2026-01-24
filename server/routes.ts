@@ -1,13 +1,17 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema } from "@shared/schema";
+import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema } from "@shared/schema";
+import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
+  await setupAuth(app);
+  registerAuthRoutes(app);
+
   app.get("/api/projects", async (_req, res) => {
     try {
       const projects = await storage.getProjects();
@@ -119,6 +123,127 @@ export async function registerRoutes(
       res.status(201).json(contact);
     } catch (error) {
       res.status(500).json({ error: "Failed to submit contact form" });
+    }
+  });
+
+  // Admin routes (protected)
+  app.post("/api/admin/projects", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertProjectSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid project data", details: result.error.issues });
+      }
+      const project = await storage.createProject(result.data);
+      res.status(201).json(project);
+    } catch (error) {
+      console.error("Error creating project:", error);
+      res.status(500).json({ error: "Failed to create project" });
+    }
+  });
+
+  app.put("/api/admin/projects/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      const result = insertProjectSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid project data", details: result.error.issues });
+      }
+      const project = await storage.updateProject(id, result.data);
+      res.json(project);
+    } catch (error) {
+      console.error("Error updating project:", error);
+      res.status(500).json({ error: "Failed to update project" });
+    }
+  });
+
+  app.delete("/api/admin/projects/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      await storage.deleteProject(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      res.status(500).json({ error: "Failed to delete project" });
+    }
+  });
+
+  app.post("/api/admin/products", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertProductSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid product data", details: result.error.issues });
+      }
+      const product = await storage.createProduct(result.data);
+      res.status(201).json(product);
+    } catch (error) {
+      console.error("Error creating product:", error);
+      res.status(500).json({ error: "Failed to create product" });
+    }
+  });
+
+  app.put("/api/admin/products/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      const result = insertProductSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid product data", details: result.error.issues });
+      }
+      const product = await storage.updateProduct(id, result.data);
+      res.json(product);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      res.status(500).json({ error: "Failed to update product" });
+    }
+  });
+
+  app.delete("/api/admin/products/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      await storage.deleteProduct(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      res.status(500).json({ error: "Failed to delete product" });
+    }
+  });
+
+  app.post("/api/admin/identities", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertIdentitySchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid identity data", details: result.error.issues });
+      }
+      const identity = await storage.createIdentity(result.data);
+      res.status(201).json(identity);
+    } catch (error) {
+      console.error("Error creating identity:", error);
+      res.status(500).json({ error: "Failed to create identity" });
+    }
+  });
+
+  app.put("/api/admin/identities/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      const result = insertIdentitySchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid identity data", details: result.error.issues });
+      }
+      const identity = await storage.updateIdentity(id, result.data);
+      res.json(identity);
+    } catch (error) {
+      console.error("Error updating identity:", error);
+      res.status(500).json({ error: "Failed to update identity" });
+    }
+  });
+
+  app.delete("/api/admin/identities/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      await storage.deleteIdentity(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting identity:", error);
+      res.status(500).json({ error: "Failed to delete identity" });
     }
   });
 
