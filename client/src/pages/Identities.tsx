@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 
 interface Identity {
@@ -11,6 +12,7 @@ interface Identity {
 }
 
 export default function Identities() {
+  const [, setLocation] = useLocation();
   const { data: identities, isLoading } = useQuery<Identity[]>({
     queryKey: ["/api/identities"],
   });
@@ -44,7 +46,8 @@ export default function Identities() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl"
+                className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl cursor-pointer"
+                onClick={() => setLocation(`/identities/${identity.id}`)}
                 data-testid={`card-identity-${identity.id}`}
               >
                 <div className="aspect-[4/3] overflow-hidden">
@@ -80,9 +83,9 @@ export default function Identities() {
                     </span>
                     <button 
                       className="px-6 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
-                      data-testid={`button-buy-identity-${identity.id}`}
+                      data-testid={`button-view-identity-${identity.id}`}
                     >
-                      اشتر الآن
+                      عرض التفاصيل
                     </button>
                   </div>
                 </div>

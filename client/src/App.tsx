@@ -9,6 +9,7 @@ import Footer from "@/components/layout/Footer";
 import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import Identities from "@/pages/Identities";
+import IdentityDetail from "@/pages/IdentityDetail";
 import Shop from "@/pages/Shop";
 import Courses from "@/pages/Courses";
 import Contact from "@/pages/Contact";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/identities" component={Identities} />
+      <Route path="/identities/:id" component={IdentityDetail} />
       <Route path="/shop" component={Shop} />
       <Route path="/courses" component={Courses} />
       <Route path="/contact" component={Contact} />

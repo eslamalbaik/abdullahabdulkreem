@@ -1,0 +1,175 @@
+import { useQuery } from "@tanstack/react-query";
+import { useParams, Link } from "wouter";
+import { motion } from "framer-motion";
+import { ArrowRight, Check } from "lucide-react";
+
+interface Identity {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  image: string;
+  includes: string[];
+}
+
+export default function IdentityDetail() {
+  const { id } = useParams<{ id: string }>();
+  
+  const { data: identity, isLoading } = useQuery<Identity>({
+    queryKey: [`/api/identities/${id}`],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="pt-32 pb-20">
+        <div className="container mx-auto px-6">
+          <div className="animate-pulse">
+            <div className="h-8 w-32 bg-muted rounded mb-8" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              <div className="aspect-[4/3] bg-muted rounded-2xl" />
+              <div className="space-y-4">
+                <div className="h-10 bg-muted rounded w-3/4" />
+                <div className="h-6 bg-muted rounded w-1/2" />
+                <div className="h-32 bg-muted rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!identity) {
+    return (
+      <div className="pt-32 pb-20">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-3xl font-bold mb-4">الهوية غير موجودة</h1>
+          <Link href="/identities" className="text-primary hover:underline">
+            العودة للهويات البصرية
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-32 pb-20">
+      <div className="container mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Link 
+            href="/identities" 
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+            data-testid="link-back-identities"
+          >
+            <ArrowRight className="w-4 h-4" />
+            العودة للهويات البصرية
+          </Link>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="space-y-6"
+            >
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden">
+                <img
+                  src={identity.image}
+                  alt={identity.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="aspect-square rounded-xl overflow-hidden bg-muted">
+                  <img
+                    src={identity.image}
+                    alt={`${identity.title} - معاينة 1`}
+                    className="w-full h-full object-cover opacity-80"
+                  />
+                </div>
+                <div className="aspect-square rounded-xl overflow-hidden bg-muted">
+                  <img
+                    src={identity.image}
+                    alt={`${identity.title} - معاينة 2`}
+                    className="w-full h-full object-cover opacity-80"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="space-y-8"
+            >
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-4" data-testid="text-identity-title">
+                  {identity.title}
+                </h1>
+                <p className="text-xl text-muted-foreground leading-relaxed">
+                  {identity.description}
+                </p>
+              </div>
+
+              <div className="bg-card border border-border rounded-2xl p-6">
+                <h2 className="text-lg font-semibold mb-4 text-primary">ماذا تشمل الهوية؟</h2>
+                <ul className="space-y-3">
+                  {identity.includes.map((item, index) => (
+                    <motion.li
+                      key={index}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="text-foreground">{item}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-gradient-to-br from-primary/5 to-secondary/20 border border-primary/20 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <span className="text-muted-foreground">السعر</span>
+                  <span className="text-3xl font-bold text-primary" data-testid="text-identity-price">
+                    {identity.price} ر.س
+                  </span>
+                </div>
+                
+                <button 
+                  className="w-full py-4 bg-primary text-primary-foreground rounded-xl text-lg font-semibold hover:bg-primary/90 transition-colors"
+                  data-testid="button-buy-identity"
+                >
+                  اشتر الهوية الآن
+                </button>
+                
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                  ستحصل على جميع الملفات بصيغ قابلة للتعديل
+                </p>
+              </div>
+
+              <div className="border-t border-border pt-6">
+                <h3 className="font-semibold mb-3">ملاحظات مهمة:</h3>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li>• الهوية جاهزة للتخصيص حسب اسم مشروعك</li>
+                  <li>• يمكنك طلب تعديلات بسيطة على الألوان</li>
+                  <li>• الملفات المصدرية بصيغة AI و PSD</li>
+                  <li>• دعم فني لمدة 30 يوم بعد الشراء</li>
+                </ul>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
