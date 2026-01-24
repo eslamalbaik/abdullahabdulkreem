@@ -123,7 +123,7 @@ export default function Home() {
       <section className="py-24 bg-secondary/20">
         <div className="container mx-auto px-6">
           <div className="max-w-2xl mb-16">
-            <h2 className="text-4xl font-serif mb-6">موارد للمصممين</h2>
+            <h2 className="text-4xl font-serif mb-6">منتجات للمصممين</h2>
             <p className="text-muted-foreground text-lg">
               قوالب وعقود ومحتوى تعليمي مختار لمساعدتك في تطوير عملك الإبداعي.
             </p>
