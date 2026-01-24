@@ -167,12 +167,12 @@ export default function ProjectDetail() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="w-full overflow-hidden bg-secondary/50"
+                  className="w-full aspect-video overflow-hidden bg-secondary/50 rounded-xl"
                 >
                   <img
                     src={img}
                     alt={`${project.title} - صورة ${index + 1}`}
-                    className="w-full h-auto object-cover hover:scale-[1.02] transition-transform duration-500"
+                    className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-500"
                   />
                 </motion.div>
               ))}
