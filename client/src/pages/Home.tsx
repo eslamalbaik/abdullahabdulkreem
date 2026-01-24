@@ -55,7 +55,7 @@ export default function Home() {
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
               className="hidden md:flex justify-center"
             >
-              <div className="w-80 h-80 lg:w-96 lg:h-96 overflow-hidden shadow-2xl border-4 border-primary/20">
+              <div className="w-80 h-80 lg:w-96 lg:h-96 overflow-hidden shadow-2xl border-4 border-primary/20 rounded-3xl">
                 <img 
                   src="/profile.png" 
                   alt="صورتي"
@@ -119,7 +119,7 @@ export default function Home() {
                   className="group cursor-pointer"
                   data-testid={`project-${project.id}`}
                 >
-                  <div className="aspect-[4/3] overflow-hidden mb-6 bg-secondary/50">
+                  <div className="aspect-[4/3] overflow-hidden mb-6 bg-secondary/50 rounded-3xl">
                     <img 
                       src={project.image} 
                       alt={project.title}
