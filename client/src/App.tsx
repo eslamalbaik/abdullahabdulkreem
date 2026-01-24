@@ -10,7 +10,6 @@ import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import Shop from "@/pages/Shop";
 import Courses from "@/pages/Courses";
-import Blog from "@/pages/Blog";
 import Contact from "@/pages/Contact";
 import NotFound from "@/pages/not-found";
 
@@ -21,7 +20,6 @@ function Router() {
       <Route path="/portfolio" component={Portfolio} />
       <Route path="/shop" component={Shop} />
       <Route path="/courses" component={Courses} />
-      <Route path="/blog" component={Blog} />
       <Route path="/contact" component={Contact} />
       <Route component={NotFound} />
     </Switch>

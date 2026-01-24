@@ -8,7 +8,6 @@ export default function Navbar() {
     { href: "/portfolio", label: "أعمالي" },
     { href: "/shop", label: "المتجر" },
     { href: "/courses", label: "الدورات" },
-    { href: "/blog", label: "المدونة" },
     { href: "/contact", label: "تواصل" },
   ];
 
