@@ -24,8 +24,8 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   
-  --font-sans: 'The Year of Handicrafts', sans-serif;
-  --font-serif: 'The Year of Handicrafts', sans-serif;
+  --font-sans: 'The Year of Handicrafts', 'Arial', 'Tahoma', sans-serif;
+  --font-serif: 'The Year of Handicrafts', 'Arial', 'Tahoma', sans-serif;
   
   --radius-sm: 0rem;
   --radius-md: 0rem;
