@@ -1,8 +1,8 @@
-# Elina Grid - Visual Identity Designer Portfolio
+# Abdullah Abdelkarim - Visual Identity Designer Portfolio
 
 ## Overview
 
-This is a personal portfolio and e-commerce platform for a visual identity designer (إيلينا غريد). The application features a portfolio showcase, digital product shop, online courses, and ready-made brand identity packages for sale. The interface is primarily in Arabic with right-to-left (RTL) layout support.
+This is a personal portfolio and e-commerce platform for visual identity designer Abdullah Abdelkarim (عبدالله عبدالكريم). The application features a portfolio showcase, digital product shop, online courses, and ready-made brand identity packages for sale. The interface is primarily in Arabic with right-to-left (RTL) layout support.
 
 ## User Preferences
 
@@ -88,3 +88,28 @@ shared/              # Shared between client/server
 ### Development Tools
 - **Replit Plugins**: Cartographer, dev banner, runtime error overlay (development only)
 - **Custom Vite Plugin**: Meta images plugin for OpenGraph tags
+
+## Deployment
+
+### Production Build
+```bash
+npm run build    # Builds frontend and backend
+npm start        # Runs production server on port 5000
+```
+
+### Output Structure
+- `dist/index.cjs` - Bundled Node.js server
+- `dist/public/` - Static frontend assets
+
+### Railway / VPS Deployment
+See `DEPLOYMENT.md` for detailed instructions on deploying to:
+- Railway
+- VPS with PM2 or systemd
+- Docker
+
+### Required Environment Variables
+```env
+DATABASE_URL=postgresql://...
+SESSION_SECRET=your-secret
+PORT=5000
+```
