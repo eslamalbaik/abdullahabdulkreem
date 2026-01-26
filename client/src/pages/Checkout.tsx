@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "wouter";
-import { ArrowRight, Check, CreditCard, Smartphone, Building2 } from "lucide-react";
+import { ArrowRight, Check, CreditCard, Smartphone, Building2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 interface PaymentMethod {
   id: string;
@@ -80,12 +81,61 @@ export default function Checkout() {
   const [selectedPayment, setSelectedPayment] = useState<string>("");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user, isLoading, isAuthenticated } = useAuth();
   
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.firstName && user.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : user.firstName || prev.name,
+        email: user.email || prev.email,
+      }));
+    }
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <div className="pt-32 pb-24 container mx-auto px-6">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="pt-32 pb-24 container mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center max-w-md mx-auto"
+        >
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <LogIn className="w-10 h-10 text-primary" />
+          </div>
+          <h1 className="text-3xl font-serif mb-4">سجل دخولك أولاً</h1>
+          <p className="text-muted-foreground mb-8">
+            يجب تسجيل الدخول لإتمام عملية الشراء
+          </p>
+          <a href="/api/login" data-testid="link-login-checkout">
+            <Button size="lg">
+              <LogIn className="w-5 h-5 me-2" />
+              تسجيل الدخول
+            </Button>
+          </a>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -142,8 +192,8 @@ export default function Checkout() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Link href="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
-          <ArrowRight className="w-4 h-4" />
+        <Link href="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8" data-testid="link-back-cart">
+          <ArrowRight className="w-4 h-4 rotate-180" />
           العودة للسلة
         </Link>
 
