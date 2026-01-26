@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CartProvider } from "@/contexts/CartContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
@@ -14,6 +15,8 @@ import ProjectDetail from "@/pages/ProjectDetail";
 import ProductDetail from "@/pages/ProductDetail";
 import Admin from "@/pages/Admin";
 import Shop from "@/pages/Shop";
+import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
 import Courses from "@/pages/Courses";
 import Contact from "@/pages/Contact";
 import Questionnaire from "@/pages/Questionnaire";
@@ -29,6 +32,8 @@ function Router() {
       <Route path="/identities/:id" component={IdentityDetail} />
       <Route path="/shop" component={Shop} />
       <Route path="/shop/:id" component={ProductDetail} />
+      <Route path="/cart" component={Cart} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/courses" component={Courses} />
       <Route path="/contact" component={Contact} />
       <Route path="/questionnaire" component={Questionnaire} />
@@ -41,16 +46,18 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
-          <Navbar />
-          <main className="flex-grow">
-            <Router />
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
-      </TooltipProvider>
+      <CartProvider>
+        <TooltipProvider>
+          <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
+            <Navbar />
+            <main className="flex-grow">
+              <Router />
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </TooltipProvider>
+      </CartProvider>
     </QueryClientProvider>
   );
 }
