@@ -87,7 +87,7 @@ export default function Cart() {
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
-                  <span className="font-bold text-lg">${item.price * item.quantity}</span>
+                  <span className="font-bold text-lg">{item.price * item.quantity} ر.س</span>
                 </div>
               </motion.div>
             ))}
@@ -111,7 +111,7 @@ export default function Cart() {
                     <span className="text-muted-foreground">
                       {item.title} × {item.quantity}
                     </span>
-                    <span>${item.price * item.quantity}</span>
+                    <span>{item.price * item.quantity} ر.س</span>
                   </div>
                 ))}
               </div>
@@ -119,7 +119,7 @@ export default function Cart() {
               <div className="border-t border-border pt-4 mb-6">
                 <div className="flex justify-between text-lg font-bold">
                   <span>الإجمالي</span>
-                  <span className="text-primary">${totalPrice}</span>
+                  <span className="text-primary">{totalPrice} ر.س</span>
                 </div>
               </div>
 

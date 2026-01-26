@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, ShoppingCart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface Identity {
   id: number;
@@ -14,10 +16,27 @@ interface Identity {
 
 export default function IdentityDetail() {
   const { id } = useParams<{ id: string }>();
+  const { addItem } = useCart();
+  const { toast } = useToast();
   
   const { data: identity, isLoading } = useQuery<Identity>({
     queryKey: [`/api/identities/${id}`],
   });
+
+  const handleAddToCart = () => {
+    if (!identity) return;
+    addItem({
+      id: identity.id,
+      title: identity.title,
+      price: identity.price,
+      image: identity.image,
+      type: "identity",
+    });
+    toast({
+      title: "تمت الإضافة للسلة",
+      description: `تم إضافة "${identity.title}" إلى سلة التسوق`,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -146,10 +165,12 @@ export default function IdentityDetail() {
                 </div>
                 
                 <button 
-                  className="w-full py-4 bg-primary text-primary-foreground rounded-xl text-lg font-semibold hover:bg-primary/90 transition-colors"
-                  data-testid="button-buy-identity"
+                  className="w-full py-4 bg-primary text-primary-foreground rounded-xl text-lg font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                  onClick={handleAddToCart}
+                  data-testid="button-add-to-cart"
                 >
-                  اشتر الهوية الآن
+                  <ShoppingCart className="w-5 h-5" />
+                  أضف للسلة
                 </button>
                 
                 <p className="text-center text-sm text-muted-foreground mt-4">

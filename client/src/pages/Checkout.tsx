@@ -209,9 +209,10 @@ export default function Checkout() {
                           : "border-border hover:border-primary/50"
                       }`}
                       data-testid={`payment-${method.id}`}
+                      aria-pressed={selectedPayment === method.id}
                     >
                       {selectedPayment === method.id && (
-                        <div className="absolute top-2 left-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                           <Check className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -251,7 +252,7 @@ export default function Checkout() {
                       <span className="text-muted-foreground">
                         {item.title} × {item.quantity}
                       </span>
-                      <span>${item.price * item.quantity}</span>
+                      <span>{item.price * item.quantity} ر.س</span>
                     </div>
                   ))}
                 </div>
@@ -259,7 +260,7 @@ export default function Checkout() {
                 <div className="border-t border-border pt-4 mb-6">
                   <div className="flex justify-between text-lg font-bold">
                     <span>الإجمالي</span>
-                    <span className="text-primary">${totalPrice}</span>
+                    <span className="text-primary">{totalPrice} ر.س</span>
                   </div>
                 </div>
 
