@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
 import { registerRoutes } from "./routes.ts";
 import { serveStatic } from "./static.ts";
 import { createServer } from "http";
@@ -11,6 +12,15 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+// مهم جداً: هذا قبل أي routes
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(
   express.json({
