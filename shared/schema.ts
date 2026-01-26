@@ -240,3 +240,15 @@ export const courseTestimonials = pgTable("course_testimonials", {
 export const insertCourseTestimonialSchema = createInsertSchema(courseTestimonials).omit({ id: true, createdAt: true });
 export type InsertCourseTestimonial = z.infer<typeof insertCourseTestimonialSchema>;
 export type CourseTestimonial = typeof courseTestimonials.$inferSelect;
+
+// ===== Course Enrollments =====
+export const courseEnrollments = pgTable("course_enrollments", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments).omit({ id: true, createdAt: true });
+export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
+export type CourseEnrollment = typeof courseEnrollments.$inferSelect;

@@ -2,7 +2,7 @@ import { db } from "./db";
 import { eq, asc, and } from "drizzle-orm";
 import {
   projects, products, articles, identities, contacts, clientLogos, testimonials, questionnaireSubmissions,
-  courses, lessons, lessonProgress, courseTestimonials,
+  courses, lessons, lessonProgress, courseTestimonials, courseEnrollments,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
@@ -14,7 +14,8 @@ import {
   type Course, type InsertCourse,
   type Lesson, type InsertLesson,
   type LessonProgress, type InsertLessonProgress,
-  type CourseTestimonial, type InsertCourseTestimonial
+  type CourseTestimonial, type InsertCourseTestimonial,
+  type CourseEnrollment, type InsertCourseEnrollment
 } from "@shared/schema";
 
 export interface IStorage {
@@ -76,6 +77,9 @@ export interface IStorage {
   getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]>;
   createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial>;
   deleteCourseTestimonial(id: number): Promise<void>;
+  
+  getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined>;
+  createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -311,6 +315,17 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCourseTestimonial(id: number): Promise<void> {
     await db.delete(courseTestimonials).where(eq(courseTestimonials.id, id));
+  }
+
+  async getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined> {
+    const [enrollment] = await db.select().from(courseEnrollments)
+      .where(and(eq(courseEnrollments.courseId, courseId), eq(courseEnrollments.userId, userId)));
+    return enrollment;
+  }
+
+  async createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment> {
+    const [created] = await db.insert(courseEnrollments).values(enrollment).returning();
+    return created;
   }
 }
 

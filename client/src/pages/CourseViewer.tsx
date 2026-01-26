@@ -77,6 +77,20 @@ export default function CourseViewer() {
     enabled: courseId > 0,
   });
 
+  const { data: enrollmentData } = useQuery<{ enrolled: boolean }>({
+    queryKey: [`/api/courses/${courseId}/enrollment`],
+    enabled: courseId > 0 && isAuthenticated,
+  });
+
+  const isEnrolled = enrollmentData?.enrolled || false;
+
+  const enrollMutation = useMutation({
+    mutationFn: () => apiRequest("POST", `/api/courses/${courseId}/enroll`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/courses/${courseId}/enrollment`] });
+    },
+  });
+
   const updateProgressMutation = useMutation({
     mutationFn: ({ lessonId, completed, watchedSeconds }: { lessonId: number; completed: boolean; watchedSeconds: number }) =>
       apiRequest("POST", `/api/lessons/${lessonId}/progress`, { completed, watchedSeconds }),
@@ -101,6 +115,7 @@ export default function CourseViewer() {
   const canAccessLesson = (lesson: Lesson) => {
     if (lesson.isFree) return true;
     if (!isAuthenticated) return false;
+    if (!isEnrolled) return false;
     if (lesson.order === 1) return true;
     const previousLesson = lessons.find(l => l.order === lesson.order - 1);
     if (!previousLesson) return true;
@@ -164,7 +179,7 @@ export default function CourseViewer() {
     );
   }
 
-  const showLoginPrompt = !isAuthenticated && currentLesson && !currentLesson.isFree;
+  const showLoginPrompt = currentLesson && !currentLesson.isFree && (!isAuthenticated || !isEnrolled);
 
   return (
     <div className="pt-24 pb-12 min-h-screen bg-background">
@@ -181,14 +196,30 @@ export default function CourseViewer() {
               {showLoginPrompt ? (
                 <div className="w-full h-full flex flex-col items-center justify-center text-white/80 bg-gradient-to-br from-primary/20 to-black">
                   <Lock className="w-16 h-16 mb-4" />
-                  <p className="text-xl mb-4">هذا الدرس يتطلب تسجيل الدخول</p>
-                  <a
-                    href="/api/login"
-                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-                    data-testid="button-login-video"
-                  >
-                    تسجيل الدخول
-                  </a>
+                  {!isAuthenticated ? (
+                    <>
+                      <p className="text-xl mb-4">هذا الدرس يتطلب تسجيل الدخول</p>
+                      <a
+                        href="/api/login"
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                        data-testid="button-login-video"
+                      >
+                        تسجيل الدخول
+                      </a>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-xl mb-4">اشترك في الدورة للوصول لهذا الدرس</p>
+                      <button
+                        onClick={() => enrollMutation.mutate()}
+                        disabled={enrollMutation.isPending}
+                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        data-testid="button-enroll-video"
+                      >
+                        {enrollMutation.isPending ? "جاري التسجيل..." : `اشترك الآن - ${course?.price} ر.س`}
+                      </button>
+                    </>
+                  )}
                 </div>
               ) : currentLesson?.videoUrl ? (
                 <iframe
@@ -414,11 +445,60 @@ export default function CourseViewer() {
             )}
           </div>
 
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <h3 className="font-bold text-lg mb-3">التسجيل في الدورة</h3>
+              {!isAuthenticated ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">سجل دخولك للاشتراك في الدورة والوصول لجميع الدروس</p>
+                  <a
+                    href="/api/login"
+                    className="block w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold text-center hover:bg-primary/90 transition-colors"
+                    data-testid="button-login-enroll"
+                  >
+                    تسجيل الدخول للاشتراك
+                  </a>
+                  <p className="text-center text-lg font-bold">{course?.price} ر.س</p>
+                </div>
+              ) : isEnrolled ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-green-600 bg-green-500/10 p-3 rounded-lg">
+                    <Check className="w-5 h-5" />
+                    <span className="font-medium">أنت مسجل في هذه الدورة</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary transition-all duration-300"
+                        style={{ width: `${progressPercentage}%` }}
+                      />
+                    </div>
+                    <span className="text-sm text-muted-foreground font-medium">{progressPercentage}%</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {completedCount} من {lessons.length} درس مكتمل
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">اشترك الآن للوصول لجميع الدروس وتتبع تقدمك</p>
+                  <button
+                    onClick={() => enrollMutation.mutate()}
+                    disabled={enrollMutation.isPending}
+                    className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    data-testid="button-enroll"
+                  >
+                    {enrollMutation.isPending ? "جاري التسجيل..." : "اشترك الآن"}
+                  </button>
+                  <p className="text-center text-lg font-bold">{course?.price} ر.س</p>
+                </div>
+              )}
+            </div>
+
             <div className="bg-card rounded-xl border border-border sticky top-24">
               <div className="p-4 border-b border-border">
                 <h3 className="font-bold text-lg mb-2">محتوى الدورة</h3>
-                {isAuthenticated && (
+                {isAuthenticated && isEnrolled && (
                   <>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">

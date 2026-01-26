@@ -480,6 +480,37 @@ export async function registerRoutes(
     }
   });
 
+  // Course enrollment routes (authenticated)
+  app.get("/api/courses/:courseId/enrollment", isAuthenticated, async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId as string);
+      const userId = (req.user as any).id;
+      const enrollment = await storage.getCourseEnrollment(courseId, userId);
+      res.json({ enrolled: !!enrollment, enrollment });
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+      res.status(500).json({ error: "Failed to check enrollment" });
+    }
+  });
+
+  app.post("/api/courses/:courseId/enroll", isAuthenticated, async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId as string);
+      const userId = (req.user as any).id;
+      
+      const existing = await storage.getCourseEnrollment(courseId, userId);
+      if (existing) {
+        return res.json({ enrolled: true, enrollment: existing });
+      }
+      
+      const enrollment = await storage.createCourseEnrollment({ courseId, userId });
+      res.json({ enrolled: true, enrollment });
+    } catch (error) {
+      console.error("Error enrolling in course:", error);
+      res.status(500).json({ error: "Failed to enroll in course" });
+    }
+  });
+
   // Lesson progress routes (authenticated)
   app.get("/api/courses/:courseId/progress", isAuthenticated, async (req, res) => {
     try {
