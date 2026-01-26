@@ -264,22 +264,24 @@ export default function Home() {
           ) : (
             <div className="grid md:grid-cols-3 gap-6">
               {products.map((product) => (
-                <div key={product.id} className="group bg-background p-3 border border-border/50 hover:border-primary/20 transition-colors rounded-xl" data-testid={`product-${product.id}`}>
-                  <div className="aspect-square overflow-hidden bg-secondary mb-3 rounded-lg">
-                    <img 
-                      src={product.image} 
-                      alt={product.title} 
-                      className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity" 
-                    />
-                  </div>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1 block">{product.category}</span>
-                      <h4 className="text-base font-medium leading-snug">{product.title}</h4>
+                <Link key={product.id} href={`/shop/${product.id}`}>
+                  <div className="group bg-background p-3 border border-border/50 hover:border-primary/20 transition-colors rounded-xl cursor-pointer" data-testid={`product-${product.id}`}>
+                    <div className="aspect-square overflow-hidden bg-secondary mb-3 rounded-lg">
+                      <img 
+                        src={product.image} 
+                        alt={product.title} 
+                        className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity" 
+                      />
                     </div>
-                    <span className="font-mono text-sm">${product.price}</span>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1 block">{product.category}</span>
+                        <h4 className="text-base font-medium leading-snug group-hover:text-primary transition-colors">{product.title}</h4>
+                      </div>
+                      <span className="font-mono text-sm">${product.price}</span>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
