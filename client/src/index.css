@@ -115,15 +115,16 @@
   }
 }
 
-@keyframes marquee-rtl {
+@keyframes marquee-scroll {
   0% {
-    transform: translateX(-50%);
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(0%);
+    transform: translateX(100%);
   }
 }
 
 .animate-marquee-rtl {
-  animation: marquee-rtl 20s linear infinite;
+  display: flex;
+  animation: marquee-scroll 30s linear infinite;
 }

@@ -89,19 +89,25 @@ export default function Home() {
       {/* Logo Marquee */}
       {clientLogos.length > 0 && (
         <section className="py-12 bg-secondary/30 overflow-hidden">
-          <div className="relative">
-            <div className="flex animate-marquee-rtl gap-16 whitespace-nowrap">
-              {[...Array(6)].map((_, setIndex) => (
-                <div key={setIndex} className="flex gap-16 items-center shrink-0">
-                  {clientLogos.map((logo) => (
-                    <img 
-                      key={`${setIndex}-${logo.id}`}
-                      src={logo.image} 
-                      alt={logo.name} 
-                      className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0" 
-                    />
-                  ))}
-                </div>
+          <div className="relative flex">
+            <div className="flex shrink-0 animate-marquee-rtl gap-16 pe-16">
+              {clientLogos.map((logo) => (
+                <img 
+                  key={`set1-${logo.id}`}
+                  src={logo.image} 
+                  alt={logo.name} 
+                  className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 shrink-0" 
+                />
+              ))}
+            </div>
+            <div className="flex shrink-0 animate-marquee-rtl gap-16 pe-16">
+              {clientLogos.map((logo) => (
+                <img 
+                  key={`set2-${logo.id}`}
+                  src={logo.image} 
+                  alt={logo.name} 
+                  className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 shrink-0" 
+                />
               ))}
             </div>
           </div>
