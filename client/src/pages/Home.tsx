@@ -51,7 +51,7 @@ export default function Home() {
                 من خلال التصميم الاستراتيجي والإخراج الفني.
               </p>
               
-              <div className="flex flex-col gap-6">
+              <div className="flex items-center gap-6">
                 <Link 
                   href="/questionnaire"
                   className="inline-block px-8 py-4 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group"
