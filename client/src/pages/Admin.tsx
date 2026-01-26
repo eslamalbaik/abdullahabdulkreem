@@ -1335,6 +1335,8 @@ function LessonForm({
   const isEditing = !!lesson;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [linkName, setLinkName] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
 
   const [formData, setFormData] = useState({
     courseId,
@@ -1393,6 +1395,17 @@ function LessonForm({
       ...formData,
       attachments: formData.attachments.filter((_, i) => i !== index),
     });
+  };
+
+  const handleAddLink = () => {
+    if (linkName.trim() && linkUrl.trim()) {
+      setFormData({
+        ...formData,
+        attachments: [...formData.attachments, { name: linkName.trim(), url: linkUrl.trim() }],
+      });
+      setLinkName("");
+      setLinkUrl("");
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -1472,11 +1485,19 @@ function LessonForm({
 
           <div>
             <label className="block text-sm font-medium mb-2">المرفقات</label>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {formData.attachments.map((attachment, index) => (
                 <div key={index} className="flex items-center gap-2 p-2 bg-secondary rounded-lg">
                   <Download className="w-4 h-4" />
                   <span className="flex-1 text-sm truncate">{attachment.name}</span>
+                  <a 
+                    href={attachment.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline"
+                  >
+                    عرض
+                  </a>
                   <button
                     type="button"
                     onClick={() => removeAttachment(index)}
@@ -1486,21 +1507,56 @@ function LessonForm({
                   </button>
                 </div>
               ))}
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleAddAttachment}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50"
-              >
-                <Upload className="w-4 h-4" />
-                {isUploading ? "جاري الرفع..." : "إضافة مرفق"}
-              </button>
+              
+              <div className="border border-border rounded-lg p-3 space-y-2">
+                <p className="text-xs text-muted-foreground">إضافة رابط خارجي (مثل Google Drive)</p>
+                <input
+                  type="text"
+                  value={linkName}
+                  onChange={(e) => setLinkName(e.target.value)}
+                  placeholder="اسم المرفق"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  data-testid="input-attachment-name"
+                />
+                <input
+                  type="url"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  placeholder="رابط المرفق (https://...)"
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                  dir="ltr"
+                  data-testid="input-attachment-url"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddLink}
+                  disabled={!linkName.trim() || !linkUrl.trim()}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
+                  data-testid="button-add-link"
+                >
+                  <Plus className="w-4 h-4" />
+                  إضافة رابط
+                </button>
+              </div>
+              
+              <div className="border-t border-border pt-3">
+                <p className="text-xs text-muted-foreground mb-2">أو رفع ملف مباشرة</p>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleAddAttachment}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50 text-sm"
+                >
+                  <Upload className="w-4 h-4" />
+                  {isUploading ? "جاري الرفع..." : "رفع ملف"}
+                </button>
+              </div>
             </div>
           </div>
 
