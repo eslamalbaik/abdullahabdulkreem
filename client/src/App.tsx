@@ -11,6 +11,7 @@ import Portfolio from "@/pages/Portfolio";
 import Identities from "@/pages/Identities";
 import IdentityDetail from "@/pages/IdentityDetail";
 import ProjectDetail from "@/pages/ProjectDetail";
+import ProductDetail from "@/pages/ProductDetail";
 import Admin from "@/pages/Admin";
 import Shop from "@/pages/Shop";
 import Courses from "@/pages/Courses";
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/identities" component={Identities} />
       <Route path="/identities/:id" component={IdentityDetail} />
       <Route path="/shop" component={Shop} />
+      <Route path="/shop/:id" component={ProductDetail} />
       <Route path="/courses" component={Courses} />
       <Route path="/contact" component={Contact} />
       <Route path="/questionnaire" component={Questionnaire} />
