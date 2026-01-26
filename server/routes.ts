@@ -472,7 +472,7 @@ export async function registerRoutes(
   // Lesson progress routes (authenticated)
   app.get("/api/courses/:courseId/progress", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId);
+      const courseId = parseInt(req.params.courseId as string);
       const userId = (req.user as any).id;
       const progress = await storage.getUserCourseProgress(courseId, userId);
       res.json(progress);
@@ -484,7 +484,7 @@ export async function registerRoutes(
 
   app.post("/api/lessons/:lessonId/progress", isAuthenticated, async (req, res) => {
     try {
-      const lessonId = parseInt(req.params.lessonId);
+      const lessonId = parseInt(req.params.lessonId as string);
       const userId = (req.user as any).id;
       const { completed, watchedSeconds } = req.body;
       
@@ -555,7 +555,7 @@ export async function registerRoutes(
   // Admin lessons routes
   app.get("/api/admin/courses/:courseId/lessons", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId);
+      const courseId = parseInt(req.params.courseId as string);
       const lessons = await storage.getLessonsByCourseId(courseId);
       res.json(lessons);
     } catch (error) {

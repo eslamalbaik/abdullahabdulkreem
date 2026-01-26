@@ -2,9 +2,29 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X, Star, MessageSquare } from "lucide-react";
+import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X, Star, MessageSquare, GraduationCap, Play, Download } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useUpload } from "@/hooks/use-upload";
+
+interface Course {
+  id: number;
+  title: string;
+  description?: string;
+  image?: string;
+  price: number;
+  published: boolean;
+}
+
+interface Lesson {
+  id: number;
+  courseId: number;
+  title: string;
+  description?: string;
+  videoUrl?: string;
+  duration?: number;
+  order: number;
+  attachments?: Array<{name: string, url: string}>;
+}
 
 interface Project {
   id: number;
@@ -51,7 +71,7 @@ interface Testimonial {
   rating: number;
 }
 
-type Tab = "projects" | "products" | "identities" | "logos" | "testimonials";
+type Tab = "projects" | "products" | "identities" | "logos" | "testimonials" | "courses";
 
 export default function Admin() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -85,6 +105,14 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: courses = [] } = useQuery<Course[]>({
+    queryKey: ["/api/admin/courses"],
+    enabled: isAuthenticated,
+  });
+
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [showLessonsManager, setShowLessonsManager] = useState(false);
+
   const deleteProjectMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/projects/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/projects"] }),
@@ -108,6 +136,11 @@ export default function Admin() {
   const deleteTestimonialMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/testimonials/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] }),
+  });
+
+  const deleteCourseMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/courses/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/admin/courses"] }),
   });
 
   if (isLoading) {
@@ -142,6 +175,7 @@ export default function Admin() {
     { id: "projects" as Tab, label: "الأعمال", icon: LayoutGrid },
     { id: "products" as Tab, label: "المنتجات", icon: Package },
     { id: "identities" as Tab, label: "الهويات", icon: Palette },
+    { id: "courses" as Tab, label: "الدورات", icon: GraduationCap },
     { id: "logos" as Tab, label: "شعارات العملاء", icon: Image },
     { id: "testimonials" as Tab, label: "قالوا عن عبدالله", icon: MessageSquare },
   ];
@@ -153,7 +187,13 @@ export default function Admin() {
       if (activeTab === "identities") deleteIdentityMutation.mutate(id);
       if (activeTab === "logos") deleteLogoMutation.mutate(id);
       if (activeTab === "testimonials") deleteTestimonialMutation.mutate(id);
+      if (activeTab === "courses") deleteCourseMutation.mutate(id);
     }
+  };
+
+  const handleManageLessons = (course: Course) => {
+    setSelectedCourse(course);
+    setShowLessonsManager(true);
   };
 
   const handleEdit = (item: any) => {
@@ -210,6 +250,8 @@ export default function Admin() {
             {activeTab === "products" && "المنتجات"}
             {activeTab === "identities" && "الهويات البصرية"}
             {activeTab === "logos" && "شعارات العملاء"}
+            {activeTab === "testimonials" && "قالوا عن عبدالله"}
+            {activeTab === "courses" && "الدورات التعليمية"}
           </h2>
           <button
             onClick={handleAdd}
@@ -435,6 +477,77 @@ export default function Admin() {
               </p>
             )}
           </div>
+        )}
+
+        {activeTab === "courses" && (
+          <div className="grid gap-4">
+            {courses.map((course) => (
+              <motion.div
+                key={course.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
+              >
+                {course.image && (
+                  <img
+                    src={course.image}
+                    alt={course.title}
+                    className="w-20 h-16 object-cover rounded-lg"
+                  />
+                )}
+                {!course.image && (
+                  <div className="w-20 h-16 bg-secondary rounded-lg flex items-center justify-center">
+                    <GraduationCap className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h3 className="font-semibold">{course.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {course.price} ر.س • {course.published ? "منشور" : "مسودة"}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleManageLessons(course)}
+                    className="flex items-center gap-1 px-3 py-2 text-sm bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                    data-testid={`button-lessons-course-${course.id}`}
+                  >
+                    <Play className="w-4 h-4" />
+                    إدارة الدروس
+                  </button>
+                  <button
+                    onClick={() => handleEdit(course)}
+                    className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                    data-testid={`button-edit-course-${course.id}`}
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(course.id)}
+                    className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                    data-testid={`button-delete-course-${course.id}`}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+            {courses.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                لا توجد دورات. أضف دورات تعليمية لتظهر في صفحة الدورات.
+              </p>
+            )}
+          </div>
+        )}
+
+        {showLessonsManager && selectedCourse && (
+          <LessonsManager
+            course={selectedCourse}
+            onClose={() => {
+              setShowLessonsManager(false);
+              setSelectedCourse(null);
+            }}
+          />
         )}
 
         {showForm && (
@@ -753,6 +866,14 @@ function AdminForm({
         role: item?.role || "",
         rating: item?.rating || 5,
       };
+    } else if (type === "courses") {
+      return {
+        title: item?.title || "",
+        description: item?.description || "",
+        price: item?.price || 0,
+        image: item?.image || "",
+        published: item?.published || false,
+      };
     } else {
       return {
         title: item?.title || "",
@@ -773,7 +894,7 @@ function AdminForm({
       return apiRequest(method, endpoint, data);
     },
     onSuccess: () => {
-      const queryKey = type === "logos" ? "/api/client-logos" : `/api/${type}`;
+      const queryKey = type === "logos" ? "/api/client-logos" : type === "courses" ? "/api/admin/courses" : `/api/${type}`;
       queryClient.invalidateQueries({ queryKey: [queryKey] });
       onClose();
     },
@@ -807,6 +928,8 @@ function AdminForm({
           {type === "products" && "منتج"}
           {type === "identities" && "هوية"}
           {type === "logos" && "شعار عميل"}
+          {type === "testimonials" && "تعليق"}
+          {type === "courses" && "دورة"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -983,7 +1106,51 @@ function AdminForm({
             </>
           )}
 
-          {type !== "logos" && type !== "testimonials" && (
+          {type === "courses" && (
+            <>
+              <ImageUploadField
+                label="صورة الدورة"
+                value={(formData as any).image}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                testId="input-course-image"
+              />
+              <div>
+                <label className="block text-sm font-medium mb-2">السعر (ر.س)</label>
+                <input
+                  type="number"
+                  value={(formData as any).price}
+                  onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                  data-testid="input-course-price"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">الوصف</label>
+                <textarea
+                  value={(formData as any).description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                  data-testid="input-course-description"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="published"
+                  checked={(formData as any).published}
+                  onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                  className="w-4 h-4 rounded border-border"
+                  data-testid="input-course-published"
+                />
+                <label htmlFor="published" className="text-sm font-medium">
+                  منشور (يظهر في صفحة الدورات)
+                </label>
+              </div>
+            </>
+          )}
+
+          {type !== "logos" && type !== "testimonials" && type !== "courses" && (
             <>
               <ImageUploadField
                 label="الصورة الرئيسية"
@@ -1041,6 +1208,316 @@ function AdminForm({
               onClick={onClose}
               className="flex-1 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition-colors"
               data-testid="button-cancel"
+            >
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+function LessonsManager({ course, onClose }: { course: Course; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [showLessonForm, setShowLessonForm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: lessons = [] } = useQuery<Lesson[]>({
+    queryKey: [`/api/admin/courses/${course.id}/lessons`],
+  });
+
+  const deleteLessonMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/lessons/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [`/api/admin/courses/${course.id}/lessons`] }),
+  });
+
+  const handleDeleteLesson = (id: number) => {
+    if (confirm("هل أنت متأكد من حذف هذا الدرس؟")) {
+      deleteLessonMutation.mutate(id);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-background rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">دروس: {course.title}</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <button
+          onClick={() => { setEditingLesson(null); setShowLessonForm(true); }}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors mb-4"
+          data-testid="button-add-lesson"
+        >
+          <Plus className="w-5 h-5" />
+          إضافة درس
+        </button>
+
+        <div className="space-y-3">
+          {lessons.map((lesson, index) => (
+            <div
+              key={lesson.id}
+              className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                {lesson.order}
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold">{lesson.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {lesson.duration ? `${Math.floor(lesson.duration / 60)} دقيقة` : "بدون مدة"} 
+                  {lesson.videoUrl && " • فيديو متاح"}
+                  {lesson.attachments && lesson.attachments.length > 0 && ` • ${lesson.attachments.length} مرفق`}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setEditingLesson(lesson); setShowLessonForm(true); }}
+                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                  data-testid={`button-edit-lesson-${lesson.id}`}
+                >
+                  <Pencil className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => handleDeleteLesson(lesson.id)}
+                  className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                  data-testid={`button-delete-lesson-${lesson.id}`}
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {lessons.length === 0 && (
+            <p className="text-center text-muted-foreground py-8">
+              لا توجد دروس. أضف دروس لهذه الدورة.
+            </p>
+          )}
+        </div>
+
+        {showLessonForm && (
+          <LessonForm
+            courseId={course.id}
+            lesson={editingLesson}
+            nextOrder={lessons.length + 1}
+            onClose={() => { setShowLessonForm(false); setEditingLesson(null); }}
+          />
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+function LessonForm({
+  courseId,
+  lesson,
+  nextOrder,
+  onClose,
+}: {
+  courseId: number;
+  lesson: Lesson | null;
+  nextOrder: number;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const isEditing = !!lesson;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    courseId,
+    title: lesson?.title || "",
+    description: lesson?.description || "",
+    videoUrl: lesson?.videoUrl || "",
+    duration: lesson?.duration || 0,
+    order: lesson?.order || nextOrder,
+    attachments: lesson?.attachments || [],
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (data: any) => {
+      const endpoint = isEditing ? `/api/admin/lessons/${lesson.id}` : "/api/admin/lessons";
+      const method = isEditing ? "PUT" : "POST";
+      return apiRequest(method, endpoint, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/courses/${courseId}/lessons`] });
+      onClose();
+    },
+  });
+
+  const handleAddAttachment = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const response = await fetch("/api/uploads/request-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: file.name,
+          size: file.size,
+          contentType: file.type || "application/octet-stream",
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to get upload URL");
+      const { uploadURL, objectPath } = await response.json();
+      await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type || "application/octet-stream" } });
+      
+      setFormData({
+        ...formData,
+        attachments: [...formData.attachments, { name: file.name, url: objectPath }],
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setFormData({
+      ...formData,
+      attachments: formData.attachments.filter((_, i) => i !== index),
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-6">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-background rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
+      >
+        <h2 className="text-xl font-bold mb-6">
+          {isEditing ? "تعديل" : "إضافة"} درس
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">عنوان الدرس</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              required
+              data-testid="input-lesson-title"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">وصف الدرس</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
+              data-testid="input-lesson-description"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">رابط الفيديو</label>
+            <input
+              type="url"
+              value={formData.videoUrl}
+              onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+              className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="https://..."
+              data-testid="input-lesson-video"
+            />
+            <p className="text-xs text-muted-foreground mt-1">يمكنك استخدام روابط YouTube أو Vimeo أو أي رابط فيديو مباشر</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">المدة (بالثواني)</label>
+              <input
+                type="number"
+                value={formData.duration}
+                onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                data-testid="input-lesson-duration"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">الترتيب</label>
+              <input
+                type="number"
+                value={formData.order}
+                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
+                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                data-testid="input-lesson-order"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">المرفقات</label>
+            <div className="space-y-2">
+              {formData.attachments.map((attachment, index) => (
+                <div key={index} className="flex items-center gap-2 p-2 bg-secondary rounded-lg">
+                  <Download className="w-4 h-4" />
+                  <span className="flex-1 text-sm truncate">{attachment.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAttachment(index)}
+                    className="p-1 text-destructive hover:text-destructive/80"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAddAttachment}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50"
+              >
+                <Upload className="w-4 h-4" />
+                {isUploading ? "جاري الرفع..." : "إضافة مرفق"}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-4 pt-4">
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+              data-testid="button-submit-lesson"
+            >
+              {mutation.isPending ? "جاري الحفظ..." : "حفظ"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition-colors"
+              data-testid="button-cancel-lesson"
             >
               إلغاء
             </button>

@@ -18,6 +18,7 @@ import Shop from "@/pages/Shop";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import Courses from "@/pages/Courses";
+import CourseViewer from "@/pages/CourseViewer";
 import Contact from "@/pages/Contact";
 import Questionnaire from "@/pages/Questionnaire";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/cart" component={Cart} />
       <Route path="/checkout" component={Checkout} />
       <Route path="/courses" component={Courses} />
+      <Route path="/courses/:id" component={CourseViewer} />
       <Route path="/contact" component={Contact} />
       <Route path="/questionnaire" component={Questionnaire} />
       <Route path="/privacy" component={PrivacyPolicy} />
