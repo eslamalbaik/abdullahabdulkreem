@@ -63,34 +63,34 @@ export default function Navbar() {
               )}
             </Link>
 
-            {!isLoading && (
-              isAuthenticated ? (
-                <div className="flex items-center gap-3">
-                  {user?.profileImageUrl && (
-                    <img 
-                      src={user.profileImageUrl} 
-                      alt="صورة المستخدم" 
-                      className="w-8 h-8 rounded-full object-cover"
-                      data-testid="img-profile"
-                    />
-                  )}
-                  <button
-                    onClick={() => logout()}
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    data-testid="button-logout"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    خروج
-                  </button>
-                </div>
-              ) : (
-                <a href="/api/login" data-testid="link-login">
-                  <Button variant="outline" size="sm">
-                    <LogIn className="w-4 h-4 me-2" />
-                    دخول
-                  </Button>
-                </a>
-              )
+            {isLoading ? (
+              <div className="w-16 h-8 bg-secondary/50 animate-pulse rounded" />
+            ) : isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                {user?.profileImageUrl && (
+                  <img 
+                    src={user.profileImageUrl} 
+                    alt="صورة المستخدم" 
+                    className="w-8 h-8 rounded-full object-cover"
+                    data-testid="img-profile"
+                  />
+                )}
+                <button
+                  onClick={() => logout()}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  data-testid="button-logout"
+                >
+                  <LogOut className="w-4 h-4" />
+                  خروج
+                </button>
+              </div>
+            ) : (
+              <a href="/api/login" data-testid="link-login">
+                <Button variant="outline" size="sm">
+                  <LogIn className="w-4 h-4 me-2" />
+                  دخول
+                </Button>
+              </a>
             )}
           </div>
 
@@ -146,40 +146,42 @@ export default function Navbar() {
                   </Link>
                 ))}
 
-                {!isLoading && (
-                  isAuthenticated ? (
-                    <div className="flex items-center gap-4 py-3 border-b border-border">
-                      {user?.profileImageUrl && (
-                        <img 
-                          src={user.profileImageUrl} 
-                          alt="صورة المستخدم" 
-                          className="w-10 h-10 rounded-full object-cover"
-                          data-testid="img-profile-mobile"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <p className="font-medium" data-testid="text-username-mobile">{user?.firstName || 'مستخدم'}</p>
-                        <p className="text-sm text-muted-foreground" data-testid="text-email-mobile">{user?.email}</p>
-                      </div>
-                      <button
-                        onClick={() => { logout(); handleLinkClick(); }}
-                        className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                        data-testid="button-logout-mobile"
-                      >
-                        <LogOut className="w-5 h-5" />
-                      </button>
+                {isLoading ? (
+                  <div className="py-3 border-b border-border">
+                    <div className="h-10 bg-secondary/50 animate-pulse rounded" />
+                  </div>
+                ) : isAuthenticated ? (
+                  <div className="flex items-center gap-4 py-3 border-b border-border">
+                    {user?.profileImageUrl && (
+                      <img 
+                        src={user.profileImageUrl} 
+                        alt="صورة المستخدم" 
+                        className="w-10 h-10 rounded-full object-cover"
+                        data-testid="img-profile-mobile"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium" data-testid="text-username-mobile">{user?.firstName || 'مستخدم'}</p>
+                      <p className="text-sm text-muted-foreground" data-testid="text-email-mobile">{user?.email}</p>
                     </div>
-                  ) : (
-                    <a 
-                      href="/api/login" 
-                      onClick={handleLinkClick}
-                      className="text-2xl font-medium py-3 border-b border-border text-primary flex items-center gap-3"
-                      data-testid="link-login-mobile"
+                    <button
+                      onClick={() => { logout(); handleLinkClick(); }}
+                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                      data-testid="button-logout-mobile"
                     >
-                      <LogIn className="w-6 h-6" />
-                      تسجيل الدخول
-                    </a>
-                  )
+                      <LogOut className="w-5 h-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <a 
+                    href="/api/login" 
+                    onClick={handleLinkClick}
+                    className="text-2xl font-medium py-3 border-b border-border text-primary flex items-center gap-3"
+                    data-testid="link-login-mobile"
+                  >
+                    <LogIn className="w-6 h-6" />
+                    تسجيل الدخول
+                  </a>
                 )}
               </div>
             </div>
