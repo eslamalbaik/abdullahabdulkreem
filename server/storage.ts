@@ -2,7 +2,7 @@ import { db } from "./db";
 import { eq, asc, and } from "drizzle-orm";
 import {
   projects, products, articles, identities, contacts, clientLogos, testimonials, questionnaireSubmissions,
-  courses, lessons, lessonProgress,
+  courses, lessons, lessonProgress, courseTestimonials,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
@@ -13,7 +13,8 @@ import {
   type QuestionnaireSubmission, type InsertQuestionnaire,
   type Course, type InsertCourse,
   type Lesson, type InsertLesson,
-  type LessonProgress, type InsertLessonProgress
+  type LessonProgress, type InsertLessonProgress,
+  type CourseTestimonial, type InsertCourseTestimonial
 } from "@shared/schema";
 
 export interface IStorage {
@@ -71,6 +72,10 @@ export interface IStorage {
   getLessonProgress(lessonId: number, userId: string): Promise<LessonProgress | undefined>;
   getUserCourseProgress(courseId: number, userId: string): Promise<LessonProgress[]>;
   upsertLessonProgress(progress: InsertLessonProgress): Promise<LessonProgress>;
+  
+  getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]>;
+  createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial>;
+  deleteCourseTestimonial(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -291,6 +296,21 @@ export class DatabaseStorage implements IStorage {
       .values({ ...progress, completedAt: progress.completed ? new Date() : null })
       .returning();
     return created;
+  }
+
+  async getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]> {
+    return db.select().from(courseTestimonials)
+      .where(eq(courseTestimonials.courseId, courseId))
+      .orderBy(courseTestimonials.createdAt);
+  }
+
+  async createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial> {
+    const [created] = await db.insert(courseTestimonials).values(testimonial).returning();
+    return created;
+  }
+
+  async deleteCourseTestimonial(id: number): Promise<void> {
+    await db.delete(courseTestimonials).where(eq(courseTestimonials.id, id));
   }
 }
 

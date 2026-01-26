@@ -469,6 +469,17 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/courses/:id/testimonials", async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      const testimonials = await storage.getCourseTestimonials(courseId);
+      res.json(testimonials);
+    } catch (error) {
+      console.error("Error fetching testimonials:", error);
+      res.status(500).json({ error: "Failed to fetch testimonials" });
+    }
+  });
+
   // Lesson progress routes (authenticated)
   app.get("/api/courses/:courseId/progress", isAuthenticated, async (req, res) => {
     try {

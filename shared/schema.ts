@@ -167,6 +167,10 @@ export const courses = pgTable("courses", {
   image: text("image"),
   price: integer("price").notNull(),
   published: boolean("published").default(false).notNull(),
+  totalHours: integer("total_hours"),
+  devices: text("devices"),
+  certificates: text("certificates"),
+  courseInfo: text("course_info"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -183,6 +187,7 @@ export const lessons = pgTable("lessons", {
   videoUrl: text("video_url"),
   duration: integer("duration"),
   order: integer("order").notNull(),
+  isFree: boolean("is_free").default(false).notNull(),
   attachments: jsonb("attachments").$type<Array<{name: string, url: string}>>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -205,3 +210,33 @@ export const lessonProgress = pgTable("lesson_progress", {
 export const insertLessonProgressSchema = createInsertSchema(lessonProgress).omit({ id: true, createdAt: true });
 export type InsertLessonProgress = z.infer<typeof insertLessonProgressSchema>;
 export type LessonProgress = typeof lessonProgress.$inferSelect;
+
+// ===== Course Reviews =====
+export const courseReviews = pgTable("course_reviews", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCourseReviewSchema = createInsertSchema(courseReviews).omit({ id: true, createdAt: true });
+export type InsertCourseReview = z.infer<typeof insertCourseReviewSchema>;
+export type CourseReview = typeof courseReviews.$inferSelect;
+
+// ===== Course Testimonials =====
+export const courseTestimonials = pgTable("course_testimonials", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull(),
+  name: text("name").notNull(),
+  image: text("image"),
+  title: text("title"),
+  rating: integer("rating").notNull(),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCourseTestimonialSchema = createInsertSchema(courseTestimonials).omit({ id: true, createdAt: true });
+export type InsertCourseTestimonial = z.infer<typeof insertCourseTestimonialSchema>;
+export type CourseTestimonial = typeof courseTestimonials.$inferSelect;
