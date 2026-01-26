@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema } from "@shared/schema";
+import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema, insertCourseSchema, insertLessonSchema } from "@shared/schema";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { sendQuestionnaireNotification, sendContactNotification, sendNewsletterNotification } from "./resend";
@@ -429,6 +429,178 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting testimonial:", error);
       res.status(500).json({ error: "Failed to delete testimonial" });
+    }
+  });
+
+  // Courses routes (public)
+  app.get("/api/courses", async (_req, res) => {
+    try {
+      const courses = await storage.getCourses();
+      const publishedCourses = courses.filter(c => c.published);
+      res.json(publishedCourses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+      res.status(500).json({ error: "Failed to fetch courses" });
+    }
+  });
+
+  app.get("/api/courses/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const course = await storage.getCourseById(id);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      res.json(course);
+    } catch (error) {
+      console.error("Error fetching course:", error);
+      res.status(500).json({ error: "Failed to fetch course" });
+    }
+  });
+
+  app.get("/api/courses/:id/lessons", async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      const lessons = await storage.getLessonsByCourseId(courseId);
+      res.json(lessons);
+    } catch (error) {
+      console.error("Error fetching lessons:", error);
+      res.status(500).json({ error: "Failed to fetch lessons" });
+    }
+  });
+
+  // Lesson progress routes (authenticated)
+  app.get("/api/courses/:courseId/progress", isAuthenticated, async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const userId = (req.user as any).id;
+      const progress = await storage.getUserCourseProgress(courseId, userId);
+      res.json(progress);
+    } catch (error) {
+      console.error("Error fetching course progress:", error);
+      res.status(500).json({ error: "Failed to fetch progress" });
+    }
+  });
+
+  app.post("/api/lessons/:lessonId/progress", isAuthenticated, async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.lessonId);
+      const userId = (req.user as any).id;
+      const { completed, watchedSeconds } = req.body;
+      
+      const progress = await storage.upsertLessonProgress({
+        lessonId,
+        userId,
+        completed: completed ?? false,
+        watchedSeconds: watchedSeconds ?? 0
+      });
+      res.json(progress);
+    } catch (error) {
+      console.error("Error updating lesson progress:", error);
+      res.status(500).json({ error: "Failed to update progress" });
+    }
+  });
+
+  // Admin courses routes
+  app.get("/api/admin/courses", isAuthenticated, async (_req, res) => {
+    try {
+      const courses = await storage.getCourses();
+      res.json(courses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+      res.status(500).json({ error: "Failed to fetch courses" });
+    }
+  });
+
+  app.post("/api/admin/courses", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertCourseSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid course data", details: result.error.issues });
+      }
+      const course = await storage.createCourse(result.data);
+      res.status(201).json(course);
+    } catch (error) {
+      console.error("Error creating course:", error);
+      res.status(500).json({ error: "Failed to create course" });
+    }
+  });
+
+  app.put("/api/admin/courses/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      const result = insertCourseSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid course data", details: result.error.issues });
+      }
+      const course = await storage.updateCourse(id, result.data);
+      res.json(course);
+    } catch (error) {
+      console.error("Error updating course:", error);
+      res.status(500).json({ error: "Failed to update course" });
+    }
+  });
+
+  app.delete("/api/admin/courses/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      await storage.deleteCourse(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      res.status(500).json({ error: "Failed to delete course" });
+    }
+  });
+
+  // Admin lessons routes
+  app.get("/api/admin/courses/:courseId/lessons", isAuthenticated, async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const lessons = await storage.getLessonsByCourseId(courseId);
+      res.json(lessons);
+    } catch (error) {
+      console.error("Error fetching lessons:", error);
+      res.status(500).json({ error: "Failed to fetch lessons" });
+    }
+  });
+
+  app.post("/api/admin/lessons", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertLessonSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid lesson data", details: result.error.issues });
+      }
+      const lesson = await storage.createLesson(result.data);
+      res.status(201).json(lesson);
+    } catch (error) {
+      console.error("Error creating lesson:", error);
+      res.status(500).json({ error: "Failed to create lesson" });
+    }
+  });
+
+  app.put("/api/admin/lessons/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      const result = insertLessonSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid lesson data", details: result.error.issues });
+      }
+      const lesson = await storage.updateLesson(id, result.data);
+      res.json(lesson);
+    } catch (error) {
+      console.error("Error updating lesson:", error);
+      res.status(500).json({ error: "Failed to update lesson" });
+    }
+  });
+
+  app.delete("/api/admin/lessons/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id as string);
+      await storage.deleteLesson(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting lesson:", error);
+      res.status(500).json({ error: "Failed to delete lesson" });
     }
   });
 
