@@ -116,6 +116,28 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ i
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
 export type Testimonial = typeof testimonials.$inferSelect;
 
+// ===== Questionnaire Submissions =====
+export const questionnaireSubmissions = pgTable("questionnaire_submissions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  serviceType: text("service_type").notNull(),
+  role: text("role").notNull(),
+  projectInfo: text("project_info"),
+  socialMedia: text("social_media"),
+  companySize: text("company_size").notNull(),
+  budget: text("budget").notNull(),
+  contactMethod: text("contact_method").notNull(),
+  email: text("email"),
+  whatsapp: text("whatsapp"),
+  instagram: text("instagram"),
+  status: text("status").default("new").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertQuestionnaireSchema = createInsertSchema(questionnaireSubmissions).omit({ id: true, createdAt: true, status: true });
+export type InsertQuestionnaire = z.infer<typeof insertQuestionnaireSchema>;
+export type QuestionnaireSubmission = typeof questionnaireSubmissions.$inferSelect;
+
 // ===== Users (for Replit Auth) =====
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),

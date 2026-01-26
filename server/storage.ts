@@ -1,14 +1,15 @@
 import { db } from "./db";
 import { eq, asc } from "drizzle-orm";
 import {
-  projects, products, articles, identities, contacts, clientLogos, testimonials,
+  projects, products, articles, identities, contacts, clientLogos, testimonials, questionnaireSubmissions,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
   type Identity, type InsertIdentity,
   type Contact, type InsertContact,
   type ClientLogo, type InsertClientLogo,
-  type Testimonial, type InsertTestimonial
+  type Testimonial, type InsertTestimonial,
+  type QuestionnaireSubmission, type InsertQuestionnaire
 } from "@shared/schema";
 
 export interface IStorage {
@@ -46,6 +47,9 @@ export interface IStorage {
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
   updateTestimonial(id: number, testimonial: InsertTestimonial): Promise<Testimonial>;
   deleteTestimonial(id: number): Promise<void>;
+  
+  createQuestionnaireSubmission(submission: InsertQuestionnaire): Promise<QuestionnaireSubmission>;
+  getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -174,6 +178,15 @@ export class DatabaseStorage implements IStorage {
 
   async deleteTestimonial(id: number): Promise<void> {
     await db.delete(testimonials).where(eq(testimonials.id, id));
+  }
+
+  async createQuestionnaireSubmission(submission: InsertQuestionnaire): Promise<QuestionnaireSubmission> {
+    const [result] = await db.insert(questionnaireSubmissions).values(submission).returning();
+    return result;
+  }
+
+  async getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]> {
+    return db.select().from(questionnaireSubmissions).orderBy(questionnaireSubmissions.createdAt);
   }
 }
 

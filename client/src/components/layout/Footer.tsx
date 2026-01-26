@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Instagram, ChevronLeft, ChevronRight, Mail, CheckCircle, Star } from "lucide-react";
+import { Instagram, ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 interface Testimonial {
   id: number;
@@ -98,10 +98,6 @@ function StarRatingDisplay({ rating }: { rating: number }) {
 export default function Footer() {
   const [location] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
   const { data: dbTestimonials = [] } = useQuery<Testimonial[]>({
     queryKey: ["/api/testimonials"],
@@ -127,32 +123,6 @@ export default function Footer() {
   
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setEmailError("");
-    
-    if (!email.trim()) {
-      setEmailError("يرجى إدخال البريد الإلكتروني");
-      return;
-    }
-    
-    if (!validateEmail(email)) {
-      setEmailError("يرجى إدخال بريد إلكتروني صحيح");
-      return;
-    }
-    
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    setIsSubscribed(true);
-    setEmail("");
   };
 
   return (
@@ -241,47 +211,22 @@ export default function Footer() {
           </div>
           
           <div>
-            <h4 className="font-serif font-semibold text-xl mb-4">اشترك في النشرة البريدية</h4>
-            <p className="text-muted-foreground mb-6">
-              احصل على نصائح في التصميم والهوية البصرية مباشرة في بريدك الإلكتروني.
-            </p>
-            
-            {isSubscribed ? (
-              <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                <p className="text-green-600">شكراً لاشتراكك! سنتواصل معك قريباً.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} className="space-y-3">
-                <div className="relative">
-                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="email"
-                    placeholder="بريدك الإلكتروني"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setEmailError("");
-                    }}
-                    className={`w-full pr-10 pl-4 py-3 bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
-                      emailError ? "border-red-500" : "border-border"
-                    }`}
-                    data-testid="input-newsletter-email"
-                  />
-                </div>
-                {emailError && (
-                  <p className="text-red-500 text-sm">{emailError}</p>
-                )}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  data-testid="btn-subscribe-newsletter"
-                >
-                  {isLoading ? "جاري الاشتراك..." : "اشترك الآن"}
-                </button>
-              </form>
-            )}
+            <a 
+              href="/questionnaire"
+              className="block p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group"
+              data-testid="link-brand-questionnaire"
+            >
+              <h4 className="font-serif font-bold text-2xl mb-3 text-foreground group-hover:text-primary transition-colors">
+                لديك علامة تجارية؟
+              </h4>
+              <p className="text-muted-foreground mb-4">
+                أخبرني عن مشروعك وسأساعدك في بناء هوية بصرية تعكس رؤيتك وتميزك عن المنافسين.
+              </p>
+              <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+                ابدأ الآن
+                <ChevronLeft className="w-5 h-5" />
+              </span>
+            </a>
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema } from "@shared/schema";
+import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema } from "@shared/schema";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 
@@ -125,6 +125,20 @@ export async function registerRoutes(
       res.status(201).json(contact);
     } catch (error) {
       res.status(500).json({ error: "Failed to submit contact form" });
+    }
+  });
+
+  app.post("/api/questionnaire", async (req, res) => {
+    try {
+      const result = insertQuestionnaireSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid questionnaire data", details: result.error.issues });
+      }
+      const submission = await storage.createQuestionnaireSubmission(result.data);
+      res.status(201).json(submission);
+    } catch (error) {
+      console.error("Error submitting questionnaire:", error);
+      res.status(500).json({ error: "Failed to submit questionnaire" });
     }
   });
 
