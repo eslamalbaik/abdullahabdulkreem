@@ -37,6 +37,7 @@ export interface IStorage {
   deleteIdentity(id: number): Promise<void>;
   
   createContact(contact: InsertContact): Promise<Contact>;
+  getContacts(): Promise<Contact[]>;
   
   getClientLogos(): Promise<ClientLogo[]>;
   createClientLogo(logo: InsertClientLogo): Promise<ClientLogo>;
@@ -142,6 +143,10 @@ export class DatabaseStorage implements IStorage {
   async createContact(insertContact: InsertContact): Promise<Contact> {
     const [contact] = await db.insert(contacts).values(insertContact).returning();
     return contact;
+  }
+
+  async getContacts(): Promise<Contact[]> {
+    return db.select().from(contacts).orderBy(contacts.createdAt);
   }
 
   async getClientLogos(): Promise<ClientLogo[]> {

@@ -149,10 +149,19 @@ export default function Footer() {
     }
     
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    setIsSubscribed(true);
-    setEmail("");
+    try {
+      await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      setIsSubscribed(true);
+      setEmail("");
+    } catch (error) {
+      setEmailError("حدث خطأ. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

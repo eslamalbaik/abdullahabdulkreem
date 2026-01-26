@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema } from "@shared/schema";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
+import { sendQuestionnaireNotification, sendContactNotification, sendNewsletterNotification } from "./resend";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -122,6 +123,13 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid contact data", details: result.error.issues });
       }
       const contact = await storage.createContact(result.data);
+      
+      try {
+        await sendContactNotification(result.data);
+      } catch (emailError) {
+        console.error("Error sending contact email notification:", emailError);
+      }
+      
       res.status(201).json(contact);
     } catch (error) {
       res.status(500).json({ error: "Failed to submit contact form" });
@@ -135,6 +143,25 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid questionnaire data", details: result.error.issues });
       }
       const submission = await storage.createQuestionnaireSubmission(result.data);
+      
+      try {
+        await sendQuestionnaireNotification({
+          name: result.data.name,
+          serviceType: result.data.serviceType,
+          role: result.data.role,
+          projectInfo: result.data.projectInfo || '',
+          socialMedia: result.data.socialMedia || '',
+          companySize: result.data.companySize,
+          budget: result.data.budget,
+          contactMethod: result.data.contactMethod,
+          email: result.data.email || undefined,
+          whatsapp: result.data.whatsapp || undefined,
+          instagram: result.data.instagram || undefined
+        });
+      } catch (emailError) {
+        console.error("Error sending questionnaire email notification:", emailError);
+      }
+      
       res.status(201).json(submission);
     } catch (error) {
       console.error("Error submitting questionnaire:", error);
@@ -142,7 +169,47 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/newsletter", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email is required" });
+      }
+      
+      try {
+        await sendNewsletterNotification(email);
+      } catch (emailError) {
+        console.error("Error sending newsletter notification:", emailError);
+      }
+      
+      res.status(201).json({ success: true });
+    } catch (error) {
+      console.error("Error subscribing to newsletter:", error);
+      res.status(500).json({ error: "Failed to subscribe to newsletter" });
+    }
+  });
+
   // Admin routes (protected)
+  app.get("/api/admin/questionnaire-submissions", isAuthenticated, async (_req, res) => {
+    try {
+      const submissions = await storage.getQuestionnaireSubmissions();
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching questionnaire submissions:", error);
+      res.status(500).json({ error: "Failed to fetch questionnaire submissions" });
+    }
+  });
+
+  app.get("/api/admin/contacts", isAuthenticated, async (_req, res) => {
+    try {
+      const contacts = await storage.getContacts();
+      res.json(contacts);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+      res.status(500).json({ error: "Failed to fetch contacts" });
+    }
+  });
+
   app.post("/api/admin/projects", isAuthenticated, async (req, res) => {
     try {
       const result = insertProjectSchema.safeParse(req.body);
