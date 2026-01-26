@@ -112,6 +112,7 @@ export default function Admin() {
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showLessonsManager, setShowLessonsManager] = useState(false);
+  const [showTestimonialsManager, setShowTestimonialsManager] = useState(false);
 
   const deleteProjectMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/projects/${id}`),
@@ -194,6 +195,11 @@ export default function Admin() {
   const handleManageLessons = (course: Course) => {
     setSelectedCourse(course);
     setShowLessonsManager(true);
+  };
+
+  const handleManageTestimonials = (course: Course) => {
+    setSelectedCourse(course);
+    setShowTestimonialsManager(true);
   };
 
   const handleEdit = (item: any) => {
@@ -513,7 +519,15 @@ export default function Admin() {
                     data-testid={`button-lessons-course-${course.id}`}
                   >
                     <Play className="w-4 h-4" />
-                    إدارة الدروس
+                    الدروس
+                  </button>
+                  <button
+                    onClick={() => handleManageTestimonials(course)}
+                    className="flex items-center gap-1 px-3 py-2 text-sm bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                    data-testid={`button-testimonials-course-${course.id}`}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    التقييمات
                   </button>
                   <button
                     onClick={() => handleEdit(course)}
@@ -545,6 +559,16 @@ export default function Admin() {
             course={selectedCourse}
             onClose={() => {
               setShowLessonsManager(false);
+              setSelectedCourse(null);
+            }}
+          />
+        )}
+
+        {showTestimonialsManager && selectedCourse && (
+          <CourseTestimonialsManager
+            course={selectedCourse}
+            onClose={() => {
+              setShowTestimonialsManager(false);
               setSelectedCourse(null);
             }}
           />
@@ -873,6 +897,10 @@ function AdminForm({
         price: item?.price || 0,
         image: item?.image || "",
         published: item?.published || false,
+        totalHours: item?.totalHours || null,
+        devices: item?.devices || "",
+        certificates: item?.certificates || "",
+        courseInfo: item?.courseInfo || "",
       };
     } else {
       return {
@@ -1134,6 +1162,49 @@ function AdminForm({
                   data-testid="input-course-description"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">عدد الساعات</label>
+                <input
+                  type="number"
+                  value={(formData as any).totalHours || ""}
+                  onChange={(e) => setFormData({ ...formData, totalHours: parseInt(e.target.value) || null })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="مثال: 10"
+                  data-testid="input-course-hours"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">الأجهزة المدعومة</label>
+                <input
+                  type="text"
+                  value={(formData as any).devices || ""}
+                  onChange={(e) => setFormData({ ...formData, devices: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="مثال: كمبيوتر، جوال، تابلت"
+                  data-testid="input-course-devices"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">الشهادات</label>
+                <input
+                  type="text"
+                  value={(formData as any).certificates || ""}
+                  onChange={(e) => setFormData({ ...formData, certificates: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="مثال: شهادة إتمام الدورة"
+                  data-testid="input-course-certificates"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">معلومات إضافية</label>
+                <textarea
+                  value={(formData as any).courseInfo || ""}
+                  onChange={(e) => setFormData({ ...formData, courseInfo: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                  placeholder="معلومات تفصيلية عن الدورة"
+                  data-testid="input-course-info"
+                />
+              </div>
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -1315,6 +1386,171 @@ function LessonsManager({ course, onClose }: { course: Course; onClose: () => vo
             onClose={() => { setShowLessonForm(false); setEditingLesson(null); }}
           />
         )}
+      </motion.div>
+    </div>
+  );
+}
+
+interface CourseTestimonial {
+  id: number;
+  courseId: number;
+  userId?: string;
+  name: string;
+  image?: string;
+  title?: string;
+  rating: number;
+  comment: string;
+  adminReply?: string;
+}
+
+function CourseTestimonialsManager({ course, onClose }: { course: Course; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState("");
+
+  const { data: testimonials = [] } = useQuery<CourseTestimonial[]>({
+    queryKey: [`/api/courses/${course.id}/testimonials`],
+  });
+
+  const replyMutation = useMutation({
+    mutationFn: ({ id, adminReply }: { id: number; adminReply: string }) =>
+      apiRequest("PATCH", `/api/admin/testimonials/${id}/reply`, { adminReply }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/courses/${course.id}/testimonials`] });
+      setReplyingTo(null);
+      setReplyText("");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/course-testimonials/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [`/api/courses/${course.id}/testimonials`] }),
+  });
+
+  const handleDelete = (id: number) => {
+    if (confirm("هل أنت متأكد من حذف هذا التقييم؟")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const handleReply = (id: number) => {
+    if (replyText.trim()) {
+      replyMutation.mutate({ id, adminReply: replyText });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-background rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">تقييمات: {course.title}</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {testimonials.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              لا توجد تقييمات لهذه الدورة بعد.
+            </p>
+          ) : (
+            testimonials.map((testimonial) => (
+              <div
+                key={testimonial.id}
+                className="p-4 bg-secondary/30 rounded-xl"
+                data-testid={`admin-testimonial-${testimonial.id}`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary shrink-0">
+                    {testimonial.image ? (
+                      <img src={testimonial.image} alt={testimonial.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl font-bold text-muted-foreground">
+                        {testimonial.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <div>
+                        <h5 className="font-semibold">{testimonial.name}</h5>
+                        {testimonial.title && (
+                          <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-4 h-4 ${testimonial.rating >= star ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`}
+                            />
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => handleDelete(testimonial.id)}
+                          className="p-1 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed mt-2">{testimonial.comment}</p>
+                    
+                    {testimonial.adminReply ? (
+                      <div className="mt-3 pr-4 border-r-2 border-primary/50 bg-primary/5 rounded-lg p-3">
+                        <p className="text-sm font-semibold text-primary mb-1">ردك:</p>
+                        <p className="text-sm text-muted-foreground">{testimonial.adminReply}</p>
+                      </div>
+                    ) : replyingTo === testimonial.id ? (
+                      <div className="mt-3 space-y-2">
+                        <textarea
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="اكتب ردك هنا..."
+                          className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none h-20"
+                          data-testid={`input-reply-${testimonial.id}`}
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleReply(testimonial.id)}
+                            disabled={replyMutation.isPending || !replyText.trim()}
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 disabled:opacity-50"
+                            data-testid={`button-send-reply-${testimonial.id}`}
+                          >
+                            {replyMutation.isPending ? "جاري الإرسال..." : "إرسال الرد"}
+                          </button>
+                          <button
+                            onClick={() => { setReplyingTo(null); setReplyText(""); }}
+                            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm hover:bg-secondary/80"
+                          >
+                            إلغاء
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setReplyingTo(testimonial.id)}
+                        className="mt-3 text-sm text-primary hover:underline"
+                        data-testid={`button-reply-${testimonial.id}`}
+                      >
+                        الرد على التعليق
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </motion.div>
     </div>
   );

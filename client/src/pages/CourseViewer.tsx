@@ -42,11 +42,13 @@ interface LessonProgress {
 interface Testimonial {
   id: number;
   courseId: number;
+  userId?: string;
   name: string;
   image?: string;
   title?: string;
   rating: number;
   comment: string;
+  adminReply?: string;
 }
 
 export default function CourseViewer() {
@@ -88,6 +90,18 @@ export default function CourseViewer() {
     mutationFn: () => apiRequest("POST", `/api/courses/${courseId}/enroll`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/courses/${courseId}/enrollment`] });
+    },
+  });
+
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+
+  const submitReviewMutation = useMutation({
+    mutationFn: () => apiRequest("POST", `/api/courses/${courseId}/testimonials`, { rating: reviewRating, comment: reviewComment }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/courses/${courseId}/testimonials`] });
+      setReviewRating(5);
+      setReviewComment("");
     },
   });
 
@@ -398,6 +412,51 @@ export default function CourseViewer() {
                   </div>
                 </div>
 
+                {isEnrolled && (
+                  <div className="bg-secondary/30 rounded-xl p-4 mb-6">
+                    <h4 className="font-semibold text-lg mb-3">أضف تقييمك</h4>
+                    <form onSubmit={(e) => { e.preventDefault(); submitReviewMutation.mutate(); }} className="space-y-3">
+                      <div>
+                        <label className="block text-sm mb-2">التقييم</label>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setReviewRating(star)}
+                              className="focus:outline-none"
+                              data-testid={`star-${star}`}
+                            >
+                              <Star
+                                className={`w-6 h-6 transition-colors ${reviewRating >= star ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 hover:text-yellow-400'}`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm mb-2">تعليقك</label>
+                        <textarea
+                          value={reviewComment}
+                          onChange={(e) => setReviewComment(e.target.value)}
+                          placeholder="شاركنا رأيك في الدورة..."
+                          className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none h-20"
+                          required
+                          data-testid="input-review-comment"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={submitReviewMutation.isPending || !reviewComment.trim()}
+                        className="w-full py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        data-testid="button-submit-review"
+                      >
+                        {submitReviewMutation.isPending ? "جاري الإرسال..." : "إرسال التقييم"}
+                      </button>
+                    </form>
+                  </div>
+                )}
+
                 <h4 className="font-semibold text-lg mb-4">قالوا عن الكورس</h4>
                 <div className="space-y-4">
                   {testimonials.map((testimonial) => (
@@ -436,6 +495,13 @@ export default function CourseViewer() {
                             </div>
                           </div>
                           <p className="text-muted-foreground leading-relaxed mt-2">{testimonial.comment}</p>
+                          
+                          {testimonial.adminReply && (
+                            <div className="mt-3 pr-4 border-r-2 border-primary/50 bg-primary/5 rounded-lg p-3">
+                              <p className="text-sm font-semibold text-primary mb-1">رد المدرب:</p>
+                              <p className="text-sm text-muted-foreground">{testimonial.adminReply}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </motion.div>

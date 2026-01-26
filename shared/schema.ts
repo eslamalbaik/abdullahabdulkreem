@@ -229,11 +229,13 @@ export type CourseReview = typeof courseReviews.$inferSelect;
 export const courseTestimonials = pgTable("course_testimonials", {
   id: serial("id").primaryKey(),
   courseId: integer("course_id").notNull(),
+  userId: varchar("user_id"),
   name: text("name").notNull(),
   image: text("image"),
   title: text("title"),
   rating: integer("rating").notNull(),
   comment: text("comment").notNull(),
+  adminReply: text("admin_reply"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -480,6 +480,71 @@ export async function registerRoutes(
     }
   });
 
+  // Submit testimonial (only enrolled users)
+  app.post("/api/courses/:id/testimonials", isAuthenticated, async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.id);
+      const userId = (req.user as any).id;
+      const userName = (req.user as any).username || "مستخدم";
+      const userImage = (req.user as any).profileImage || null;
+      
+      // Check if user is enrolled
+      const enrollment = await storage.getCourseEnrollment(courseId, userId);
+      if (!enrollment) {
+        return res.status(403).json({ error: "يجب الاشتراك في الدورة أولاً" });
+      }
+      
+      const { rating, comment } = req.body;
+      if (!rating || !comment) {
+        return res.status(400).json({ error: "التقييم والتعليق مطلوبان" });
+      }
+      
+      const testimonial = await storage.createCourseTestimonial({
+        courseId,
+        userId,
+        name: userName,
+        image: userImage,
+        title: "مشترك",
+        rating: parseInt(rating),
+        comment,
+      });
+      
+      res.json(testimonial);
+    } catch (error) {
+      console.error("Error creating testimonial:", error);
+      res.status(500).json({ error: "Failed to create testimonial" });
+    }
+  });
+
+  // Admin reply to testimonial
+  app.patch("/api/admin/testimonials/:id/reply", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { adminReply } = req.body;
+      
+      if (!adminReply) {
+        return res.status(400).json({ error: "الرد مطلوب" });
+      }
+      
+      const testimonial = await storage.updateCourseTestimonialReply(id, adminReply);
+      res.json(testimonial);
+    } catch (error) {
+      console.error("Error updating testimonial reply:", error);
+      res.status(500).json({ error: "Failed to update reply" });
+    }
+  });
+
+  app.delete("/api/admin/course-testimonials/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteCourseTestimonial(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting course testimonial:", error);
+      res.status(500).json({ error: "Failed to delete testimonial" });
+    }
+  });
+
   // Course enrollment routes (authenticated)
   app.get("/api/courses/:courseId/enrollment", isAuthenticated, async (req, res) => {
     try {

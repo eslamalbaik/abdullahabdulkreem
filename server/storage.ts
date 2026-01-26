@@ -77,6 +77,7 @@ export interface IStorage {
   getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]>;
   createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial>;
   deleteCourseTestimonial(id: number): Promise<void>;
+  updateCourseTestimonialReply(id: number, adminReply: string): Promise<CourseTestimonial>;
   
   getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined>;
   createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
@@ -315,6 +316,14 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCourseTestimonial(id: number): Promise<void> {
     await db.delete(courseTestimonials).where(eq(courseTestimonials.id, id));
+  }
+
+  async updateCourseTestimonialReply(id: number, adminReply: string): Promise<CourseTestimonial> {
+    const [updated] = await db.update(courseTestimonials)
+      .set({ adminReply })
+      .where(eq(courseTestimonials.id, id))
+      .returning();
+    return updated;
   }
 
   async getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined> {
