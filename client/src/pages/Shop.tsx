@@ -2,12 +2,31 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProductsByCategory } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
+import type { Product } from "@shared/schema";
 
 export default function Shop() {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products", "Templates"],
     queryFn: () => fetchProductsByCategory("Templates"),
   });
+  const { addItem } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      id: product.id,
+      title: product.title,
+      price: product.price,
+      image: product.image,
+      type: "product",
+    });
+    toast({
+      title: "تمت الإضافة للسلة",
+      description: `تم إضافة "${product.title}" إلى سلة التسوق`,
+    });
+  };
 
   return (
     <div className="pt-32 pb-24 container mx-auto px-6">
@@ -52,8 +71,12 @@ export default function Shop() {
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
                 <div className="absolute bottom-4 left-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <Button className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg" data-testid={`button-add-cart-${product.id}`}>
-                    أضف للسلة — ${product.price}
+                  <Button 
+                    className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg" 
+                    data-testid={`button-add-cart-${product.id}`}
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    أضف للسلة — {product.price} ر.س
                   </Button>
                 </div>
               </div>
