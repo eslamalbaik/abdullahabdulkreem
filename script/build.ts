@@ -2,7 +2,6 @@ import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
 import { rm, readFile } from "fs/promises";
 
-// server deps to bundle to reduce openat(2) syscalls
 const allowlist = [
   "@google/generative-ai",
   "@neondatabase/serverless",
@@ -52,8 +51,8 @@ async function buildAll() {
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
-    format: "esm",          
-    outfile: "dist/index.js",
+    format: "esm",              // ← هنا الحل
+    outfile: "dist/index.js",   // ← مو cjs
     minify: true,
     external: externals,
     logLevel: "info",
