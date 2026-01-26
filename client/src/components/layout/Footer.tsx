@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Instagram, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Instagram, ChevronLeft, ChevronRight, Star, Mail, CheckCircle } from "lucide-react";
 
 interface Testimonial {
   id: number;
@@ -98,6 +98,10 @@ function StarRatingDisplay({ rating }: { rating: number }) {
 export default function Footer() {
   const [location] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
   const { data: dbTestimonials = [] } = useQuery<Testimonial[]>({
     queryKey: ["/api/testimonials"],
@@ -123,6 +127,32 @@ export default function Footer() {
   
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError("");
+    
+    if (!email.trim()) {
+      setEmailError("يرجى إدخال البريد الإلكتروني");
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      setEmailError("يرجى إدخال بريد إلكتروني صحيح");
+      return;
+    }
+    
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsLoading(false);
+    setIsSubscribed(true);
+    setEmail("");
   };
 
   return (
@@ -188,7 +218,7 @@ export default function Footer() {
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-12 mb-16">
+        <div className="grid md:grid-cols-3 gap-12 mb-16">
           <div>
             <img src="/logo.png" alt="الشعار" className="h-24 mb-6" />
             <p className="text-muted-foreground max-w-sm leading-relaxed">
@@ -211,20 +241,54 @@ export default function Footer() {
           </div>
           
           <div>
+            <h4 className="font-serif font-semibold text-lg mb-4">اشترك في النشرة البريدية</h4>
+            {isSubscribed ? (
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="w-5 h-5" />
+                <span>شكراً لاشتراكك!</span>
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="space-y-3">
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="البريد الإلكتروني"
+                    className="w-full px-4 py-3 pr-12 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    data-testid="input-newsletter-email"
+                  />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                </div>
+                {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  data-testid="button-subscribe"
+                >
+                  {isLoading ? "جاري الاشتراك..." : "اشترك"}
+                </button>
+              </form>
+            )}
+          </div>
+          
+          <div>
+            <h4 className="font-serif font-semibold text-lg mb-4">تواصل</h4>
             <a 
               href="/questionnaire"
               className="block p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group"
               data-testid="link-brand-questionnaire"
             >
-              <h4 className="font-serif font-bold text-2xl mb-3 text-foreground group-hover:text-primary transition-colors">
+              <h5 className="font-serif font-bold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
                 لديك علامة تجارية؟
-              </h4>
-              <p className="text-muted-foreground mb-4">
+              </h5>
+              <p className="text-muted-foreground text-sm mb-3">
                 أخبرني عن مشروعك وسأساعدك في بناء هوية بصرية تعكس رؤيتك وتميزك عن المنافسين.
               </p>
-              <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+              <span className="inline-flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
                 ابدأ الآن
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </span>
             </a>
           </div>
