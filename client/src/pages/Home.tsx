@@ -51,13 +51,24 @@ export default function Home() {
                 من خلال التصميم الاستراتيجي والإخراج الفني.
               </p>
               
-              <div className="flex gap-6 items-center">
-                <Link href="/portfolio" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-primary pb-1 hover:text-muted-foreground hover:border-muted-foreground transition-all" data-testid="link-portfolio">
-                  شاهد أعمالي <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              <div className="flex flex-col gap-6">
+                <Link 
+                  href="/questionnaire"
+                  className="inline-block p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group max-w-md"
+                  data-testid="link-brand-questionnaire"
+                >
+                  <h4 className="font-serif font-bold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
+                    لديك علامة تجارية؟
+                  </h4>
+                  <p className="text-muted-foreground text-sm mb-3">
+                    أخبرني عن مشروعك وسأساعدك في بناء هوية بصرية تعكس رؤيتك وتميزك عن المنافسين.
+                  </p>
+                  <span className="inline-flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
+                    ابدأ الآن
+                    <ArrowLeft className="w-4 h-4" />
+                  </span>
                 </Link>
-                <Link href="/contact" className="group inline-flex items-center gap-2 text-lg font-medium border-b border-transparent pb-1 hover:border-primary transition-all" data-testid="link-contact">
-                  تواصل معي
-                </Link>
+                
                 <div className="flex items-center gap-2">
                   <span className="relative flex h-3 w-3">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { submitContact } from "@/lib/api";
 import { insertContactSchema } from "@shared/schema";
+import { ChevronLeft } from "lucide-react";
 
 const formSchema = insertContactSchema;
 
@@ -61,18 +62,23 @@ export default function Contact() {
           </p>
           
           <div className="space-y-8">
-            <div>
-              <h3 className="font-serif text-lg mb-2">البريد الإلكتروني</h3>
-              <a href="mailto:hello@elenagrid.com" className="text-muted-foreground hover:text-primary transition-colors">hello@elenagrid.com</a>
-            </div>
-            <div>
-              <h3 className="font-serif text-lg mb-2">الاستوديو</h3>
-              <p className="text-muted-foreground">
-                شارع غوثرسغيد ١٢<br />
-                ١١٢٣ كوبنهاغن<br />
-                الدنمارك
+            <a 
+              href="/questionnaire"
+              className="block p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group"
+              data-testid="link-brand-questionnaire"
+            >
+              <h4 className="font-serif font-bold text-2xl mb-3 text-foreground group-hover:text-primary transition-colors">
+                لديك علامة تجارية؟
+              </h4>
+              <p className="text-muted-foreground mb-4">
+                أخبرني عن مشروعك وسأساعدك في بناء هوية بصرية تعكس رؤيتك وتميزك عن المنافسين.
               </p>
-            </div>
+              <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
+                ابدأ الآن
+                <ChevronLeft className="w-5 h-5" />
+              </span>
+            </a>
+            
             <a 
               href="https://api.whatsapp.com/message/QY65ISWC6GKDJ1?autoload=1&app_absent=0"
               target="_blank"
