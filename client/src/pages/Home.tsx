@@ -54,18 +54,11 @@ export default function Home() {
               <div className="flex flex-col gap-6">
                 <Link 
                   href="/questionnaire"
-                  className="inline-block p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group max-w-md"
+                  className="inline-block px-8 py-4 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/30 rounded-2xl hover:border-primary/50 hover:from-primary/15 hover:to-primary/10 transition-all group"
                   data-testid="link-brand-questionnaire"
                 >
-                  <h4 className="font-serif font-bold text-xl mb-2 text-foreground group-hover:text-primary transition-colors">
+                  <span className="font-serif font-bold text-xl text-foreground group-hover:text-primary transition-colors">
                     لديك علامة تجارية؟
-                  </h4>
-                  <p className="text-muted-foreground text-sm mb-3">
-                    أخبرني عن مشروعك وسأساعدك في بناء هوية بصرية تعكس رؤيتك وتميزك عن المنافسين.
-                  </p>
-                  <span className="inline-flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
-                    ابدأ الآن
-                    <ArrowLeft className="w-4 h-4" />
                   </span>
                 </Link>
                 
