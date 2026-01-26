@@ -158,3 +158,50 @@ export const sessions = pgTable("sessions", {
   sess: jsonb("sess").notNull(),
   expire: timestamp("expire").notNull(),
 });
+
+// ===== Courses =====
+export const courses = pgTable("courses", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description"),
+  image: text("image"),
+  price: integer("price").notNull(),
+  published: boolean("published").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCourseSchema = createInsertSchema(courses).omit({ id: true, createdAt: true });
+export type InsertCourse = z.infer<typeof insertCourseSchema>;
+export type Course = typeof courses.$inferSelect;
+
+// ===== Lessons =====
+export const lessons = pgTable("lessons", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  videoUrl: text("video_url"),
+  duration: integer("duration"),
+  order: integer("order").notNull(),
+  attachments: jsonb("attachments").$type<Array<{name: string, url: string}>>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertLessonSchema = createInsertSchema(lessons).omit({ id: true, createdAt: true });
+export type InsertLesson = z.infer<typeof insertLessonSchema>;
+export type Lesson = typeof lessons.$inferSelect;
+
+// ===== Lesson Progress =====
+export const lessonProgress = pgTable("lesson_progress", {
+  id: serial("id").primaryKey(),
+  lessonId: integer("lesson_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  completed: boolean("completed").default(false).notNull(),
+  watchedSeconds: integer("watched_seconds").default(0).notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertLessonProgressSchema = createInsertSchema(lessonProgress).omit({ id: true, createdAt: true });
+export type InsertLessonProgress = z.infer<typeof insertLessonProgressSchema>;
+export type LessonProgress = typeof lessonProgress.$inferSelect;
