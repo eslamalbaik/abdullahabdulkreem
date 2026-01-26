@@ -1,13 +1,14 @@
 import { db } from "./db";
 import { eq, asc } from "drizzle-orm";
 import {
-  projects, products, articles, identities, contacts, clientLogos,
+  projects, products, articles, identities, contacts, clientLogos, testimonials,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
   type Identity, type InsertIdentity,
   type Contact, type InsertContact,
-  type ClientLogo, type InsertClientLogo
+  type ClientLogo, type InsertClientLogo,
+  type Testimonial, type InsertTestimonial
 } from "@shared/schema";
 
 export interface IStorage {
@@ -40,6 +41,11 @@ export interface IStorage {
   createClientLogo(logo: InsertClientLogo): Promise<ClientLogo>;
   updateClientLogo(id: number, logo: InsertClientLogo): Promise<ClientLogo>;
   deleteClientLogo(id: number): Promise<void>;
+  
+  getTestimonials(): Promise<Testimonial[]>;
+  createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
+  updateTestimonial(id: number, testimonial: InsertTestimonial): Promise<Testimonial>;
+  deleteTestimonial(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -150,6 +156,24 @@ export class DatabaseStorage implements IStorage {
 
   async deleteClientLogo(id: number): Promise<void> {
     await db.delete(clientLogos).where(eq(clientLogos.id, id));
+  }
+
+  async getTestimonials(): Promise<Testimonial[]> {
+    return db.select().from(testimonials).orderBy(testimonials.createdAt);
+  }
+
+  async createTestimonial(insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const [testimonial] = await db.insert(testimonials).values(insertTestimonial).returning();
+    return testimonial;
+  }
+
+  async updateTestimonial(id: number, insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const [testimonial] = await db.update(testimonials).set(insertTestimonial).where(eq(testimonials.id, id)).returning();
+    return testimonial;
+  }
+
+  async deleteTestimonial(id: number): Promise<void> {
+    await db.delete(testimonials).where(eq(testimonials.id, id));
   }
 }
 

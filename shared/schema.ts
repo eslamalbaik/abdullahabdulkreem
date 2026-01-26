@@ -1,4 +1,4 @@
-import { pgTable, serial, text, varchar, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, integer, boolean, timestamp, jsonb, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -101,6 +101,20 @@ export const clientLogos = pgTable("client_logos", {
 export const insertClientLogoSchema = createInsertSchema(clientLogos).omit({ id: true, createdAt: true });
 export type InsertClientLogo = z.infer<typeof insertClientLogoSchema>;
 export type ClientLogo = typeof clientLogos.$inferSelect;
+
+// ===== Testimonials =====
+export const testimonials = pgTable("testimonials", {
+  id: serial("id").primaryKey(),
+  text: text("text").notNull(),
+  author: text("author").notNull(),
+  role: text("role").notNull(),
+  rating: real("rating").notNull().default(5),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ id: true, createdAt: true });
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+export type Testimonial = typeof testimonials.$inferSelect;
 
 // ===== Users (for Replit Auth) =====
 export const users = pgTable("users", {

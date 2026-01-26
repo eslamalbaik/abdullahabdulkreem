@@ -1,34 +1,48 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Instagram, ChevronLeft, ChevronRight, Mail, CheckCircle } from "lucide-react";
+import { Instagram, ChevronLeft, ChevronRight, Mail, CheckCircle, Star } from "lucide-react";
 
-const testimonials = [
+interface Testimonial {
+  id: number;
+  text: string;
+  author: string;
+  role: string;
+  rating: number;
+}
+
+const defaultTestimonials = [
   {
+    id: 1,
     rating: 5,
     text: "تعاملت مع عبدالله في بناء هوية مشروعي وكانت النتيجة أكثر من رائعة. احترافية عالية وفهم عميق لاحتياجات العميل.",
     author: "محمد العتيبي",
     role: "مؤسس مقهى الفنجان"
   },
   {
+    id: 2,
     rating: 5,
     text: "عبدالله مصمم مبدع ويهتم بأدق التفاصيل. الهوية البصرية اللي صممها لنا رفعت مستوى علامتنا التجارية بشكل ملحوظ.",
     author: "سارة الحربي",
     role: "مديرة شركة نمو"
   },
   {
+    id: 3,
     rating: 5,
     text: "من أفضل المصممين اللي تعاملت معهم. يفهم رؤيتك ويحولها لهوية بصرية متكاملة تعكس جوهر العلامة.",
     author: "خالد الشمري",
     role: "مؤسس متجر أصيل"
   },
   {
+    id: 4,
     rating: 5,
     text: "العمل مع عبدالله كان تجربة ممتازة. التزام بالمواعيد وجودة عالية في التصميم.",
     author: "نورة القحطاني",
     role: "صاحبة مشروع زهرة"
   },
   {
+    id: 5,
     rating: 5,
     text: "أنصح بشدة بالتعامل مع عبدالله. هوية علامتنا التجارية الآن أقوى وأوضح بفضل عمله المميز.",
     author: "فهد المالكي",
@@ -60,6 +74,27 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+function StarRatingDisplay({ rating }: { rating: number }) {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    if (i <= rating) {
+      stars.push(<Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />);
+    } else if (i - 0.5 <= rating) {
+      stars.push(
+        <div key={i} className="relative w-4 h-4">
+          <Star className="absolute w-4 h-4 text-yellow-500" />
+          <div className="absolute overflow-hidden w-1/2">
+            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+          </div>
+        </div>
+      );
+    } else {
+      stars.push(<Star key={i} className="w-4 h-4 text-gray-300" />);
+    }
+  }
+  return <div className="flex gap-0.5">{stars}</div>;
+}
+
 export default function Footer() {
   const [location] = useLocation();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -68,10 +103,17 @@ export default function Footer() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
+  const { data: dbTestimonials = [] } = useQuery<Testimonial[]>({
+    queryKey: ["/api/testimonials"],
+  });
+  
+  const testimonials = dbTestimonials.length > 0 ? dbTestimonials : defaultTestimonials;
+  
   const isHomePage = location === "/";
   
   const getVisibleTestimonials = () => {
     const len = testimonials.length;
+    if (len === 0) return [];
     const prev = (currentIndex - 1 + len) % len;
     const next = (currentIndex + 1) % len;
     return [testimonials[prev], testimonials[currentIndex], testimonials[next]];
@@ -153,7 +195,7 @@ export default function Footer() {
                         }`}
                       >
                         <div className="flex items-center gap-1 mb-3">
-                          <span className={`text-yellow-500 ${isCenter ? 'text-lg' : 'text-sm'}`}>{"★".repeat(testimonial.rating)}</span>
+                          <StarRatingDisplay rating={testimonial.rating} />
                         </div>
                         <p className={`text-muted-foreground leading-relaxed mb-4 ${isCenter ? 'text-base md:text-lg' : 'text-sm'}`}>
                           "{testimonial.text}"

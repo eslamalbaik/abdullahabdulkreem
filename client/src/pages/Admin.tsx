@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X, Star, MessageSquare } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useUpload } from "@/hooks/use-upload";
 
@@ -43,7 +43,15 @@ interface ClientLogo {
   order: number;
 }
 
-type Tab = "projects" | "products" | "identities" | "logos";
+interface Testimonial {
+  id: number;
+  text: string;
+  author: string;
+  role: string;
+  rating: number;
+}
+
+type Tab = "projects" | "products" | "identities" | "logos" | "testimonials";
 
 export default function Admin() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -72,6 +80,11 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: testimonials = [] } = useQuery<Testimonial[]>({
+    queryKey: ["/api/testimonials"],
+    enabled: isAuthenticated,
+  });
+
   const deleteProjectMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/projects/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/projects"] }),
@@ -90,6 +103,11 @@ export default function Admin() {
   const deleteLogoMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/client-logos/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/client-logos"] }),
+  });
+
+  const deleteTestimonialMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/testimonials/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] }),
   });
 
   if (isLoading) {
@@ -125,6 +143,7 @@ export default function Admin() {
     { id: "products" as Tab, label: "المنتجات", icon: Package },
     { id: "identities" as Tab, label: "الهويات", icon: Palette },
     { id: "logos" as Tab, label: "شعارات العملاء", icon: Image },
+    { id: "testimonials" as Tab, label: "قالوا عن عبدالله", icon: MessageSquare },
   ];
 
   const handleDelete = (id: number) => {
@@ -133,6 +152,7 @@ export default function Admin() {
       if (activeTab === "products") deleteProductMutation.mutate(id);
       if (activeTab === "identities") deleteIdentityMutation.mutate(id);
       if (activeTab === "logos") deleteLogoMutation.mutate(id);
+      if (activeTab === "testimonials") deleteTestimonialMutation.mutate(id);
     }
   };
 
@@ -370,6 +390,53 @@ export default function Admin() {
           </div>
         )}
 
+        {activeTab === "testimonials" && (
+          <div className="space-y-4">
+            {testimonials.map((testimonial) => (
+              <motion.div
+                key={testimonial.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-4 bg-card rounded-xl border border-border"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <StarRatingDisplay rating={testimonial.rating} />
+                      <span className="text-sm text-muted-foreground">({testimonial.rating})</span>
+                    </div>
+                    <p className="text-foreground mb-2">"{testimonial.text}"</p>
+                    <p className="text-sm text-muted-foreground">
+                      — {testimonial.author}، {testimonial.role}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(testimonial)}
+                      className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                      data-testid={`button-edit-testimonial-${testimonial.id}`}
+                    >
+                      <Pencil className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(testimonial.id)}
+                      className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                      data-testid={`button-delete-testimonial-${testimonial.id}`}
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            {testimonials.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                لا توجد تعليقات. أضف تعليقات العملاء لتظهر في أسفل الصفحة الرئيسية.
+              </p>
+            )}
+          </div>
+        )}
+
         {showForm && (
           <AdminForm
             type={activeTab}
@@ -381,6 +448,74 @@ export default function Admin() {
           />
         )}
       </div>
+    </div>
+  );
+}
+
+function StarRatingDisplay({ rating }: { rating: number }) {
+  const stars = [];
+  for (let i = 1; i <= 5; i++) {
+    if (i <= rating) {
+      stars.push(<Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />);
+    } else if (i - 0.5 <= rating) {
+      stars.push(
+        <div key={i} className="relative w-4 h-4">
+          <Star className="absolute w-4 h-4 text-yellow-500" />
+          <div className="absolute overflow-hidden w-1/2">
+            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+          </div>
+        </div>
+      );
+    } else {
+      stars.push(<Star key={i} className="w-4 h-4 text-gray-300" />);
+    }
+  }
+  return <div className="flex gap-0.5">{stars}</div>;
+}
+
+function StarRatingInput({ value, onChange }: { value: number; onChange: (rating: number) => void }) {
+  const [hoverValue, setHoverValue] = useState<number | null>(null);
+  
+  const handleClick = (starIndex: number, isHalf: boolean) => {
+    const rating = isHalf ? starIndex - 0.5 : starIndex;
+    onChange(rating);
+  };
+
+  const displayValue = hoverValue ?? value;
+
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((starIndex) => (
+        <div 
+          key={starIndex} 
+          className="relative w-8 h-8 cursor-pointer"
+          onMouseLeave={() => setHoverValue(null)}
+        >
+          <div 
+            className="absolute inset-0 w-1/2 z-10"
+            onMouseEnter={() => setHoverValue(starIndex - 0.5)}
+            onClick={() => handleClick(starIndex, true)}
+          />
+          <div 
+            className="absolute inset-0 right-0 w-1/2 mr-4 z-10"
+            onMouseEnter={() => setHoverValue(starIndex)}
+            onClick={() => handleClick(starIndex, false)}
+          />
+          {starIndex <= displayValue ? (
+            <Star className="w-8 h-8 fill-yellow-500 text-yellow-500" />
+          ) : starIndex - 0.5 <= displayValue ? (
+            <div className="relative w-8 h-8">
+              <Star className="absolute w-8 h-8 text-yellow-500" />
+              <div className="absolute overflow-hidden w-1/2">
+                <Star className="w-8 h-8 fill-yellow-500 text-yellow-500" />
+              </div>
+            </div>
+          ) : (
+            <Star className="w-8 h-8 text-gray-300 hover:text-yellow-300" />
+          )}
+        </div>
+      ))}
+      <span className="text-sm text-muted-foreground mr-2 self-center">({value})</span>
     </div>
   );
 }
@@ -611,6 +746,13 @@ function AdminForm({
         image: item?.image || "",
         order: item?.order || 0,
       };
+    } else if (type === "testimonials") {
+      return {
+        text: item?.text || "",
+        author: item?.author || "",
+        role: item?.role || "",
+        rating: item?.rating || 5,
+      };
     } else {
       return {
         title: item?.title || "",
@@ -797,7 +939,51 @@ function AdminForm({
             </>
           )}
 
-          {type !== "logos" && (
+          {type === "testimonials" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">نص التعليق</label>
+                <textarea
+                  value={(formData as any).text}
+                  onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                  required
+                  data-testid="input-testimonial-text"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">اسم العميل</label>
+                <input
+                  type="text"
+                  value={(formData as any).author}
+                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                  data-testid="input-testimonial-author"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">المسمى الوظيفي</label>
+                <input
+                  type="text"
+                  value={(formData as any).role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                  data-testid="input-testimonial-role"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">التقييم</label>
+                <StarRatingInput
+                  value={(formData as any).rating}
+                  onChange={(rating) => setFormData({ ...formData, rating })}
+                />
+              </div>
+            </>
+          )}
+
+          {type !== "logos" && type !== "testimonials" && (
             <>
               <ImageUploadField
                 label="الصورة الرئيسية"
