@@ -466,18 +466,56 @@ function MultiImageUploadField({
   testId: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadFile, isUploading } = useUpload({
-    onSuccess: (response) => {
-      onChange([...values, response.objectPath]);
-    },
-  });
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadCount, setUploadCount] = useState({ current: 0, total: 0 });
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      for (let i = 0; i < files.length; i++) {
-        await uploadFile(files[i]);
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadCount({ current: 0, total: files.length });
+
+    const uploadPromises = Array.from(files).map(async (file) => {
+      try {
+        const response = await fetch("/api/uploads/request-url", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: file.name,
+            size: file.size,
+            contentType: file.type || "application/octet-stream",
+          }),
+        });
+
+        if (!response.ok) throw new Error("Failed to get upload URL");
+
+        const { uploadURL, objectPath } = await response.json();
+
+        await fetch(uploadURL, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": file.type || "application/octet-stream" },
+        });
+
+        setUploadCount(prev => ({ ...prev, current: prev.current + 1 }));
+        return objectPath;
+      } catch (error) {
+        console.error("Upload failed for", file.name, error);
+        return null;
       }
+    });
+
+    const results = await Promise.all(uploadPromises);
+    const successfulUploads = results.filter((path): path is string => path !== null);
+    
+    if (successfulUploads.length > 0) {
+      onChange([...values, ...successfulUploads]);
+    }
+
+    setIsUploading(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -527,7 +565,7 @@ function MultiImageUploadField({
             className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50"
           >
             <Upload className="w-4 h-4" />
-            {isUploading ? "جاري الرفع..." : "إضافة صور"}
+            {isUploading ? `جاري رفع ${uploadCount.current}/${uploadCount.total} صور...` : "إضافة صور"}
           </button>
         </div>
       </div>
