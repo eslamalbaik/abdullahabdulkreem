@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, ChevronLeft, ChevronRight, Star, Mail, CheckCircle } from "lucide-react";
@@ -286,7 +286,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border/50 text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} عبدالله عبدالكريم. جميع الحقوق محفوظة.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-foreground">سياسة الخصوصية</a>
+            <Link href="/privacy" className="hover:text-foreground" data-testid="link-privacy">سياسة الخصوصية</Link>
             <a href="#" className="hover:text-foreground">شروط الاستخدام</a>
           </div>
         </div>
