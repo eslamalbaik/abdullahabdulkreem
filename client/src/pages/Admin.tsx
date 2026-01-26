@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useUpload } from "@/hooks/use-upload";
 
 interface Project {
   id: number;
@@ -384,6 +385,163 @@ export default function Admin() {
   );
 }
 
+function ImageUploadField({
+  label,
+  value,
+  onChange,
+  testId,
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  testId: string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadFile, isUploading } = useUpload({
+    onSuccess: (response) => {
+      onChange(response.objectPath);
+    },
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await uploadFile(file);
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2">{label}</label>
+      <div className="space-y-2">
+        {value && (
+          <div className="relative inline-block">
+            <img 
+              src={value.startsWith('/objects/') ? value : value} 
+              alt="صورة" 
+              className="w-24 h-24 object-cover rounded-lg border border-border"
+            />
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        <div className="flex gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+            data-testid={testId}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50"
+          >
+            <Upload className="w-4 h-4" />
+            {isUploading ? "جاري الرفع..." : "اختر صورة"}
+          </button>
+          <input
+            type="url"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="أو أدخل رابط الصورة"
+            className="flex-1 px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MultiImageUploadField({
+  label,
+  values,
+  onChange,
+  testId,
+}: {
+  label: string;
+  values: string[];
+  onChange: (urls: string[]) => void;
+  testId: string;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadFile, isUploading } = useUpload({
+    onSuccess: (response) => {
+      onChange([...values, response.objectPath]);
+    },
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        await uploadFile(files[i]);
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newValues = values.filter((_, i) => i !== index);
+    onChange(newValues);
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2">{label}</label>
+      <div className="space-y-2">
+        {values.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {values.map((url, index) => (
+              <div key={index} className="relative">
+                <img 
+                  src={url.startsWith('/objects/') ? url : url} 
+                  alt={`صورة ${index + 1}`} 
+                  className="w-16 h-16 object-cover rounded-lg border border-border"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            multiple
+            className="hidden"
+            data-testid={testId}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50"
+          >
+            <Upload className="w-4 h-4" />
+            {isUploading ? "جاري الرفع..." : "إضافة صور"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminForm({
   type,
   item,
@@ -402,6 +560,7 @@ function AdminForm({
         title: item?.title || "",
         category: item?.category || "",
         image: item?.image || "",
+        images: item?.images || [],
         year: item?.year || new Date().getFullYear().toString(),
         description: item?.description || "",
         featured: item?.featured || false,
@@ -518,17 +677,12 @@ function AdminForm({
           )}
 
           {type === "logos" && (
-            <div>
-              <label className="block text-sm font-medium mb-2">رابط الشعار</label>
-              <input
-                type="url"
-                value={(formData as any).image}
-                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-                data-testid="input-logo-image"
-              />
-            </div>
+            <ImageUploadField
+              label="الشعار"
+              value={(formData as any).image}
+              onChange={(url) => setFormData({ ...formData, image: url })}
+              testId="input-logo-image"
+            />
           )}
 
           {type === "projects" && (
@@ -614,17 +768,21 @@ function AdminForm({
 
           {type !== "logos" && (
             <>
-              <div>
-                <label className="block text-sm font-medium mb-2">رابط الصورة</label>
-                <input
-                  type="url"
-                  value={(formData as any).image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                  data-testid="input-image"
+              <ImageUploadField
+                label="الصورة الرئيسية"
+                value={(formData as any).image}
+                onChange={(url) => setFormData({ ...formData, image: url })}
+                testId="input-image"
+              />
+
+              {type === "projects" && (
+                <MultiImageUploadField
+                  label="صور إضافية (اختياري)"
+                  values={(formData as any).images || []}
+                  onChange={(urls) => setFormData({ ...formData, images: urls })}
+                  testId="input-images"
                 />
-              </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium mb-2">الوصف</label>
