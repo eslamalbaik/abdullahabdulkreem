@@ -287,7 +287,7 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} عبدالله عبدالكريم. جميع الحقوق محفوظة.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="/privacy" className="hover:text-foreground" data-testid="link-privacy">سياسة الخصوصية</Link>
-            <a href="#" className="hover:text-foreground">شروط الاستخدام</a>
+            <Link href="/terms" className="hover:text-foreground" data-testid="link-terms">شروط الاستخدام</Link>
           </div>
         </div>
       </div>

@@ -21,6 +21,7 @@ import Courses from "@/pages/Courses";
 import Contact from "@/pages/Contact";
 import Questionnaire from "@/pages/Questionnaire";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import Terms from "@/pages/Terms";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/questionnaire" component={Questionnaire} />
       <Route path="/privacy" component={PrivacyPolicy} />
+      <Route path="/terms" component={Terms} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
