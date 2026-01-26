@@ -3,7 +3,6 @@ import { build as viteBuild } from "vite";
 import { rm, readFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
-// which helps cold start times
 const allowlist = [
   "@google/generative-ai",
   "@neondatabase/serverless",
@@ -53,9 +52,8 @@ async function buildAll() {
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
-    format: "cjs",
-    outfile: "dist/index.cjs",
-    // ❌ حذفنا define بالكامل
+    format: "esm",          
+    outfile: "dist/index.js",
     minify: true,
     external: externals,
     logLevel: "info",
