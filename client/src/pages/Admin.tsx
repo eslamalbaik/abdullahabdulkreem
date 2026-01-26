@@ -448,13 +448,6 @@ function ImageUploadField({
             <Upload className="w-4 h-4" />
             {isUploading ? "جاري الرفع..." : "اختر صورة"}
           </button>
-          <input
-            type="url"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="أو أدخل رابط الصورة"
-            className="flex-1 px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-          />
         </div>
       </div>
     </div>

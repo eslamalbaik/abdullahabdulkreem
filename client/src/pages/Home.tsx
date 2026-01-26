@@ -131,30 +131,31 @@ export default function Home() {
           ) : (
             <div className="grid md:grid-cols-2 gap-x-12 gap-y-20">
               {projects.slice(0, 2).map((project, i) => (
-                <motion.div 
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.2 }}
-                  className="group cursor-pointer"
-                  data-testid={`project-${project.id}`}
-                >
-                  <div className="aspect-[4/3] overflow-hidden mb-6 bg-secondary/50 rounded-3xl">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="flex justify-between items-start border-t border-border pt-4">
-                    <div>
-                      <h3 className="text-2xl font-serif mb-1 group-hover:underline decoration-1 underline-offset-4">{project.title}</h3>
-                      <p className="text-muted-foreground">{project.category}</p>
+                <Link key={project.id} href={`/portfolio/${project.id}`}>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.2 }}
+                    className="group cursor-pointer"
+                    data-testid={`project-${project.id}`}
+                  >
+                    <div className="aspect-[4/3] overflow-hidden mb-6 bg-secondary/50 rounded-3xl">
+                      <img 
+                        src={project.image} 
+                        alt={project.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
-                    <span className="text-muted-foreground font-mono text-sm">{project.year}</span>
-                  </div>
-                </motion.div>
+                    <div className="flex justify-between items-start border-t border-border pt-4">
+                      <div>
+                        <h3 className="text-2xl font-serif mb-1 group-hover:underline decoration-1 underline-offset-4">{project.title}</h3>
+                        <p className="text-muted-foreground">{project.category}</p>
+                      </div>
+                      <span className="text-muted-foreground font-mono text-sm">{project.year}</span>
+                    </div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           )}
