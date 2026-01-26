@@ -91,7 +91,7 @@ export default function Home() {
         <section className="py-12 bg-secondary/30 overflow-hidden">
           <div className="relative">
             <div className="flex animate-marquee-rtl gap-16 whitespace-nowrap">
-              {[...Array(2)].map((_, setIndex) => (
+              {[...Array(6)].map((_, setIndex) => (
                 <div key={setIndex} className="flex gap-16 items-center shrink-0">
                   {clientLogos.map((logo) => (
                     <img 
