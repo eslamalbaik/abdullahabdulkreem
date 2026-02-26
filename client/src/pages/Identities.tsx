@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 interface Identity {
@@ -12,7 +12,7 @@ interface Identity {
 }
 
 export default function Identities() {
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { data: identities, isLoading } = useQuery<Identity[]>({
     queryKey: ["/api/identities"],
   });
@@ -47,7 +47,7 @@ export default function Identities() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl cursor-pointer"
-                onClick={() => setLocation(`/identities/${identity.id}`)}
+                onClick={() => navigate(`/identities/${identity.id}`)}
                 data-testid={`card-identity-${identity.id}`}
               >
                 <div className="aspect-[4/3] overflow-hidden">
@@ -64,7 +64,7 @@ export default function Identities() {
                   <p className="text-muted-foreground mb-4 line-clamp-2">
                     {identity.description}
                   </p>
-                  
+
                   <div className="mb-4">
                     <h4 className="text-sm font-semibold mb-2 text-primary">تشمل الهوية:</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
@@ -81,11 +81,11 @@ export default function Identities() {
                     <span className="text-2xl font-bold text-primary" data-testid={`text-identity-price-${identity.id}`}>
                       {identity.price} ر.س
                     </span>
-                    <button 
-                      className="px-6 py-2 bg-primary text-primary-foreground rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
-                      data-testid={`button-view-identity-${identity.id}`}
+                    <button
+                      onClick={() => navigate(`/checkout?type=identity&id=${identity.id}`)}
+                      className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
                     >
-                      عرض التفاصيل
+                      اطلب الآن
                     </button>
                   </div>
                 </div>

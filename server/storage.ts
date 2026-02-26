@@ -15,7 +15,8 @@ import {
   type Lesson, type InsertLesson,
   type LessonProgress, type InsertLessonProgress,
   type CourseTestimonial, type InsertCourseTestimonial,
-  type CourseEnrollment, type InsertCourseEnrollment
+  type CourseEnrollment, type InsertCourseEnrollment,
+  siteConfigs, type SiteConfig, type InsertSiteConfig
 } from "@shared/schema";
 
 export interface IStorage {
@@ -25,62 +26,65 @@ export interface IStorage {
   createProject(project: InsertProject): Promise<Project>;
   updateProject(id: number, project: InsertProject): Promise<Project>;
   deleteProject(id: number): Promise<void>;
-  
+
   getProducts(): Promise<Product[]>;
   getProductsByCategory(category: string): Promise<Product[]>;
   getProductById(id: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, product: InsertProduct): Promise<Product>;
   deleteProduct(id: number): Promise<void>;
-  
+
   getArticles(): Promise<Article[]>;
   getArticleBySlug(slug: string): Promise<Article | undefined>;
-  
+
   getIdentities(): Promise<Identity[]>;
   getIdentityById(id: number): Promise<Identity | undefined>;
   createIdentity(identity: InsertIdentity): Promise<Identity>;
   updateIdentity(id: number, identity: InsertIdentity): Promise<Identity>;
   deleteIdentity(id: number): Promise<void>;
-  
+
   createContact(contact: InsertContact): Promise<Contact>;
   getContacts(): Promise<Contact[]>;
-  
+
   getClientLogos(): Promise<ClientLogo[]>;
   createClientLogo(logo: InsertClientLogo): Promise<ClientLogo>;
   updateClientLogo(id: number, logo: InsertClientLogo): Promise<ClientLogo>;
   deleteClientLogo(id: number): Promise<void>;
-  
+
   getTestimonials(): Promise<Testimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
   updateTestimonial(id: number, testimonial: InsertTestimonial): Promise<Testimonial>;
   deleteTestimonial(id: number): Promise<void>;
-  
+
   createQuestionnaireSubmission(submission: InsertQuestionnaire): Promise<QuestionnaireSubmission>;
   getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]>;
-  
+
   getCourses(): Promise<Course[]>;
   getCourseById(id: number): Promise<Course | undefined>;
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, course: InsertCourse): Promise<Course>;
   deleteCourse(id: number): Promise<void>;
-  
+
   getLessonsByCourseId(courseId: number): Promise<Lesson[]>;
   getLessonById(id: number): Promise<Lesson | undefined>;
   createLesson(lesson: InsertLesson): Promise<Lesson>;
   updateLesson(id: number, lesson: InsertLesson): Promise<Lesson>;
   deleteLesson(id: number): Promise<void>;
-  
+
   getLessonProgress(lessonId: number, userId: string): Promise<LessonProgress | undefined>;
   getUserCourseProgress(courseId: number, userId: string): Promise<LessonProgress[]>;
   upsertLessonProgress(progress: InsertLessonProgress): Promise<LessonProgress>;
-  
+
   getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]>;
   createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial>;
   deleteCourseTestimonial(id: number): Promise<void>;
   updateCourseTestimonialReply(id: number, adminReply: string): Promise<CourseTestimonial>;
-  
+
   getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined>;
   createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
+
+  getSiteConfigs(): Promise<SiteConfig[]>;
+  updateSiteConfig(key: string, value: string): Promise<SiteConfig>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -282,7 +286,7 @@ export class DatabaseStorage implements IStorage {
     const courseLessons = await this.getLessonsByCourseId(courseId);
     const lessonIds = courseLessons.map(l => l.id);
     if (lessonIds.length === 0) return [];
-    
+
     const progress = await db.select().from(lessonProgress)
       .where(eq(lessonProgress.userId, userId));
     return progress.filter(p => lessonIds.includes(p.lessonId));
@@ -335,6 +339,22 @@ export class DatabaseStorage implements IStorage {
   async createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment> {
     const [created] = await db.insert(courseEnrollments).values(enrollment).returning();
     return created;
+  }
+
+  async getSiteConfigs(): Promise<SiteConfig[]> {
+    return db.select().from(siteConfigs);
+  }
+
+  async updateSiteConfig(key: string, value: string): Promise<SiteConfig> {
+    const [config] = await db
+      .insert(siteConfigs)
+      .values({ key, value })
+      .onConflictDoUpdate({
+        target: siteConfigs.key,
+        set: { value, updatedAt: new Date() },
+      })
+      .returning();
+    return config;
   }
 }
 

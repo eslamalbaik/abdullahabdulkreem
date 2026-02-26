@@ -1,8 +1,22 @@
+import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import path from "path";
 import { registerRoutes } from "./routes.ts";
 import { serveStatic } from "./static.ts";
 import { createServer } from "http";
+import connectDB from './config/db.js';
+import seedRoles from './services/seedService.js';
+import authRoutes from './routes/authRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import errorMiddleware from './middlewares/errorMiddleware.js';
+import { activityLogger } from './middlewares/activityLogger.js';
+import helmet from 'helmet';
+import cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpecs from './config/swagger.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -13,24 +27,58 @@ declare module "http" {
   }
 }
 
-// مهم جداً: هذا قبل أي routes
+// Basic Middlewares
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  },
+}));
+app.use(express.urlencoded({ extended: false }));
+
+// Security Middlewares
 app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "dev-secret",
-    resave: false,
-    saveUninitialized: false,
+  helmet({
+    contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
+    crossOriginEmbedderPolicy: false,
   })
 );
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    // Be permissive in development but follow the rules
+    callback(null, true);
+  },
+  credentials: true
+}));
 
-app.use(
-  express.json({
-    verify: (req, _res, buf) => {
-      req.rawBody = buf;
-    },
-  }),
-);
+// Fix for Express 5 compatibility with mongoSanitize
+app.use((req, _res, next) => {
+  ['query', 'body', 'params'].forEach((key) => {
+    const request = req as any;
+    if (request[key]) {
+      Object.defineProperty(req, key, {
+        value: { ...request[key] },
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+    }
+  });
+  next();
+});
 
-app.use(express.urlencoded({ extended: false }));
+app.use(mongoSanitize());
+
+// Rate limiting - only for API routes and increased limit for development
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === "production" ? 100 : 10000,
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use("/api", limiter);
+
+app.use(activityLogger);
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -69,25 +117,62 @@ app.use((req, res, next) => {
   next();
 });
 
+// Production Env Validation
+if (process.env.NODE_ENV === "production") {
+  const envVars = ["DATABASE_URL", "MONGODB_URI", "SESSION_SECRET"];
+  const missing = envVars.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    console.error(`FATAL: Missing production environment variables: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+}
+
 (async () => {
+  // Connect to Database
+  await connectDB();
+  // Seed Roles
+  await seedRoles();
+
+  // Verify DB connection for Drizzle
+  try {
+    const { db } = await import("./db.ts");
+    const { sql } = await import("drizzle-orm");
+    await db.execute(sql`SELECT 1`);
+    log("Database connection verified for Drizzle");
+
+    // Auto-create site_configs table if missing
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS site_configs (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    log("site_configs table verified/created");
+  } catch (err: any) {
+    log(`Database connection failed for Drizzle: ${err.message}`);
+  }
+
   await registerRoutes(httpServer, app);
 
-  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+  // Health check
+  app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 
-    console.error("Internal Server Error:", err);
+  // New Auth Routes
+  app.use('/api/auth', authRoutes);
+  // Product Routes
+  app.use('/api/products', productRoutes);
 
-    if (res.headersSent) {
-      return next(err);
-    }
+  // API Documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
-    return res.status(status).json({ message });
-  });
+  // Centralized Error Handling
+  app.use(errorMiddleware);
 
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
+    app.use(express.static(path.resolve(process.cwd(), "client/public")));
     const { setupVite } = await import("./vite.ts");
     await setupVite(httpServer, app);
   }
@@ -97,10 +182,11 @@ app.use((req, res, next) => {
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
     },
     () => {
       log(`serving on port ${port}`);
+      log(`environment: ${process.env.NODE_ENV || 'development'}`);
+      log(`CSP: ${process.env.NODE_ENV === "production" ? 'enabled' : 'disabled'}`);
     },
   );
 })();

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProjects } from "@/lib/api";
 
@@ -36,8 +36,8 @@ export default function Portfolio() {
       ) : (
         <div className="grid md:grid-cols-2 gap-x-12 gap-y-24">
           {projects.map((project, i) => (
-            <Link key={project.id} href={`/portfolio/${project.id}`}>
-              <motion.div 
+            <Link key={project.id} to={`/portfolio/${project.id}`}>
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -46,8 +46,8 @@ export default function Portfolio() {
                 data-testid={`project-card-${project.id}`}
               >
                 <div className={`aspect-[4/3] ${i % 3 === 0 ? 'aspect-[21/9]' : ''} overflow-hidden mb-6 bg-secondary/50`}>
-                  <img 
-                    src={project.image} 
+                  <img
+                    src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

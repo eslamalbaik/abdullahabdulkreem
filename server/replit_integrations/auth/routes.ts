@@ -7,6 +7,10 @@ export function registerAuthRoutes(app: Express): void {
   // Get current authenticated user
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
     try {
+      if (req.user?.id === "local-admin") {
+        const user = await authStorage.getUserByEmail(req.user.email);
+        return res.json(user || req.user);
+      }
       const userId = req.user.claims.sub;
       const user = await authStorage.getUser(userId);
       res.json(user);

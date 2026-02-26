@@ -1,6 +1,23 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: 'The Year of Handicrafts';
+  src: url('/fonts/TheYearofHandicrafts-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'The Year of Handicrafts';
+  src: url('/fonts/TheYearofHandicrafts-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -23,10 +40,11 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  
-  --font-sans: 'The Year of Handicrafts', 'Arial', 'Tahoma', sans-serif;
-  --font-serif: 'The Year of Handicrafts', 'Arial', 'Tahoma', sans-serif;
-  
+
+  --font-tajawal: "Tajawal", sans-serif;
+  --font-sans: "The Year of Handicrafts", ui-serif, serif;
+  --font-serif: "The Year of Handicrafts", ui-serif, serif;
+
   --radius-sm: 0rem;
   --radius-md: 0rem;
   --radius-lg: 0rem;
@@ -104,21 +122,39 @@
   * {
     @apply border-border;
   }
+
   html {
     direction: rtl;
   }
+
   body {
-    @apply font-sans antialiased bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
+    @apply font-serif antialiased bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
+    font-family: "The Year of Handicrafts", ui-serif, serif;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-serif tracking-tight;
   }
+
+  input,
+  button,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
 }
 
 @keyframes marquee-scroll {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(100%);
   }

@@ -64,7 +64,7 @@ export async function sendQuestionnaireNotification(data: {
     to: 'abdullah.slwmhgd@gmail.com',
     subject: `طلب جديد من ${data.name} - استبيان التواصل`,
     html: `
-      <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px;">
+      <div dir="rtl" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px;">
         <h2 style="color: #0020a5;">طلب جديد من الاستبيان</h2>
         <table style="width: 100%; border-collapse: collapse;">
           <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>الاسم:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${data.name}</td></tr>
@@ -95,7 +95,7 @@ export async function sendContactNotification(data: {
     to: 'abdullah.slwmhgd@gmail.com',
     subject: `رسالة جديدة من ${data.name} - نموذج التواصل`,
     html: `
-      <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px;">
+      <div dir="rtl" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px;">
         <h2 style="color: #0020a5;">رسالة جديدة من نموذج التواصل</h2>
         <table style="width: 100%; border-collapse: collapse;">
           <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>الاسم:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${data.name}</td></tr>
@@ -116,7 +116,7 @@ export async function sendNewsletterNotification(email: string) {
     to: 'abdullah.slwmhgd@gmail.com',
     subject: `اشتراك جديد في النشرة البريدية`,
     html: `
-      <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px;">
+      <div dir="rtl" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px;">
         <h2 style="color: #0020a5;">اشتراك جديد في النشرة البريدية</h2>
         <p><strong>البريد الإلكتروني:</strong> ${email}</p>
       </div>

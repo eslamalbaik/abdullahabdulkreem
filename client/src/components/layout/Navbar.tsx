@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X, ShoppingCart, LogIn, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
-  const [location] = useLocation();
+  const { pathname } = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -30,7 +30,7 @@ export default function Navbar() {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
+          <Link to="/" className="hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="الشعار" className="h-20" />
           </Link>
 
@@ -38,10 +38,10 @@ export default function Navbar() {
             {links.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                to={link.href}
                 className={cn(
                   "text-sm font-medium tracking-wide transition-colors hover:text-primary",
-                  location === link.href
+                  pathname === link.href
                     ? "text-primary"
                     : "text-muted-foreground"
                 )}
@@ -49,9 +49,9 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            
+
             <Link
-              href="/cart"
+              to="/cart"
               className="relative p-2 text-muted-foreground hover:text-primary transition-colors"
               data-testid="link-cart"
             >
@@ -68,12 +68,17 @@ export default function Navbar() {
             ) : isAuthenticated ? (
               <div className="flex items-center gap-3">
                 {user?.profileImageUrl && (
-                  <img 
-                    src={user.profileImageUrl} 
-                    alt="صورة المستخدم" 
+                  <img
+                    src={user.profileImageUrl}
+                    alt="صورة المستخدم"
                     className="w-8 h-8 rounded-full object-cover"
                     data-testid="img-profile"
                   />
+                )}
+                {user?.role === 'admin' && (
+                  <Link to="/dashboard" className="text-sm font-medium text-primary hover:opacity-80 transition-opacity">
+                    لوحة التحكم
+                  </Link>
                 )}
                 <button
                   onClick={() => logout()}
@@ -96,7 +101,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-2 md:hidden">
             <Link
-              href="/cart"
+              to="/cart"
               className="relative p-2 text-foreground"
               data-testid="link-cart-mobile"
             >
@@ -133,11 +138,11 @@ export default function Navbar() {
                 {links.map((link) => (
                   <Link
                     key={link.href}
-                    href={link.href}
+                    to={link.href}
                     onClick={handleLinkClick}
                     className={cn(
                       "text-2xl font-medium py-3 border-b border-border transition-colors",
-                      location === link.href
+                      pathname === link.href
                         ? "text-primary"
                         : "text-foreground"
                     )}
@@ -153,16 +158,20 @@ export default function Navbar() {
                 ) : isAuthenticated ? (
                   <div className="flex items-center gap-4 py-3 border-b border-border">
                     {user?.profileImageUrl && (
-                      <img 
-                        src={user.profileImageUrl} 
-                        alt="صورة المستخدم" 
+                      <img
+                        src={user.profileImageUrl}
+                        alt="صورة المستخدم"
                         className="w-10 h-10 rounded-full object-cover"
                         data-testid="img-profile-mobile"
                       />
                     )}
-                    <div className="flex-1">
+                    <div className="flex-1 flex flex-col">
                       <p className="font-medium" data-testid="text-username-mobile">{user?.firstName || 'مستخدم'}</p>
-                      <p className="text-sm text-muted-foreground" data-testid="text-email-mobile">{user?.email}</p>
+                      {user?.role === 'admin' && (
+                        <Link to="/dashboard" onClick={handleLinkClick} className="text-sm text-primary">
+                          لوحة التحكم
+                        </Link>
+                      )}
                     </div>
                     <button
                       onClick={() => { logout(); handleLinkClick(); }}
@@ -173,8 +182,8 @@ export default function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <a 
-                    href="/api/login" 
+                  <a
+                    href="/api/login"
                     onClick={handleLinkClick}
                     className="text-2xl font-medium py-3 border-b border-border text-primary flex items-center gap-3"
                     data-testid="link-login-mobile"
