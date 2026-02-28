@@ -45,7 +45,18 @@ async function buildAll() {
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.devDependencies || {}),
   ];
-  const externals = allDeps.filter((dep) => !allowlist.includes(dep));
+
+  // Mark all dependencies not in allowlist as external
+  // Also explicitly mark all Node.js built-ins as external
+  const nodeBuiltins = [
+    "node:events", "node:util", "node:http", "node:https", "node:os",
+    "node:path", "node:fs", "node:stream", "node:tty", "node:url", "node:crypto"
+  ];
+
+  const externals = [
+    ...allDeps.filter((dep) => !allowlist.includes(dep)),
+    ...nodeBuiltins,
+  ];
 
   await esbuild({
     entryPoints: ["server/index.ts"],
@@ -57,7 +68,7 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
     banner: {
-      js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
+      js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",
     },
   });
 
