@@ -51,11 +51,14 @@ async function buildAll() {
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
-    format: "esm",              // ← هنا الحل
-    outfile: "dist/index.js",   // ← مو cjs
+    format: "esm",
+    outfile: "dist/index.js",
     minify: true,
     external: externals,
     logLevel: "info",
+    banner: {
+      js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
+    },
   });
 
   console.log("build complete! outputs in dist/");
