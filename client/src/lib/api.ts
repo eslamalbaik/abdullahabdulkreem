@@ -17,7 +17,8 @@ export async function fetchFeaturedProjects(): Promise<Project[]> {
 export async function fetchProducts(): Promise<Product[]> {
   const response = await fetch(`${API_BASE}/products`);
   if (!response.ok) throw new Error("Failed to fetch products");
-  return response.json();
+  const data = await response.json();
+  return Array.isArray(data) ? data : (data.products || []);
 }
 
 export async function fetchProductsByCategory(category: string): Promise<Product[]> {

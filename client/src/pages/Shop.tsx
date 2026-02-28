@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProductsByCategory } from "@/lib/api";
+import { fetchProducts } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -8,8 +8,8 @@ import type { Product } from "@shared/schema";
 
 export default function Shop() {
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products", "Templates"],
-    queryFn: () => fetchProductsByCategory("Templates"),
+    queryKey: ["products"],
+    queryFn: fetchProducts,
   });
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -55,7 +55,7 @@ export default function Shop() {
       ) : (
         <div className="grid md:grid-cols-3 gap-10">
           {products.map((product, i) => (
-            <motion.div 
+            <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -64,15 +64,15 @@ export default function Shop() {
               data-testid={`product-card-${product.id}`}
             >
               <div className="aspect-[4/5] bg-secondary mb-6 relative overflow-hidden">
-                <img 
-                  src={product.image} 
+                <img
+                  src={product.image}
                   alt={product.title}
                   className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
                 <div className="absolute bottom-4 left-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <Button 
-                    className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg" 
+                  <Button
+                    className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg"
                     data-testid={`button-add-cart-${product.id}`}
                     onClick={() => handleAddToCart(product)}
                   >

@@ -142,15 +142,28 @@ export type QuestionnaireSubmission = typeof questionnaireSubmissions.$inferSele
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),
   email: varchar("email").unique(),
+  password: varchar("password"), // Added for custom password management
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  role: varchar("role").default("user").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "كلمة المرور الحالية مطلوبة"),
+  newPassword: z.string().min(6, "كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل"),
+  confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "كلمات المرور الجديدة غير متطابقة",
+  path: ["confirmPassword"],
+});
+
+export type ChangePassword = z.infer<typeof changePasswordSchema>;
 
 // ===== Sessions =====
 export const sessions = pgTable("sessions", {
@@ -188,7 +201,7 @@ export const lessons = pgTable("lessons", {
   duration: integer("duration"),
   order: integer("order").notNull(),
   isFree: boolean("is_free").default(false).notNull(),
-  attachments: jsonb("attachments").$type<Array<{name: string, url: string}>>(),
+  attachments: jsonb("attachments").$type<Array<{ name: string, url: string }>>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -254,3 +267,14 @@ export const courseEnrollments = pgTable("course_enrollments", {
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments).omit({ id: true, createdAt: true });
 export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+
+// ===== Site Configuration =====
+export const siteConfigs = pgTable("site_configs", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSiteConfigSchema = createInsertSchema(siteConfigs);
+export type InsertSiteConfig = z.infer<typeof insertSiteConfigSchema>;
+export type SiteConfig = typeof siteConfigs.$inferSelect;

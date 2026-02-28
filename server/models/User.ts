@@ -1,0 +1,68 @@
+import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+export interface IUser extends Document {
+    name: string;
+    email: string;
+    password: string;
+    role: mongoose.Types.ObjectId;
+    isDeleted: boolean;
+    deletedAt?: Date;
+    comparePassword: (password: string) => Promise<boolean>;
+}
+
+const UserSchema: Schema = new Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            lowercase: true,
+        },
+        password: {
+            type: String,
+            required: true,
+            select: false, // Don't return password by default
+        },
+        role: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Role',
+            required: true,
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false,
+        },
+        deletedAt: {
+            type: Date,
+        },
+    },
+    { timestamps: true }
+);
+
+// Indexing
+UserSchema.index({ email: 1 });
+UserSchema.index({ isDeleted: 1 });
+
+// Hash password before saving
+UserSchema.pre<IUser>('save', async function (next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+});
+
+// Compare password method
+UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
+};
+
+export default mongoose.model<IUser>('User', UserSchema);

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Check, GraduationCap } from "lucide-react";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 
 interface Course {
   id: number;
@@ -27,7 +27,7 @@ export default function Courses() {
         className="mb-20"
       >
         <span className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 block">التعليم</span>
-        <h1 className="text-6xl font-serif mb-8 max-w-4xl">أتقن فن <br/>السرد البصري.</h1>
+        <h1 className="text-6xl font-serif mb-8 max-w-4xl">أتقن فن <br />السرد البصري.</h1>
       </motion.div>
 
       {isLoading ? (
@@ -52,7 +52,7 @@ export default function Courses() {
       ) : (
         <div className="grid gap-12">
           {courses.map((course, i) => (
-            <motion.div 
+            <motion.div
               key={course.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -62,8 +62,8 @@ export default function Courses() {
             >
               <div className="aspect-video bg-secondary overflow-hidden">
                 {course.image ? (
-                  <img 
-                    src={course.image} 
+                  <img
+                    src={course.image}
                     alt={course.title}
                     className="w-full h-full object-cover"
                   />
@@ -91,7 +91,7 @@ export default function Courses() {
                   </ul>
                 </div>
                 <div className="flex items-center gap-6 mt-6">
-                  <Link href={`/courses/${course.id}`}>
+                  <Link to={`/courses/${course.id}`}>
                     <Button size="lg" className="px-8" data-testid={`button-view-course-${course.id}`}>
                       عرض الدورة
                     </Button>

@@ -1,19 +1,20 @@
-import { Switch, Route } from "wouter";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/contexts/CartContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
+// Pages
 import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import Identities from "@/pages/Identities";
 import IdentityDetail from "@/pages/IdentityDetail";
 import ProjectDetail from "@/pages/ProjectDetail";
 import ProductDetail from "@/pages/ProductDetail";
-import Admin from "@/pages/Admin";
 import Shop from "@/pages/Shop";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
@@ -24,46 +25,81 @@ import Questionnaire from "@/pages/Questionnaire";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
 import NotFound from "@/pages/not-found";
+import LoginPage from "@/pages/LoginPage";
+import DashboardHome from "@/pages/DashboardHome";
+import DashboardProducts from "@/pages/DashboardProducts";
+import DashboardIdentities from "@/pages/DashboardIdentities";
+import DashboardProjects from "@/pages/DashboardProjects";
+import DashboardTestimonials from "@/pages/DashboardTestimonials";
+import DashboardCourses from "@/pages/DashboardCourses";
+import DashboardSettings from "@/pages/DashboardSettings";
 
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/portfolio" component={Portfolio} />
-      <Route path="/portfolio/:id" component={ProjectDetail} />
-      <Route path="/identities" component={Identities} />
-      <Route path="/identities/:id" component={IdentityDetail} />
-      <Route path="/shop" component={Shop} />
-      <Route path="/shop/:id" component={ProductDetail} />
-      <Route path="/cart" component={Cart} />
-      <Route path="/checkout" component={Checkout} />
-      <Route path="/courses" component={Courses} />
-      <Route path="/courses/:id" component={CourseViewer} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/questionnaire" component={Questionnaire} />
-      <Route path="/privacy" component={PrivacyPolicy} />
-      <Route path="/terms" component={Terms} />
-      <Route path="/admin" component={Admin} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+// Layouts & Components
+import DashboardLayout from "@/layouts/DashboardLayout";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import FloatingAdminButton from "@/components/FloatingAdminButton";
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <TooltipProvider>
-          <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
-            <Navbar />
-            <main className="flex-grow">
-              <Router />
-            </main>
-            <Footer />
-          </div>
-          <Toaster />
-        </TooltipProvider>
-      </CartProvider>
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <CartProvider>
+          <TooltipProvider>
+            <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
+              <Routes>
+                {/* Public Routes with Shared Layout */}
+                <Route element={
+                  <>
+                    <Navbar />
+                    <main className="flex-grow">
+                      <Outlet />
+                    </main>
+                    <Footer />
+                  </>
+                }>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/portfolio" element={<Portfolio />} />
+                  <Route path="/portfolio/:id" element={<ProjectDetail />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/shop/:id" element={<ProductDetail />} />
+                  <Route path="/identities" element={<Identities />} />
+                  <Route path="/identities/:id" element={<IdentityDetail />} />
+                  <Route path="/courses" element={<Courses />} />
+                  <Route path="/courses/:id" element={<CourseViewer />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/questionnaire" element={<Questionnaire />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<Terms />} />
+                </Route>
+
+                <Route path="/login" element={<LoginPage />} />
+
+                {/* Protected Dashboard Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route index element={<DashboardHome />} />
+                    <Route path="products" element={<DashboardProducts />} />
+                    <Route path="identities" element={<DashboardIdentities />} />
+                    <Route path="projects" element={<DashboardProjects />} />
+                    <Route path="testimonials" element={<DashboardTestimonials />} />
+                    <Route path="courses" element={<DashboardCourses />} />
+                    <Route path="settings" element={<DashboardSettings />} />
+                    <Route path="users" element={<div>إدارة المستخدمين</div>} />
+                    <Route path="logs" element={<div>سجل النشاطات</div>} />
+                  </Route>
+                </Route>
+
+                {/* Fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+            <FloatingAdminButton />
+            <Toaster />
+          </TooltipProvider>
+        </CartProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

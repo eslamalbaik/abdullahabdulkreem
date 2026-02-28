@@ -57,6 +57,10 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
   });
+
+  console.log("build complete! outputs in dist/");
+  console.log("- frontend: dist/public/");
+  console.log("- backend: dist/index.js (ESM)");
 }
 
 buildAll().catch((err) => {

@@ -1,58 +1,57 @@
-# Deployment Guide - Railway / VPS
+# Deployment Guide - Railway / VPS / Docker
 
-This project is a full-stack Node.js application ready for deployment on Railway, VPS, or any traditional hosting.
+This project is a full-stack Node.js application ready for deployment.
 
 ## Prerequisites
 
 - Node.js 20+
-- PostgreSQL database
+- PostgreSQL database (Neon recommended)
+- MongoDB database (Atlas recommended)
 - npm or yarn
 
 ## Environment Variables
 
-Create a `.env` file or set these environment variables on your hosting platform:
+Create a `.env` file or set these variables on your hosting platform:
 
 ```env
-# Required
+# Database
 DATABASE_URL=postgresql://user:password@host:5432/database
+MONGODB_URI=mongodb+srv://...
+
+# Authentication
 SESSION_SECRET=your-secure-random-session-secret
+JWT_SECRET=your-secure-jwt-secret
+JWT_REFRESH_SECRET=your-secure-refresh-secret
+
+# App
 PORT=5000
+NODE_ENV=production
 
-# Optional - Resend Email (for form notifications)
-RESEND_API_KEY=your-resend-api-key
-
-# Optional - Replit Auth (only if using Replit authentication)
-ISSUER_URL=https://replit.com
-REPL_ID=your-repl-id
+# Email (Optional)
+RESEND_API_KEY=re_...
 ```
 
 ## Build & Run
 
-### 1. Install dependencies
+### 1. Build the project
 ```bash
 npm install
-```
-
-### 2. Build the project
-```bash
 npm run build
 ```
-This compiles:
-- Frontend (React/Vite) → `dist/public/`
-- Backend (Express/TypeScript) → `dist/index.cjs`
+This compiles the frontend (Vite) and backend (ESbuild) into the `dist/` directory.
 
-### 3. Run database migrations
+### 2. Run database migrations
 ```bash
 npm run db:push
 ```
 
-### 4. Start the production server
+### 3. Start the production server
 ```bash
 npm start
 ```
 Or explicitly:
 ```bash
-NODE_ENV=production node dist/index.cjs
+NODE_ENV=production node dist/index.js
 ```
 
 The server will run on port 5000 (or the PORT environment variable).

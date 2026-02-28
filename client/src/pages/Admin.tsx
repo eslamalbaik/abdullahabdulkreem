@@ -278,11 +278,15 @@ export default function Admin() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
               >
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-20 h-16 object-cover rounded-lg"
-                />
+                {project.image ? (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-20 h-16 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-20 h-16 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-xs">بدون صورة</div>
+                )}
                 <div className="flex-1">
                   <h3 className="font-semibold">{project.title}</h3>
                   <p className="text-sm text-muted-foreground">
@@ -319,11 +323,15 @@ export default function Admin() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
               >
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-20 h-16 object-cover rounded-lg"
-                />
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className="w-20 h-16 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-20 h-16 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-xs">بدون صورة</div>
+                )}
                 <div className="flex-1">
                   <h3 className="font-semibold">{product.title}</h3>
                   <p className="text-sm text-muted-foreground">
@@ -360,11 +368,15 @@ export default function Admin() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
               >
-                <img
-                  src={identity.image}
-                  alt={identity.title}
-                  className="w-20 h-16 object-cover rounded-lg"
-                />
+                {identity.image ? (
+                  <img
+                    src={identity.image}
+                    alt={identity.title}
+                    className="w-20 h-16 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-20 h-16 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-xs">بدون صورة</div>
+                )}
                 <div className="flex-1">
                   <h3 className="font-semibold">{identity.title}</h3>
                   <p className="text-sm text-muted-foreground">
@@ -401,11 +413,15 @@ export default function Admin() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border"
               >
-                <img
-                  src={logo.image}
-                  alt={logo.name}
-                  className="w-20 h-12 object-contain rounded-lg bg-white p-1"
-                />
+                {logo.image ? (
+                  <img
+                    src={logo.image}
+                    alt={logo.name}
+                    className="w-20 h-12 object-contain rounded-lg bg-white p-1"
+                  />
+                ) : (
+                  <div className="w-20 h-12 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-xs">بدون صورة</div>
+                )}
                 <div className="flex-1">
                   <h3 className="font-semibold">{logo.name}</h3>
                   <p className="text-sm text-muted-foreground">
@@ -688,11 +704,11 @@ function ImageUploadField({
       <div className="space-y-2">
         {value && (
           <div className="relative inline-block">
-            <img 
-              src={value.startsWith('/objects/') ? value : value} 
+            {value && <img 
+              src={value} 
               alt="صورة" 
               className="w-24 h-24 object-cover rounded-lg border border-border"
-            />
+            />}
             <button
               type="button"
               onClick={() => onChange("")}
@@ -804,11 +820,11 @@ function MultiImageUploadField({
           <div className="flex flex-wrap gap-2">
             {values.map((url, index) => (
               <div key={index} className="relative">
-                <img 
-                  src={url.startsWith('/objects/') ? url : url} 
+                {url && <img 
+                  src={url} 
                   alt={`صورة ${index + 1}`} 
                   className="w-16 h-16 object-cover rounded-lg border border-border"
-                />
+                />}
                 <button
                   type="button"
                   onClick={() => removeImage(index)}
