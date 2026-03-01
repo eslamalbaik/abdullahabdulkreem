@@ -5,7 +5,7 @@ import * as schema from "@shared/schema";
 import dns from "dns";
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set");
+  console.warn("WARNING: DATABASE_URL environment variable is not set. PostgreSQL features will be disabled.");
 }
 
 // Fix for Node.js 18+ preferring IPv6, which can cause Neon timeouts
@@ -15,5 +15,10 @@ if (typeof dns.setDefaultResultOrder === 'function') {
 
 neonConfig.webSocketConstructor = ws;
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle(pool, { schema });
+export const pool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL })
+  : null as any;
+
+export const db = pool
+  ? drizzle(pool, { schema })
+  : null as any;
