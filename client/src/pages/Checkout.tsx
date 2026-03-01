@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "wouter";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, CreditCard, Smartphone, Building2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,10 +79,10 @@ const paymentMethods: PaymentMethod[] = [
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState<string>("");
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -93,8 +93,8 @@ export default function Checkout() {
     if (user) {
       setFormData(prev => ({
         ...prev,
-        name: user.firstName && user.lastName 
-          ? `${user.firstName} ${user.lastName}` 
+        name: user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName}`
           : user.firstName || prev.name,
         email: user.email || prev.email,
       }));
@@ -126,12 +126,12 @@ export default function Checkout() {
           <p className="text-muted-foreground mb-8">
             يجب تسجيل الدخول لإتمام عملية الشراء
           </p>
-          <a href="/api/login" data-testid="link-login-checkout">
+          <Link to="/login" data-testid="link-login-checkout">
             <Button size="lg">
               <LogIn className="w-5 h-5 me-2" />
               تسجيل الدخول
             </Button>
-          </a>
+          </Link>
         </motion.div>
       </div>
     );
@@ -147,7 +147,7 @@ export default function Checkout() {
         >
           <h1 className="text-3xl font-serif mb-4">السلة فارغة</h1>
           <p className="text-muted-foreground mb-8">أضف منتجات للسلة أولاً</p>
-          <Link href="/shop">
+          <Link to="/shop">
             <Button>تصفح المتجر</Button>
           </Link>
         </motion.div>
@@ -157,7 +157,7 @@ export default function Checkout() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedPayment) {
       toast({
         title: "اختر طريقة الدفع",
@@ -180,9 +180,9 @@ export default function Checkout() {
       title: "تم استلام طلبك!",
       description: "سيتم التواصل معك قريباً لإتمام عملية الدفع",
     });
-    
+
     clearCart();
-    setLocation("/");
+    navigate("/");
   };
 
   return (
@@ -192,7 +192,7 @@ export default function Checkout() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Link href="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8" data-testid="link-back-cart">
+        <Link to="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8" data-testid="link-back-cart"> {/* Changed href to to */}
           <ArrowRight className="w-4 h-4 rotate-180" />
           العودة للسلة
         </Link>
@@ -204,7 +204,7 @@ export default function Checkout() {
             <div className="lg:col-span-2 space-y-8">
               <div className="bg-secondary/30 rounded-xl p-6">
                 <h2 className="text-xl font-serif mb-6">بيانات التواصل</h2>
-                
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">الاسم الكامل *</Label>
@@ -246,18 +246,17 @@ export default function Checkout() {
 
               <div className="bg-secondary/30 rounded-xl p-6">
                 <h2 className="text-xl font-serif mb-6">طريقة الدفع</h2>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {paymentMethods.map((method) => (
                     <button
                       key={method.id}
                       type="button"
                       onClick={() => setSelectedPayment(method.id)}
-                      className={`relative p-4 rounded-xl border-2 transition-all ${
-                        selectedPayment === method.id
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      }`}
+                      className={`relative p-4 rounded-xl border-2 transition-all ${selectedPayment === method.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                        }`}
                       data-testid={`payment-${method.id}`}
                       aria-pressed={selectedPayment === method.id}
                     >
@@ -266,7 +265,7 @@ export default function Checkout() {
                           <Check className="w-3 h-3 text-white" />
                         </div>
                       )}
-                      
+
                       <div className="flex flex-col items-center gap-2">
                         {method.image ? (
                           <img
@@ -295,7 +294,7 @@ export default function Checkout() {
             <div className="lg:col-span-1">
               <div className="bg-secondary/30 rounded-xl p-6 sticky top-28">
                 <h2 className="text-xl font-serif mb-6">ملخص الطلب</h2>
-                
+
                 <div className="space-y-3 mb-6">
                   {items.map((item) => (
                     <div key={`${item.type}-${item.id}`} className="flex justify-between text-sm">
@@ -314,9 +313,9 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   size="lg"
                   disabled={!selectedPayment}
                   data-testid="button-submit-order"

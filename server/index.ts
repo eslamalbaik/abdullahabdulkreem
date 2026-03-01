@@ -2,13 +2,15 @@ import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import path from "path";
-import { registerRoutes } from "./routes.ts";
-import { serveStatic } from "./static.ts";
+import { registerRoutes } from "./routes.js";
+import { serveStatic } from "./static.js";
 import { createServer } from "http";
 import connectDB from './config/db.js';
 import seedRoles from './services/seedService.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import { activityLogger } from './middlewares/activityLogger.js';
 import helmet from 'helmet';
@@ -119,7 +121,7 @@ app.use((req, res, next) => {
 
 // Production Env Validation
 if (process.env.NODE_ENV === "production") {
-  const envVars = ["DATABASE_URL", "MONGODB_URI", "SESSION_SECRET"];
+  const envVars = ["MONGODB_URI", "JWT_SECRET"];
   const missing = envVars.filter((key) => !process.env[key]);
   if (missing.length > 0) {
     console.error(`FATAL: Missing production environment variables: ${missing.join(", ")}`);
@@ -133,25 +135,7 @@ if (process.env.NODE_ENV === "production") {
   // Seed Roles
   await seedRoles();
 
-  // Verify DB connection for Drizzle
-  try {
-    const { db } = await import("./db.ts");
-    const { sql } = await import("drizzle-orm");
-    await db.execute(sql`SELECT 1`);
-    log("Database connection verified for Drizzle");
-
-    // Auto-create site_configs table if missing
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS site_configs (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        updated_at TIMESTAMP DEFAULT NOW()
-      )
-    `);
-    log("site_configs table verified/created");
-  } catch (err: any) {
-    log(`Database connection failed for Drizzle: ${err.message}`);
-  }
+  // MongoDB connection and seeding already handled above
 
   await registerRoutes(httpServer, app);
 
@@ -162,6 +146,8 @@ if (process.env.NODE_ENV === "production") {
   app.use('/api/auth', authRoutes);
   // Product Routes
   app.use('/api/products', productRoutes);
+  app.use('/api/projects', projectRoutes);
+
 
   // API Documentation
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
@@ -173,7 +159,7 @@ if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
     app.use(express.static(path.resolve(process.cwd(), "client/public")));
-    const { setupVite } = await import("./vite.ts");
+    const { setupVite } = await import("./vite.js");
     await setupVite(httpServer, app);
   }
 

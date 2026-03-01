@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Check, Lock, Play, Download, ChevronRight, ArrowRight, Star, Monitor, Award, Clock, Info } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
-import { Link, useParams } from "wouter";
+import { Link, useParams } from "react-router-dom";
 
 interface Course {
   id: number;
@@ -28,7 +28,7 @@ interface Lesson {
   duration?: number;
   order: number;
   isFree: boolean;
-  attachments?: Array<{name: string, url: string}>;
+  attachments?: Array<{ name: string, url: string }>;
 }
 
 interface LessonProgress {
@@ -161,8 +161,8 @@ export default function CourseViewer() {
 
   const getVideoEmbedUrl = (url: string) => {
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
-      const videoId = url.includes("youtu.be") 
-        ? url.split("/").pop() 
+      const videoId = url.includes("youtu.be")
+        ? url.split("/").pop()
         : new URLSearchParams(new URL(url).search).get("v");
       return `https://www.youtube.com/embed/${videoId}`;
     }
@@ -173,7 +173,7 @@ export default function CourseViewer() {
     return url;
   };
 
-  const averageRating = testimonials.length > 0 
+  const averageRating = testimonials.length > 0
     ? (testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length).toFixed(1)
     : "0";
 
@@ -199,7 +199,7 @@ export default function CourseViewer() {
     <div className="pt-24 pb-12 min-h-screen bg-background">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link href="/courses" className="hover:text-foreground transition-colors">الدورات</Link>
+          <Link to="/courses" className="hover:text-foreground transition-colors">الدورات</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground">{course.title}</span>
         </div>
@@ -213,13 +213,13 @@ export default function CourseViewer() {
                   {!isAuthenticated ? (
                     <>
                       <p className="text-xl mb-4">هذا الدرس يتطلب تسجيل الدخول</p>
-                      <a
-                        href="/api/login"
+                      <Link
+                        to="/login"
                         className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"
                         data-testid="button-login-video"
                       >
                         تسجيل الدخول
-                      </a>
+                      </Link>
                     </>
                   ) : (
                     <>
@@ -495,7 +495,7 @@ export default function CourseViewer() {
                             </div>
                           </div>
                           <p className="text-muted-foreground leading-relaxed mt-2">{testimonial.comment}</p>
-                          
+
                           {testimonial.adminReply && (
                             <div className="mt-3 pr-4 border-r-2 border-primary/50 bg-primary/5 rounded-lg p-3">
                               <p className="text-sm font-semibold text-primary mb-1">رد المدرب:</p>
@@ -517,13 +517,13 @@ export default function CourseViewer() {
               {!isAuthenticated ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">سجل دخولك للاشتراك في الدورة والوصول لجميع الدروس</p>
-                  <a
-                    href="/api/login"
+                  <Link
+                    to="/login"
                     className="block w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold text-center hover:bg-primary/90 transition-colors"
                     data-testid="button-login-enroll"
                   >
                     تسجيل الدخول للاشتراك
-                  </a>
+                  </Link>
                   <p className="text-center text-lg font-bold">{course?.price} ر.س</p>
                 </div>
               ) : isEnrolled ? (
@@ -534,7 +534,7 @@ export default function CourseViewer() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-primary transition-all duration-300"
                         style={{ width: `${progressPercentage}%` }}
                       />
@@ -568,7 +568,7 @@ export default function CourseViewer() {
                   <>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-primary transition-all duration-300"
                           style={{ width: `${progressPercentage}%` }}
                         />
@@ -594,24 +594,22 @@ export default function CourseViewer() {
                       key={lesson.id}
                       onClick={() => isAccessible && setCurrentLessonId(lesson.id)}
                       disabled={!isAccessible}
-                      className={`w-full p-4 text-right flex items-start gap-3 transition-colors ${
-                        isActive 
-                          ? "bg-primary/10" 
-                          : isAccessible 
-                            ? "hover:bg-secondary/50" 
-                            : "opacity-50 cursor-not-allowed"
-                      }`}
+                      className={`w-full p-4 text-right flex items-start gap-3 transition-colors ${isActive
+                        ? "bg-primary/10"
+                        : isAccessible
+                          ? "hover:bg-secondary/50"
+                          : "opacity-50 cursor-not-allowed"
+                        }`}
                       data-testid={`lesson-item-${lesson.id}`}
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        isCompleted 
-                          ? "bg-green-500 text-white" 
-                          : isActive 
-                            ? "bg-primary text-primary-foreground" 
-                            : isAccessible
-                              ? "border-2 border-border"
-                              : "bg-secondary"
-                      }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isCompleted
+                        ? "bg-green-500 text-white"
+                        : isActive
+                          ? "bg-primary text-primary-foreground"
+                          : isAccessible
+                            ? "border-2 border-border"
+                            : "bg-secondary"
+                        }`}>
                         {isCompleted ? (
                           <Check className="w-4 h-4" />
                         ) : !isAccessible ? (

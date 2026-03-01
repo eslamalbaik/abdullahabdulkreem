@@ -1,8 +1,4 @@
-import { db } from "./db";
-import { eq, asc, and } from "drizzle-orm";
 import {
-  projects, products, articles, identities, contacts, clientLogos, testimonials, questionnaireSubmissions,
-  courses, lessons, lessonProgress, courseTestimonials, courseEnrollments,
   type Project, type InsertProject,
   type Product, type InsertProduct,
   type Article, type InsertArticle,
@@ -16,71 +12,86 @@ import {
   type LessonProgress, type InsertLessonProgress,
   type CourseTestimonial, type InsertCourseTestimonial,
   type CourseEnrollment, type InsertCourseEnrollment,
-  siteConfigs, type SiteConfig, type InsertSiteConfig
-} from "@shared/schema";
+  type SiteConfig
+} from "@shared/schema.js";
+
+import ProjectModel from "./models/Project.js";
+import ArticleModel from "./models/Article.js";
+import IdentityModel from "./models/Identity.js";
+import ContactModel from "./models/Contact.js";
+import ClientLogoModel from "./models/ClientLogo.js";
+import TestimonialModel from "./models/Testimonial.js";
+import QuestionnaireModel from "./models/QuestionnaireSubmission.js";
+import CourseModel from "./models/Course.js";
+import LessonModel from "./models/Lesson.js";
+import LessonProgressModel from "./models/LessonProgress.js";
+import CourseTestimonialModel from "./models/CourseTestimonial.js";
+import CourseEnrollmentModel from "./models/CourseEnrollment.js";
+import SiteConfigModel from "./models/SiteConfig.js";
+import ProductModel from "./models/Product.js";
 
 export interface IStorage {
   getProjects(): Promise<Project[]>;
   getFeaturedProjects(): Promise<Project[]>;
-  getProjectById(id: number): Promise<Project | undefined>;
+  getProjectById(id: string | number): Promise<Project | undefined>;
   createProject(project: InsertProject): Promise<Project>;
-  updateProject(id: number, project: InsertProject): Promise<Project>;
-  deleteProject(id: number): Promise<void>;
+  updateProject(id: string | number, project: InsertProject): Promise<Project>;
+  deleteProject(id: string | number): Promise<void>;
 
   getProducts(): Promise<Product[]>;
   getProductsByCategory(category: string): Promise<Product[]>;
-  getProductById(id: number): Promise<Product | undefined>;
+  getProductById(id: string | number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
-  updateProduct(id: number, product: InsertProduct): Promise<Product>;
-  deleteProduct(id: number): Promise<void>;
+  updateProduct(id: string | number, product: InsertProduct): Promise<Product>;
+  deleteProduct(id: string | number): Promise<void>;
 
   getArticles(): Promise<Article[]>;
   getArticleBySlug(slug: string): Promise<Article | undefined>;
 
   getIdentities(): Promise<Identity[]>;
-  getIdentityById(id: number): Promise<Identity | undefined>;
+  getIdentityById(id: string | number): Promise<Identity | undefined>;
   createIdentity(identity: InsertIdentity): Promise<Identity>;
-  updateIdentity(id: number, identity: InsertIdentity): Promise<Identity>;
-  deleteIdentity(id: number): Promise<void>;
+  updateIdentity(id: string | number, identity: InsertIdentity): Promise<Identity>;
+  deleteIdentity(id: string | number): Promise<void>;
 
   createContact(contact: InsertContact): Promise<Contact>;
   getContacts(): Promise<Contact[]>;
 
   getClientLogos(): Promise<ClientLogo[]>;
   createClientLogo(logo: InsertClientLogo): Promise<ClientLogo>;
-  updateClientLogo(id: number, logo: InsertClientLogo): Promise<ClientLogo>;
-  deleteClientLogo(id: number): Promise<void>;
+  updateClientLogo(id: string | number, logo: InsertClientLogo): Promise<ClientLogo>;
+  deleteClientLogo(id: string | number): Promise<void>;
 
   getTestimonials(): Promise<Testimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
-  updateTestimonial(id: number, testimonial: InsertTestimonial): Promise<Testimonial>;
-  deleteTestimonial(id: number): Promise<void>;
+  updateTestimonial(id: string | number, testimonial: InsertTestimonial): Promise<Testimonial>;
+  deleteTestimonial(id: string | number): Promise<void>;
 
   createQuestionnaireSubmission(submission: InsertQuestionnaire): Promise<QuestionnaireSubmission>;
   getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]>;
 
   getCourses(): Promise<Course[]>;
-  getCourseById(id: number): Promise<Course | undefined>;
+  getCourseById(id: string | number): Promise<Course | undefined>;
   createCourse(course: InsertCourse): Promise<Course>;
-  updateCourse(id: number, course: InsertCourse): Promise<Course>;
-  deleteCourse(id: number): Promise<void>;
+  updateCourse(id: string | number, course: InsertCourse): Promise<Course>;
+  deleteCourse(id: string | number): Promise<void>;
 
-  getLessonsByCourseId(courseId: number): Promise<Lesson[]>;
-  getLessonById(id: number): Promise<Lesson | undefined>;
+  getLessonsByCourseId(courseId: string | number): Promise<Lesson[]>;
+  getLessonById(id: string | number): Promise<Lesson | undefined>;
   createLesson(lesson: InsertLesson): Promise<Lesson>;
-  updateLesson(id: number, lesson: InsertLesson): Promise<Lesson>;
-  deleteLesson(id: number): Promise<void>;
+  updateLesson(id: string | number, lesson: InsertLesson): Promise<Lesson>;
+  deleteLesson(id: string | number): Promise<void>;
 
-  getLessonProgress(lessonId: number, userId: string): Promise<LessonProgress | undefined>;
-  getUserCourseProgress(courseId: number, userId: string): Promise<LessonProgress[]>;
+  getLessonProgress(lessonId: string | number, userId: string): Promise<LessonProgress | undefined>;
+  getUserCourseProgress(courseId: string | number, userId: string): Promise<LessonProgress[]>;
   upsertLessonProgress(progress: InsertLessonProgress): Promise<LessonProgress>;
 
-  getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]>;
+  getCourseTestimonials(courseId: string | number): Promise<CourseTestimonial[]>;
   createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial>;
-  deleteCourseTestimonial(id: number): Promise<void>;
-  updateCourseTestimonialReply(id: number, adminReply: string): Promise<CourseTestimonial>;
+  deleteCourseTestimonial(id: string | number): Promise<void>;
+  updateCourseTestimonialReply(id: string | number, adminReply: string): Promise<CourseTestimonial>;
 
-  getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined>;
+  getCourseEnrollment(courseId: string | number, userId: string): Promise<CourseEnrollment | undefined>;
   createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment>;
 
   getSiteConfigs(): Promise<SiteConfig[]>;
@@ -88,273 +99,310 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private mapDoc<T>(doc: any): T {
+    if (!doc) return doc;
+    const obj = doc.toObject ? doc.toObject() : doc;
+    return { ...obj, id: obj._id.toString() } as T;
+  }
+
   async getProjects(): Promise<Project[]> {
-    return db.select().from(projects).orderBy(projects.createdAt);
+    const docs = await ProjectModel.find().sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Project>(d));
   }
 
   async getFeaturedProjects(): Promise<Project[]> {
-    return db.select().from(projects).where(eq(projects.featured, true)).orderBy(projects.createdAt);
+    const docs = await ProjectModel.find({ featured: true }).sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Project>(d));
   }
 
-  async getProjectById(id: number): Promise<Project | undefined> {
-    const [project] = await db.select().from(projects).where(eq(projects.id, id));
-    return project;
+  async getProjectById(id: string | number): Promise<Project | undefined> {
+    const doc = await ProjectModel.findById(id);
+    return doc ? this.mapDoc<Project>(doc) : undefined;
   }
 
   async createProject(insertProject: InsertProject): Promise<Project> {
-    const [project] = await db.insert(projects).values(insertProject).returning();
-    return project;
+    const doc = await ProjectModel.create(insertProject);
+    return this.mapDoc<Project>(doc);
   }
 
-  async updateProject(id: number, insertProject: InsertProject): Promise<Project> {
-    const [project] = await db.update(projects).set(insertProject).where(eq(projects.id, id)).returning();
-    return project;
+  async updateProject(id: string | number, insertProject: InsertProject): Promise<Project> {
+    const doc = await ProjectModel.findByIdAndUpdate(id, insertProject, { new: true });
+    if (!doc) throw new Error("Project not found");
+    return this.mapDoc<Project>(doc);
   }
 
-  async deleteProject(id: number): Promise<void> {
-    await db.delete(projects).where(eq(projects.id, id));
+  async deleteProject(id: string | number): Promise<void> {
+    await ProjectModel.findByIdAndDelete(id);
   }
 
   async getProducts(): Promise<Product[]> {
-    return db.select().from(products).orderBy(products.createdAt);
+    const docs = await ProductModel.find({ isDeleted: false }).sort({ createdAt: 1 });
+    return docs.map(d => ({
+      ...d.toObject(),
+      id: d._id.toString(),
+      title: (d as any).name || (d as any).title
+    } as unknown as Product));
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
-    return db.select().from(products).where(eq(products.category, category)).orderBy(products.createdAt);
+    const docs = await ProductModel.find({ category, isDeleted: false }).sort({ createdAt: 1 });
+    return docs.map(d => ({
+      ...d.toObject(),
+      id: d._id.toString(),
+      title: (d as any).name || (d as any).title
+    } as unknown as Product));
   }
 
-  async getProductById(id: number): Promise<Product | undefined> {
-    const [product] = await db.select().from(products).where(eq(products.id, id));
-    return product;
+  async getProductById(id: string | number): Promise<Product | undefined> {
+    const doc = await ProductModel.findById(id);
+    return doc ? {
+      ...doc.toObject(),
+      id: doc._id.toString(),
+      title: (doc as any).name || (doc as any).title
+    } as unknown as Product : undefined;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const [product] = await db.insert(products).values(insertProduct).returning();
-    return product;
+    const doc = await ProductModel.create({
+      ...insertProduct,
+      name: insertProduct.title
+    });
+    return {
+      ...doc.toObject(),
+      id: doc._id.toString(),
+      title: (doc as any).name || (doc as any).title
+    } as unknown as Product;
   }
 
-  async updateProduct(id: number, insertProduct: InsertProduct): Promise<Product> {
-    const [product] = await db.update(products).set(insertProduct).where(eq(products.id, id)).returning();
-    return product;
+  async updateProduct(id: string | number, insertProduct: InsertProduct): Promise<Product> {
+    const doc = await ProductModel.findByIdAndUpdate(id, {
+      ...insertProduct,
+      name: insertProduct.title
+    }, { new: true });
+    if (!doc) throw new Error("Product not found");
+    return {
+      ...doc.toObject(),
+      id: doc._id.toString(),
+      title: (doc as any).name || (doc as any).title
+    } as unknown as Product;
   }
 
-  async deleteProduct(id: number): Promise<void> {
-    await db.delete(products).where(eq(products.id, id));
+  async deleteProduct(id: string | number): Promise<void> {
+    await ProductModel.findByIdAndUpdate(id, { isDeleted: true, deletedAt: new Date() });
   }
 
   async getArticles(): Promise<Article[]> {
-    return db.select().from(articles).where(eq(articles.published, true)).orderBy(articles.createdAt);
+    const docs = await ArticleModel.find({ published: true }).sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Article>(d));
   }
 
   async getArticleBySlug(slug: string): Promise<Article | undefined> {
-    const [article] = await db.select().from(articles).where(eq(articles.slug, slug));
-    return article;
+    const doc = await ArticleModel.findOne({ slug });
+    return doc ? this.mapDoc<Article>(doc) : undefined;
   }
 
   async getIdentities(): Promise<Identity[]> {
-    return db.select().from(identities).orderBy(identities.createdAt);
+    const docs = await IdentityModel.find().sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Identity>(d));
   }
 
-  async getIdentityById(id: number): Promise<Identity | undefined> {
-    const [identity] = await db.select().from(identities).where(eq(identities.id, id));
-    return identity;
+  async getIdentityById(id: string | number): Promise<Identity | undefined> {
+    const doc = await IdentityModel.findById(id);
+    return doc ? this.mapDoc<Identity>(doc) : undefined;
   }
 
   async createIdentity(insertIdentity: InsertIdentity): Promise<Identity> {
-    const [identity] = await db.insert(identities).values(insertIdentity).returning();
-    return identity;
+    const doc = await IdentityModel.create(insertIdentity);
+    return this.mapDoc<Identity>(doc);
   }
 
-  async updateIdentity(id: number, insertIdentity: InsertIdentity): Promise<Identity> {
-    const [identity] = await db.update(identities).set(insertIdentity).where(eq(identities.id, id)).returning();
-    return identity;
+  async updateIdentity(id: string | number, insertIdentity: InsertIdentity): Promise<Identity> {
+    const doc = await IdentityModel.findByIdAndUpdate(id, insertIdentity, { new: true });
+    if (!doc) throw new Error("Identity not found");
+    return this.mapDoc<Identity>(doc);
   }
 
-  async deleteIdentity(id: number): Promise<void> {
-    await db.delete(identities).where(eq(identities.id, id));
+  async deleteIdentity(id: string | number): Promise<void> {
+    await IdentityModel.findByIdAndDelete(id);
   }
 
   async createContact(insertContact: InsertContact): Promise<Contact> {
-    const [contact] = await db.insert(contacts).values(insertContact).returning();
-    return contact;
+    const doc = await ContactModel.create(insertContact);
+    return this.mapDoc<Contact>(doc);
   }
 
   async getContacts(): Promise<Contact[]> {
-    return db.select().from(contacts).orderBy(contacts.createdAt);
+    const docs = await ContactModel.find().sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Contact>(d));
   }
 
   async getClientLogos(): Promise<ClientLogo[]> {
-    return db.select().from(clientLogos).orderBy(asc(clientLogos.order));
+    const docs = await ClientLogoModel.find().sort({ order: 1 });
+    return docs.map(d => this.mapDoc<ClientLogo>(d));
   }
 
   async createClientLogo(insertLogo: InsertClientLogo): Promise<ClientLogo> {
-    const [logo] = await db.insert(clientLogos).values(insertLogo).returning();
-    return logo;
+    const doc = await ClientLogoModel.create(insertLogo);
+    return this.mapDoc<ClientLogo>(doc);
   }
 
-  async updateClientLogo(id: number, insertLogo: InsertClientLogo): Promise<ClientLogo> {
-    const [logo] = await db.update(clientLogos).set(insertLogo).where(eq(clientLogos.id, id)).returning();
-    return logo;
+  async updateClientLogo(id: string | number, insertLogo: InsertClientLogo): Promise<ClientLogo> {
+    const doc = await ClientLogoModel.findByIdAndUpdate(id, insertLogo, { new: true });
+    if (!doc) throw new Error("ClientLogo not found");
+    return this.mapDoc<ClientLogo>(doc);
   }
 
-  async deleteClientLogo(id: number): Promise<void> {
-    await db.delete(clientLogos).where(eq(clientLogos.id, id));
+  async deleteClientLogo(id: string | number): Promise<void> {
+    await ClientLogoModel.findByIdAndDelete(id);
   }
 
   async getTestimonials(): Promise<Testimonial[]> {
-    return db.select().from(testimonials).orderBy(testimonials.createdAt);
+    const docs = await TestimonialModel.find().sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Testimonial>(d));
   }
 
   async createTestimonial(insertTestimonial: InsertTestimonial): Promise<Testimonial> {
-    const [testimonial] = await db.insert(testimonials).values(insertTestimonial).returning();
-    return testimonial;
+    const doc = await TestimonialModel.create(insertTestimonial);
+    return this.mapDoc<Testimonial>(doc);
   }
 
-  async updateTestimonial(id: number, insertTestimonial: InsertTestimonial): Promise<Testimonial> {
-    const [testimonial] = await db.update(testimonials).set(insertTestimonial).where(eq(testimonials.id, id)).returning();
-    return testimonial;
+  async updateTestimonial(id: string | number, insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const doc = await TestimonialModel.findByIdAndUpdate(id, insertTestimonial, { new: true });
+    if (!doc) throw new Error("Testimonial not found");
+    return this.mapDoc<Testimonial>(doc);
   }
 
-  async deleteTestimonial(id: number): Promise<void> {
-    await db.delete(testimonials).where(eq(testimonials.id, id));
+  async deleteTestimonial(id: string | number): Promise<void> {
+    await TestimonialModel.findByIdAndDelete(id);
   }
 
   async createQuestionnaireSubmission(submission: InsertQuestionnaire): Promise<QuestionnaireSubmission> {
-    const [result] = await db.insert(questionnaireSubmissions).values(submission).returning();
-    return result;
+    const doc = await QuestionnaireModel.create(submission);
+    return this.mapDoc<QuestionnaireSubmission>(doc);
   }
 
   async getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]> {
-    return db.select().from(questionnaireSubmissions).orderBy(questionnaireSubmissions.createdAt);
+    const docs = await QuestionnaireModel.find().sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<QuestionnaireSubmission>(d));
   }
 
   async getCourses(): Promise<Course[]> {
-    return db.select().from(courses).orderBy(courses.createdAt);
+    const docs = await CourseModel.find().sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<Course>(d));
   }
 
-  async getCourseById(id: number): Promise<Course | undefined> {
-    const [course] = await db.select().from(courses).where(eq(courses.id, id));
-    return course;
+  async getCourseById(id: string | number): Promise<Course | undefined> {
+    const doc = await CourseModel.findById(id);
+    return doc ? this.mapDoc<Course>(doc) : undefined;
   }
 
   async createCourse(insertCourse: InsertCourse): Promise<Course> {
-    const [course] = await db.insert(courses).values(insertCourse).returning();
-    return course;
+    const doc = await CourseModel.create(insertCourse);
+    return this.mapDoc<Course>(doc);
   }
 
-  async updateCourse(id: number, insertCourse: InsertCourse): Promise<Course> {
-    const [course] = await db.update(courses).set(insertCourse).where(eq(courses.id, id)).returning();
-    return course;
+  async updateCourse(id: string | number, insertCourse: InsertCourse): Promise<Course> {
+    const doc = await CourseModel.findByIdAndUpdate(id, insertCourse, { new: true });
+    if (!doc) throw new Error("Course not found");
+    return this.mapDoc<Course>(doc);
   }
 
-  async deleteCourse(id: number): Promise<void> {
-    await db.delete(lessons).where(eq(lessons.courseId, id));
-    await db.delete(courses).where(eq(courses.id, id));
+  async deleteCourse(id: string | number): Promise<void> {
+    await LessonModel.deleteMany({ courseId: id });
+    await CourseModel.findByIdAndDelete(id);
   }
 
-  async getLessonsByCourseId(courseId: number): Promise<Lesson[]> {
-    return db.select().from(lessons).where(eq(lessons.courseId, courseId)).orderBy(asc(lessons.order));
+  async getLessonsByCourseId(courseId: string | number): Promise<Lesson[]> {
+    const docs = await LessonModel.find({ courseId }).sort({ order: 1 });
+    return docs.map(d => this.mapDoc<Lesson>(d));
   }
 
-  async getLessonById(id: number): Promise<Lesson | undefined> {
-    const [lesson] = await db.select().from(lessons).where(eq(lessons.id, id));
-    return lesson;
+  async getLessonById(id: string | number): Promise<Lesson | undefined> {
+    const doc = await LessonModel.findById(id);
+    return doc ? this.mapDoc<Lesson>(doc) : undefined;
   }
 
   async createLesson(insertLesson: InsertLesson): Promise<Lesson> {
-    const [lesson] = await db.insert(lessons).values(insertLesson).returning();
-    return lesson;
+    const doc = await LessonModel.create(insertLesson);
+    return this.mapDoc<Lesson>(doc);
   }
 
-  async updateLesson(id: number, insertLesson: InsertLesson): Promise<Lesson> {
-    const [lesson] = await db.update(lessons).set(insertLesson).where(eq(lessons.id, id)).returning();
-    return lesson;
+  async updateLesson(id: string | number, insertLesson: InsertLesson): Promise<Lesson> {
+    const doc = await LessonModel.findByIdAndUpdate(id, insertLesson, { new: true });
+    if (!doc) throw new Error("Lesson not found");
+    return this.mapDoc<Lesson>(doc);
   }
 
-  async deleteLesson(id: number): Promise<void> {
-    await db.delete(lessonProgress).where(eq(lessonProgress.lessonId, id));
-    await db.delete(lessons).where(eq(lessons.id, id));
+  async deleteLesson(id: string | number): Promise<void> {
+    await LessonProgressModel.deleteMany({ lessonId: id });
+    await LessonModel.findByIdAndDelete(id);
   }
 
-  async getLessonProgress(lessonId: number, userId: string): Promise<LessonProgress | undefined> {
-    const [progress] = await db.select().from(lessonProgress)
-      .where(and(eq(lessonProgress.lessonId, lessonId), eq(lessonProgress.userId, userId)));
-    return progress;
+  async getLessonProgress(lessonId: string | number, userId: string): Promise<LessonProgress | undefined> {
+    const doc = await LessonProgressModel.findOne({ lessonId, userId });
+    return doc ? this.mapDoc<LessonProgress>(doc) : undefined;
   }
 
-  async getUserCourseProgress(courseId: number, userId: string): Promise<LessonProgress[]> {
+  async getUserCourseProgress(courseId: string | number, userId: string): Promise<LessonProgress[]> {
     const courseLessons = await this.getLessonsByCourseId(courseId);
     const lessonIds = courseLessons.map(l => l.id);
     if (lessonIds.length === 0) return [];
 
-    const progress = await db.select().from(lessonProgress)
-      .where(eq(lessonProgress.userId, userId));
-    return progress.filter(p => lessonIds.includes(p.lessonId));
+    const docs = await LessonProgressModel.find({ userId, lessonId: { $in: lessonIds } });
+    return docs.map(d => this.mapDoc<LessonProgress>(d));
   }
 
   async upsertLessonProgress(progress: InsertLessonProgress): Promise<LessonProgress> {
-    const existing = await this.getLessonProgress(progress.lessonId, progress.userId);
-    if (existing) {
-      const [updated] = await db.update(lessonProgress)
-        .set({ ...progress, completedAt: progress.completed ? new Date() : null })
-        .where(eq(lessonProgress.id, existing.id))
-        .returning();
-      return updated;
-    }
-    const [created] = await db.insert(lessonProgress)
-      .values({ ...progress, completedAt: progress.completed ? new Date() : null })
-      .returning();
-    return created;
+    const doc = await LessonProgressModel.findOneAndUpdate(
+      { lessonId: progress.lessonId, userId: progress.userId },
+      { ...progress, completedAt: progress.completed ? new Date() : null },
+      { upsert: true, new: true }
+    );
+    return this.mapDoc<LessonProgress>(doc);
   }
 
-  async getCourseTestimonials(courseId: number): Promise<CourseTestimonial[]> {
-    return db.select().from(courseTestimonials)
-      .where(eq(courseTestimonials.courseId, courseId))
-      .orderBy(courseTestimonials.createdAt);
+  async getCourseTestimonials(courseId: string | number): Promise<CourseTestimonial[]> {
+    const docs = await CourseTestimonialModel.find({ courseId }).sort({ createdAt: 1 });
+    return docs.map(d => this.mapDoc<CourseTestimonial>(d));
   }
 
   async createCourseTestimonial(testimonial: InsertCourseTestimonial): Promise<CourseTestimonial> {
-    const [created] = await db.insert(courseTestimonials).values(testimonial).returning();
-    return created;
+    const doc = await CourseTestimonialModel.create(testimonial);
+    return this.mapDoc<CourseTestimonial>(doc);
   }
 
-  async deleteCourseTestimonial(id: number): Promise<void> {
-    await db.delete(courseTestimonials).where(eq(courseTestimonials.id, id));
+  async deleteCourseTestimonial(id: string | number): Promise<void> {
+    await CourseTestimonialModel.findByIdAndDelete(id);
   }
 
-  async updateCourseTestimonialReply(id: number, adminReply: string): Promise<CourseTestimonial> {
-    const [updated] = await db.update(courseTestimonials)
-      .set({ adminReply })
-      .where(eq(courseTestimonials.id, id))
-      .returning();
-    return updated;
+  async updateCourseTestimonialReply(id: string | number, adminReply: string): Promise<CourseTestimonial> {
+    const doc = await CourseTestimonialModel.findByIdAndUpdate(id, { adminReply }, { new: true });
+    if (!doc) throw new Error("Testimonial not found");
+    return this.mapDoc<CourseTestimonial>(doc);
   }
 
-  async getCourseEnrollment(courseId: number, userId: string): Promise<CourseEnrollment | undefined> {
-    const [enrollment] = await db.select().from(courseEnrollments)
-      .where(and(eq(courseEnrollments.courseId, courseId), eq(courseEnrollments.userId, userId)));
-    return enrollment;
+  async getCourseEnrollment(courseId: string | number, userId: string): Promise<CourseEnrollment | undefined> {
+    const doc = await CourseEnrollmentModel.findOne({ courseId, userId });
+    return doc ? this.mapDoc<CourseEnrollment>(doc) : undefined;
   }
 
   async createCourseEnrollment(enrollment: InsertCourseEnrollment): Promise<CourseEnrollment> {
-    const [created] = await db.insert(courseEnrollments).values(enrollment).returning();
-    return created;
+    const doc = await CourseEnrollmentModel.create(enrollment);
+    return this.mapDoc<CourseEnrollment>(doc);
   }
 
   async getSiteConfigs(): Promise<SiteConfig[]> {
-    return db.select().from(siteConfigs);
+    const docs = await SiteConfigModel.find();
+    return docs.map(d => this.mapDoc<SiteConfig>(d));
   }
 
   async updateSiteConfig(key: string, value: string): Promise<SiteConfig> {
-    const [config] = await db
-      .insert(siteConfigs)
-      .values({ key, value })
-      .onConflictDoUpdate({
-        target: siteConfigs.key,
-        set: { value, updatedAt: new Date() },
-      })
-      .returning();
-    return config;
+    const doc = await SiteConfigModel.findOneAndUpdate(
+      { key },
+      { value, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+    return this.mapDoc<SiteConfig>(doc);
   }
 }
 

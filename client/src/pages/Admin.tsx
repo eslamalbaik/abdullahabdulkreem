@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
@@ -23,7 +24,7 @@ interface Lesson {
   videoUrl?: string;
   duration?: number;
   order: number;
-  attachments?: Array<{name: string, url: string}>;
+  attachments?: Array<{ name: string, url: string }>;
 }
 
 interface Project {
@@ -115,7 +116,7 @@ export default function Admin() {
   const [showTestimonialsManager, setShowTestimonialsManager] = useState(false);
 
   const deleteProjectMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/projects/${id}`),
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/projects/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/projects"] }),
   });
 
@@ -160,13 +161,13 @@ export default function Admin() {
           <p className="text-xl text-muted-foreground mb-8">
             يجب تسجيل الدخول للوصول إلى لوحة التحكم
           </p>
-          <a
-            href="/api/login"
+          <Link
+            to="/login"
             className="inline-block px-8 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors"
             data-testid="button-login"
           >
             تسجيل الدخول
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -237,11 +238,10 @@ export default function Admin() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 -mb-px ${
-                activeTab === tab.id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 -mb-px ${activeTab === tab.id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
               data-testid={`tab-${tab.id}`}
             >
               <tab.icon className="w-5 h-5" />
@@ -628,7 +628,7 @@ function StarRatingDisplay({ rating }: { rating: number }) {
 
 function StarRatingInput({ value, onChange }: { value: number; onChange: (rating: number) => void }) {
   const [hoverValue, setHoverValue] = useState<number | null>(null);
-  
+
   const handleClick = (starIndex: number, isHalf: boolean) => {
     const rating = isHalf ? starIndex - 0.5 : starIndex;
     onChange(rating);
@@ -639,17 +639,17 @@ function StarRatingInput({ value, onChange }: { value: number; onChange: (rating
   return (
     <div className="flex gap-1">
       {[1, 2, 3, 4, 5].map((starIndex) => (
-        <div 
-          key={starIndex} 
+        <div
+          key={starIndex}
           className="relative w-8 h-8 cursor-pointer"
           onMouseLeave={() => setHoverValue(null)}
         >
-          <div 
+          <div
             className="absolute inset-0 w-1/2 z-10"
             onMouseEnter={() => setHoverValue(starIndex - 0.5)}
             onClick={() => handleClick(starIndex, true)}
           />
-          <div 
+          <div
             className="absolute inset-0 right-0 w-1/2 mr-4 z-10"
             onMouseEnter={() => setHoverValue(starIndex)}
             onClick={() => handleClick(starIndex, false)}
@@ -704,9 +704,9 @@ function ImageUploadField({
       <div className="space-y-2">
         {value && (
           <div className="relative inline-block">
-            {value && <img 
-              src={value} 
-              alt="صورة" 
+            {value && <img
+              src={value}
+              alt="صورة"
               className="w-24 h-24 object-cover rounded-lg border border-border"
             />}
             <button
@@ -766,9 +766,15 @@ function MultiImageUploadField({
 
     const uploadPromises = Array.from(files).map(async (file) => {
       try {
+        const token = localStorage.getItem("accessToken");
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
         const response = await fetch("/api/uploads/request-url", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({
             name: file.name,
             size: file.size,
@@ -796,7 +802,7 @@ function MultiImageUploadField({
 
     const results = await Promise.all(uploadPromises);
     const successfulUploads = results.filter((path): path is string => path !== null);
-    
+
     if (successfulUploads.length > 0) {
       onChange([...values, ...successfulUploads]);
     }
@@ -820,9 +826,9 @@ function MultiImageUploadField({
           <div className="flex flex-wrap gap-2">
             {values.map((url, index) => (
               <div key={index} className="relative">
-                {url && <img 
-                  src={url} 
-                  alt={`صورة ${index + 1}`} 
+                {url && <img
+                  src={url}
+                  alt={`صورة ${index + 1}`}
                   className="w-16 h-16 object-cover rounded-lg border border-border"
                 />}
                 <button
@@ -872,7 +878,7 @@ function AdminForm({
 }) {
   const queryClient = useQueryClient();
   const isEditing = !!item;
-  
+
   const [formData, setFormData] = useState(() => {
     if (type === "projects") {
       return {
@@ -946,16 +952,16 @@ function AdminForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     let submitData = { ...formData };
-    
+
     if (type === "identities") {
       submitData = {
         ...formData,
         includes: (formData as any).includes.split("\n").filter((s: string) => s.trim()),
       };
     }
-    
+
     mutation.mutate(submitData);
   };
 
@@ -1364,7 +1370,7 @@ function LessonsManager({ course, onClose }: { course: Course; onClose: () => vo
               <div className="flex-1">
                 <h3 className="font-semibold">{lesson.title}</h3>
                 <p className="text-sm text-muted-foreground">
-                  {lesson.duration ? `${Math.floor(lesson.duration / 60)} دقيقة` : "بدون مدة"} 
+                  {lesson.duration ? `${Math.floor(lesson.duration / 60)} دقيقة` : "بدون مدة"}
                   {lesson.videoUrl && " • فيديو متاح"}
                   {lesson.attachments && lesson.attachments.length > 0 && ` • ${lesson.attachments.length} مرفق`}
                 </p>
@@ -1520,7 +1526,7 @@ function CourseTestimonialsManager({ course, onClose }: { course: Course; onClos
                       </div>
                     </div>
                     <p className="text-muted-foreground leading-relaxed mt-2">{testimonial.comment}</p>
-                    
+
                     {testimonial.adminReply ? (
                       <div className="mt-3 pr-4 border-r-2 border-primary/50 bg-primary/5 rounded-lg p-3">
                         <p className="text-sm font-semibold text-primary mb-1">ردك:</p>
@@ -1618,9 +1624,15 @@ function LessonForm({
 
     setIsUploading(true);
     try {
+      const token = localStorage.getItem("accessToken");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/uploads/request-url", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           name: file.name,
           size: file.size,
@@ -1630,7 +1642,7 @@ function LessonForm({
       if (!response.ok) throw new Error("Failed to get upload URL");
       const { uploadURL, objectPath } = await response.json();
       await fetch(uploadURL, { method: "PUT", body: file, headers: { "Content-Type": file.type || "application/octet-stream" } });
-      
+
       setFormData({
         ...formData,
         attachments: [...formData.attachments, { name: file.name, url: objectPath }],
@@ -1742,9 +1754,9 @@ function LessonForm({
                 <div key={index} className="flex items-center gap-2 p-2 bg-secondary rounded-lg">
                   <Download className="w-4 h-4" />
                   <span className="flex-1 text-sm truncate">{attachment.name}</span>
-                  <a 
-                    href={attachment.url} 
-                    target="_blank" 
+                  <a
+                    href={attachment.url}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-primary hover:underline"
                   >
@@ -1759,7 +1771,7 @@ function LessonForm({
                   </button>
                 </div>
               ))}
-              
+
               <div className="border border-border rounded-lg p-3 space-y-2">
                 <p className="text-xs text-muted-foreground">إضافة رابط خارجي (مثل Google Drive)</p>
                 <input
@@ -1790,7 +1802,7 @@ function LessonForm({
                   إضافة رابط
                 </button>
               </div>
-              
+
               <div className="border-t border-border pt-3">
                 <p className="text-xs text-muted-foreground mb-2">أو رفع ملف مباشرة</p>
                 <input

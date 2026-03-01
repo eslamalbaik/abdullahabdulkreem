@@ -11,8 +11,13 @@ const LoginPage: React.FC = () => {
     useEffect(() => {
         // Check if user is already authenticated
         const checkAuth = async () => {
+            const token = localStorage.getItem('accessToken');
+            if (!token) return;
+
             try {
-                const res = await fetch('/api/auth/user', { credentials: 'include' });
+                const res = await fetch('/api/auth/user', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (res.ok) {
                     navigate('/dashboard');
                 }
@@ -27,25 +32,23 @@ const LoginPage: React.FC = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch('/api/login', {
+            const res = await fetch('/api/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ email, password }),
-                redirect: 'follow',
-                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (res.ok || res.redirected) {
-                toast.success('Login successful');
-                // Passport redirects to "/" on success — navigate to dashboard
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem('accessToken', data.accessToken);
+                toast.success('تم تسجيل الدخول بنجاح');
                 navigate('/dashboard');
             } else {
-                const text = await res.text();
-                const isFailMsg = text.includes('فشل') || text.includes('غير صحيحة');
-                toast.error(isFailMsg ? 'Invalid email or password' : `Login failed (${res.status})`);
+                toast.error(data.message || 'فشل تسجيل الدخول');
             }
         } catch (err: any) {
-            toast.error('Network error — is the server running?');
+            toast.error('خطأ في الاتصال — هل الخادم يعمل؟');
         } finally {
             setLoading(false);
         }

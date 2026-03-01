@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { KeyRound, Loader2 } from 'lucide-react';
 
+import { apiRequest } from '@/lib/queryClient';
+
 interface ChangePasswordDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -33,34 +35,32 @@ export const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ open
 
     const onSubmit = async (data: ChangePassword) => {
         try {
-            const response = await fetch('/api/auth/change-password', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-                credentials: 'include',
-            });
+            const response = await apiRequest('POST', '/api/auth/change-password', data);
+            const result = await response.json();
 
-            let result;
-            try {
-                result = await response.json();
-            } catch (jsonError) {
-                const text = await response.text();
-                console.error('Failed to parse JSON response:', text);
-                throw new Error('الرد من السيرفر ليس بتنسيق JSON');
-            }
-
-            if (response.ok) {
-                toast.success(result.message || 'تم تغيير كلمة المرور بنجاح');
-                reset();
-                onOpenChange(false);
-            } else {
-                toast.error(result.message || 'فشل تغيير كلمة المرور');
-            }
+            toast.success(result.message || 'تم تغيير كلمة المرور بنجاح');
+            reset();
+            onOpenChange(false);
         } catch (error: any) {
             console.error('Password change error details:', error);
-            toast.error(error.message === 'الرد من السيرفر ليس بتنسيق JSON' ? error.message : 'حدث خطأ في الاتصال بالسيرفر');
+
+            let errorMessage = 'حدث خطأ في الاتصال بالسيرفر';
+            if (error.message) {
+                // Handle common error formats (e.g., "401: Unauthorized")
+                const match = error.message.match(/^\d+: (.*)/);
+                if (match) {
+                    try {
+                        const jsonError = JSON.parse(match[1]);
+                        errorMessage = jsonError.message || errorMessage;
+                    } catch {
+                        errorMessage = match[1];
+                    }
+                } else {
+                    errorMessage = error.message;
+                }
+            }
+
+            toast.error(errorMessage);
         }
     };
 

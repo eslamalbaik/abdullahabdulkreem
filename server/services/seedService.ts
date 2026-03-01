@@ -1,5 +1,6 @@
 import Role from '../models/Role.js';
 import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
 
 const seedRoles = async () => {
     const roles = [
@@ -27,17 +28,46 @@ const seedRoles = async () => {
         console.log('Roles seeded successfully');
 
         // Seed default admin user if none exists
+        const adminEmail = process.env.LOCAL_ADMIN_EMAIL || 'admin@local.dev';
+        const adminPassword = process.env.LOCAL_ADMIN_PASSWORD || '123';
+
         const adminRole = await Role.findOne({ name: 'Admin' });
         if (adminRole) {
-            const adminExists = await User.findOne({ email: 'admin@admin.com' });
-            if (!adminExists) {
+            const admin = await User.findOne({ email: adminEmail }).select('+password');
+            if (!admin) {
                 await User.create({
                     name: 'Admin',
-                    email: 'admin@admin.com',
-                    password: 'admin123',
+                    email: adminEmail,
+                    password: adminPassword,
                     role: adminRole._id,
                 });
-                console.log('Default admin user seeded: admin@admin.com / admin123');
+                console.log(`Default admin user seeded: ${adminEmail} / ${adminPassword}`);
+            } else {
+                // Force ensure admin is not deleted and has correct role
+                let needsSave = false;
+                if (admin.isDeleted) {
+                    admin.isDeleted = false;
+                    admin.deletedAt = undefined;
+                    needsSave = true;
+                }
+                if (admin.role.toString() !== adminRole._id.toString()) {
+                    admin.role = adminRole._id;
+                    needsSave = true;
+                }
+
+                // Check if password matches. If not, update it.
+                // We use bcrypt.compare to check against the plain text password from .env
+                const isMatch = await bcrypt.compare(adminPassword, admin.password);
+                if (!isMatch) {
+                    admin.password = adminPassword;
+                    needsSave = true;
+                    console.log(`[Seed] Password mismatch for ${adminEmail}, updating...`);
+                }
+
+                if (needsSave) {
+                    await admin.save();
+                    console.log(`[Seed] Default admin user (${adminEmail}) synchronized and activated.`);
+                }
             }
         }
     } catch (error) {

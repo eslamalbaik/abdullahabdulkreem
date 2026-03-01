@@ -1,158 +1,156 @@
-import { pgTable, serial, text, varchar, integer, boolean, timestamp, jsonb, real } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// ===== Helpers =====
+const idSchema = z.union([z.number(), z.string()]);
+
 // ===== Projects =====
-export const projects = pgTable("projects", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull(),
-  image: text("image").notNull(),
-  images: text("images").array(),
-  year: text("year").notNull(),
-  country: text("country"),
-  field: text("field"),
-  package: text("package"),
-  description: text("description"),
-  strategy: text("strategy"),
-  behanceUrl: text("behance_url"),
-  featured: boolean("featured").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertProjectSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  category: z.string().min(1, "Category is required"),
+  image: z.string().min(1, "Image is required"),
+  images: z.array(z.string()).default([]),
+  year: z.string().min(1, "Year is required"),
+  country: z.string().optional(),
+  field: z.string().optional(),
+  package: z.string().optional(),
+  description: z.string().optional(),
+  strategy: z.string().optional(),
+  behanceUrl: z.string().url().optional().or(z.literal("")),
+  featured: z.boolean().default(false),
 });
 
-export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true });
 export type InsertProject = z.infer<typeof insertProjectSchema>;
-export type Project = typeof projects.$inferSelect;
+export interface Project extends InsertProject {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Products =====
-export const products = pgTable("products", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull(),
-  price: integer("price").notNull(),
-  image: text("image").notNull(),
-  description: text("description"),
-  featured: boolean("featured").default(false).notNull(),
-  stripeProductId: text("stripe_product_id"),
-  stripePriceId: text("stripe_price_id"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertProductSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  category: z.string().min(1, "Category is required"),
+  price: z.number().min(0, "Price must be positive"),
+  image: z.string().min(1, "Image is required"),
+  description: z.string().optional(),
+  featured: z.boolean().default(false),
+  stripeProductId: z.string().optional(),
+  stripePriceId: z.string().optional(),
 });
 
-export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true });
 export type InsertProduct = z.infer<typeof insertProductSchema>;
-export type Product = typeof products.$inferSelect;
+export interface Product extends InsertProduct {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Articles =====
-export const articles = pgTable("articles", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  slug: text("slug").notNull().unique(),
-  excerpt: text("excerpt").notNull(),
-  content: text("content"),
-  date: text("date").notNull(),
-  readTime: text("read_time").notNull(),
-  published: boolean("published").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertArticleSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  slug: z.string().min(1, "Slug is required"),
+  excerpt: z.string().min(1, "Excerpt is required"),
+  content: z.string().optional(),
+  date: z.string().min(1, "Date is required"),
+  readTime: z.string().min(1, "Read time is required"),
+  published: z.boolean().default(false),
 });
 
-export const insertArticleSchema = createInsertSchema(articles).omit({ id: true, createdAt: true });
 export type InsertArticle = z.infer<typeof insertArticleSchema>;
-export type Article = typeof articles.$inferSelect;
+export interface Article extends InsertArticle {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Identities =====
-export const identities = pgTable("identities", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  price: integer("price").notNull(),
-  image: text("image").notNull(),
-  includes: text("includes").array().notNull(),
-  featured: boolean("featured").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertIdentitySchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  price: z.number().min(0),
+  image: z.string().min(1, "Image is required"),
+  includes: z.array(z.string()),
+  featured: z.boolean().default(false),
 });
 
-export const insertIdentitySchema = createInsertSchema(identities).omit({ id: true, createdAt: true });
 export type InsertIdentity = z.infer<typeof insertIdentitySchema>;
-export type Identity = typeof identities.$inferSelect;
+export interface Identity extends InsertIdentity {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Contacts =====
-export const contacts = pgTable("contacts", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  projectType: text("project_type").notNull(),
-  message: text("message").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertContactSchema = z.object({
+  name: z.string().min(1, "الاسم مطلوب"),
+  email: z.string().email("البريد الإلكتروني غير صحيح"),
+  projectType: z.string().min(1, "نوع المشروع مطلوب"),
+  message: z.string().min(1, "الرسالة مطلوبة"),
 });
 
-export const insertContactSchema = createInsertSchema(contacts).omit({ id: true, createdAt: true });
 export type InsertContact = z.infer<typeof insertContactSchema>;
-export type Contact = typeof contacts.$inferSelect;
+export interface Contact extends InsertContact {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Client Logos =====
-export const clientLogos = pgTable("client_logos", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  image: text("image").notNull(),
-  order: integer("order").default(0).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertClientLogoSchema = z.object({
+  name: z.string().min(1),
+  image: z.string().min(1, "Image is required"),
+  order: z.number().default(0),
 });
 
-export const insertClientLogoSchema = createInsertSchema(clientLogos).omit({ id: true, createdAt: true });
 export type InsertClientLogo = z.infer<typeof insertClientLogoSchema>;
-export type ClientLogo = typeof clientLogos.$inferSelect;
+export interface ClientLogo extends InsertClientLogo {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Testimonials =====
-export const testimonials = pgTable("testimonials", {
-  id: serial("id").primaryKey(),
-  text: text("text").notNull(),
-  author: text("author").notNull(),
-  role: text("role").notNull(),
-  rating: real("rating").notNull().default(5),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertTestimonialSchema = z.object({
+  text: z.string().min(1),
+  author: z.string().min(1),
+  role: z.string().min(1),
+  rating: z.number().min(0).max(5).default(5),
 });
 
-export const insertTestimonialSchema = createInsertSchema(testimonials).omit({ id: true, createdAt: true });
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
-export type Testimonial = typeof testimonials.$inferSelect;
+export interface Testimonial extends InsertTestimonial {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Questionnaire Submissions =====
-export const questionnaireSubmissions = pgTable("questionnaire_submissions", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  serviceType: text("service_type").notNull(),
-  role: text("role").notNull(),
-  projectInfo: text("project_info"),
-  socialMedia: text("social_media"),
-  companySize: text("company_size").notNull(),
-  budget: text("budget").notNull(),
-  contactMethod: text("contact_method").notNull(),
-  email: text("email"),
-  whatsapp: text("whatsapp"),
-  instagram: text("instagram"),
-  status: text("status").default("new").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertQuestionnaireSchema = z.object({
+  name: z.string().min(1, "الاسم مطلوب"),
+  serviceType: z.string().min(1, "نوع الخدمة مطلوب"),
+  role: z.string().min(1, "الصفة الوظيفية مطلوبة"),
+  projectInfo: z.string().optional(),
+  socialMedia: z.string().optional(),
+  companySize: z.string().min(1, "حجم الشركة مطلوب"),
+  budget: z.string().min(1, "الميزانية مطلوبة"),
+  contactMethod: z.string().min(1, "وسيلة التواصل مطلوبة"),
+  email: z.string().email().optional().or(z.literal("")),
+  whatsapp: z.string().optional(),
+  instagram: z.string().optional(),
 });
 
-export const insertQuestionnaireSchema = createInsertSchema(questionnaireSubmissions).omit({ id: true, createdAt: true, status: true });
 export type InsertQuestionnaire = z.infer<typeof insertQuestionnaireSchema>;
-export type QuestionnaireSubmission = typeof questionnaireSubmissions.$inferSelect;
+export interface QuestionnaireSubmission extends InsertQuestionnaire {
+  id: string | number;
+  status: string;
+  createdAt: Date | string;
+}
 
-// ===== Users (for Replit Auth) =====
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey(),
-  email: varchar("email").unique(),
-  password: varchar("password"), // Added for custom password management
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").default("user").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type UpsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
+// ===== Users =====
+export interface User {
+  id: string;
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+  role: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "كلمة المرور الحالية مطلوبة"),
@@ -165,116 +163,109 @@ export const changePasswordSchema = z.object({
 
 export type ChangePassword = z.infer<typeof changePasswordSchema>;
 
-// ===== Sessions =====
-export const sessions = pgTable("sessions", {
-  sid: varchar("sid").primaryKey(),
-  sess: jsonb("sess").notNull(),
-  expire: timestamp("expire").notNull(),
-});
-
 // ===== Courses =====
-export const courses = pgTable("courses", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description"),
-  image: text("image"),
-  price: integer("price").notNull(),
-  published: boolean("published").default(false).notNull(),
-  totalHours: integer("total_hours"),
-  devices: text("devices"),
-  certificates: text("certificates"),
-  courseInfo: text("course_info"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertCourseSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  image: z.string().optional(),
+  price: z.number().min(0),
+  published: z.boolean().default(false),
+  totalHours: z.number().optional(),
+  devices: z.string().optional(),
+  certificates: z.string().optional(),
+  courseInfo: z.string().optional(),
 });
 
-export const insertCourseSchema = createInsertSchema(courses).omit({ id: true, createdAt: true });
 export type InsertCourse = z.infer<typeof insertCourseSchema>;
-export type Course = typeof courses.$inferSelect;
+export interface Course extends InsertCourse {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Lessons =====
-export const lessons = pgTable("lessons", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").notNull(),
-  title: text("title").notNull(),
-  description: text("description"),
-  videoUrl: text("video_url"),
-  duration: integer("duration"),
-  order: integer("order").notNull(),
-  isFree: boolean("is_free").default(false).notNull(),
-  attachments: jsonb("attachments").$type<Array<{ name: string, url: string }>>(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertLessonSchema = z.object({
+  courseId: idSchema,
+  title: z.string().min(1),
+  description: z.string().optional(),
+  videoUrl: z.string().optional(),
+  duration: z.number().optional(),
+  order: z.number(),
+  isFree: z.boolean().default(false),
+  attachments: z.array(z.object({ name: z.string(), url: z.string() })).default([]),
 });
 
-export const insertLessonSchema = createInsertSchema(lessons).omit({ id: true, createdAt: true });
 export type InsertLesson = z.infer<typeof insertLessonSchema>;
-export type Lesson = typeof lessons.$inferSelect;
+export interface Lesson extends InsertLesson {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Lesson Progress =====
-export const lessonProgress = pgTable("lesson_progress", {
-  id: serial("id").primaryKey(),
-  lessonId: integer("lesson_id").notNull(),
-  userId: varchar("user_id").notNull(),
-  completed: boolean("completed").default(false).notNull(),
-  watchedSeconds: integer("watched_seconds").default(0).notNull(),
-  completedAt: timestamp("completed_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertLessonProgressSchema = z.object({
+  lessonId: idSchema,
+  userId: z.string(),
+  completed: z.boolean().default(false),
+  watchedSeconds: z.number().default(0),
 });
 
-export const insertLessonProgressSchema = createInsertSchema(lessonProgress).omit({ id: true, createdAt: true });
 export type InsertLessonProgress = z.infer<typeof insertLessonProgressSchema>;
-export type LessonProgress = typeof lessonProgress.$inferSelect;
+export interface LessonProgress extends InsertLessonProgress {
+  id: string | number;
+  completedAt?: Date | string | null;
+  createdAt: Date | string;
+}
 
 // ===== Course Reviews =====
-export const courseReviews = pgTable("course_reviews", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").notNull(),
-  userId: varchar("user_id").notNull(),
-  rating: integer("rating").notNull(),
-  comment: text("comment"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertCourseReviewSchema = z.object({
+  courseId: idSchema,
+  userId: z.string(),
+  rating: z.number().min(1).max(5),
+  comment: z.string().optional(),
 });
 
-export const insertCourseReviewSchema = createInsertSchema(courseReviews).omit({ id: true, createdAt: true });
 export type InsertCourseReview = z.infer<typeof insertCourseReviewSchema>;
-export type CourseReview = typeof courseReviews.$inferSelect;
+export interface CourseReview extends InsertCourseReview {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Course Testimonials =====
-export const courseTestimonials = pgTable("course_testimonials", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").notNull(),
-  userId: varchar("user_id"),
-  name: text("name").notNull(),
-  image: text("image"),
-  title: text("title"),
-  rating: integer("rating").notNull(),
-  comment: text("comment").notNull(),
-  adminReply: text("admin_reply"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertCourseTestimonialSchema = z.object({
+  courseId: idSchema,
+  userId: z.string().optional(),
+  name: z.string().min(1),
+  image: z.string().optional(),
+  title: z.string().optional(),
+  rating: z.number().min(1).max(5),
+  comment: z.string().min(1),
+  adminReply: z.string().optional(),
 });
 
-export const insertCourseTestimonialSchema = createInsertSchema(courseTestimonials).omit({ id: true, createdAt: true });
 export type InsertCourseTestimonial = z.infer<typeof insertCourseTestimonialSchema>;
-export type CourseTestimonial = typeof courseTestimonials.$inferSelect;
+export interface CourseTestimonial extends InsertCourseTestimonial {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Course Enrollments =====
-export const courseEnrollments = pgTable("course_enrollments", {
-  id: serial("id").primaryKey(),
-  courseId: integer("course_id").notNull(),
-  userId: varchar("user_id").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+export const insertCourseEnrollmentSchema = z.object({
+  courseId: idSchema,
+  userId: z.string(),
 });
 
-export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments).omit({ id: true, createdAt: true });
 export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
-export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+export interface CourseEnrollment extends InsertCourseEnrollment {
+  id: string | number;
+  createdAt: Date | string;
+}
 
 // ===== Site Configuration =====
-export const siteConfigs = pgTable("site_configs", {
-  key: text("key").primaryKey(),
-  value: text("value").notNull(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+export const insertSiteConfigSchema = z.object({
+  key: z.string().min(1),
+  value: z.string(),
 });
 
-export const insertSiteConfigSchema = createInsertSchema(siteConfigs);
 export type InsertSiteConfig = z.infer<typeof insertSiteConfigSchema>;
-export type SiteConfig = typeof siteConfigs.$inferSelect;
+export interface SiteConfig extends InsertSiteConfig {
+  updatedAt?: Date | string | null;
+}

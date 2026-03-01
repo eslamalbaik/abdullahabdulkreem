@@ -1,51 +1,18 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema, insertCourseSchema, insertLessonSchema } from "@shared/schema";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
-import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
-import { sendQuestionnaireNotification, sendContactNotification, sendNewsletterNotification } from "./resend";
+import { storage } from "./storage.js";
+import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema, insertCourseSchema, insertLessonSchema } from "@shared/schema.js";
+import { isAuthenticated } from "./middlewares/authMiddleware.js";
+import { registerUploadRoutes } from "./routes/uploadRoutes.js";
+import { sendQuestionnaireNotification, sendContactNotification, sendNewsletterNotification } from "./resend.js";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
 
-  await setupAuth(app);
-  registerAuthRoutes(app);
-  registerObjectStorageRoutes(app);
+  registerUploadRoutes(app);
 
-  app.get("/api/projects", async (_req, res) => {
-    try {
-      const projects = await storage.getProjects();
-      res.json(projects);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch projects" });
-    }
-  });
-
-  app.get("/api/projects/featured", async (_req, res) => {
-    try {
-      const projects = await storage.getFeaturedProjects();
-      res.json(projects);
-    } catch (error) {
-      console.error("Error fetching featured projects:", error);
-      res.status(500).json({ error: "Failed to fetch featured projects" });
-    }
-  });
-
-  app.get("/api/projects/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const project = await storage.getProjectById(id);
-      if (!project) {
-        return res.status(404).json({ error: "Project not found" });
-      }
-      res.json(project);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch project" });
-    }
-  });
 
   app.get("/api/products", async (req, res) => {
     try {
@@ -242,45 +209,6 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/projects", isAuthenticated, async (req, res) => {
-    try {
-      const result = insertProjectSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ error: "Invalid project data", details: result.error.issues });
-      }
-      const project = await storage.createProject(result.data);
-      res.status(201).json(project);
-    } catch (error) {
-      console.error("Error creating project:", error);
-      res.status(500).json({ error: "Failed to create project" });
-    }
-  });
-
-  app.put("/api/admin/projects/:id", isAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id as string);
-      const result = insertProjectSchema.safeParse(req.body);
-      if (!result.success) {
-        return res.status(400).json({ error: "Invalid project data", details: result.error.issues });
-      }
-      const project = await storage.updateProject(id, result.data);
-      res.json(project);
-    } catch (error) {
-      console.error("Error updating project:", error);
-      res.status(500).json({ error: "Failed to update project" });
-    }
-  });
-
-  app.delete("/api/admin/projects/:id", isAuthenticated, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id as string);
-      await storage.deleteProject(id);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      res.status(500).json({ error: "Failed to delete project" });
-    }
-  });
 
   app.post("/api/admin/products", isAuthenticated, async (req, res) => {
     try {

@@ -5,12 +5,20 @@ const ProtectedRoute: React.FC = () => {
     const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated' | 'forbidden'>('loading');
 
     useEffect(() => {
-        // Check if the user has an active Passport session and get their role
-        fetch('/api/auth/user', { credentials: 'include' })
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            setStatus('unauthenticated');
+            return;
+        }
+
+        // Check if the user has an active JWT session and get their role
+        fetch('/api/auth/user', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
             .then(async (res) => {
                 if (res.ok) {
                     const user = await res.json();
-                    if (user.role === 'admin') {
+                    if (user.role === 'Admin' || user.role === 'Editor') {
                         setStatus('authenticated');
                     } else {
                         setStatus('forbidden');

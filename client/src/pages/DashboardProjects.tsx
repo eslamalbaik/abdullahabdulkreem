@@ -63,7 +63,7 @@ const DashboardProjects: React.FC = () => {
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/projects/${id}`),
+        mutationFn: (id: number) => apiRequest("DELETE", `/api/projects/${id}`),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['/api/projects'] }),
     });
 
@@ -154,7 +154,7 @@ function ProjectForm({ item, onClose }: { item: Project | null; onClose: () => v
 
     const mutation = useMutation({
         mutationFn: async (data: any) => {
-            const endpoint = `/api/admin/projects${isEditing ? `/${item!.id}` : ''}`;
+            const endpoint = `/api/projects${isEditing ? `/${item!.id}` : ''}`;
             return apiRequest(isEditing ? 'PUT' : 'POST', endpoint, data);
         },
         onSuccess: () => {

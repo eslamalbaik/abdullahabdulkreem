@@ -90,12 +90,12 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <a href="/api/login" data-testid="link-login">
+              <Link to="/login" data-testid="link-login">
                 <Button variant="outline" size="sm">
                   <LogIn className="w-4 h-4 me-2" />
                   دخول
                 </Button>
-              </a>
+              </Link>
             )}
           </div>
 
@@ -182,15 +182,15 @@ export default function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <a
-                    href="/api/login"
+                  <Link
+                    to="/login"
                     onClick={handleLinkClick}
                     className="text-2xl font-medium py-3 border-b border-border text-primary flex items-center gap-3"
                     data-testid="link-login-mobile"
                   >
                     <LogIn className="w-6 h-6" />
                     تسجيل الدخول
-                  </a>
+                  </Link>
                 )}
               </div>
             </div>
