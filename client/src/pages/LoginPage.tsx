@@ -95,9 +95,6 @@ const LoginPage: React.FC = () => {
                         </button>
                     </div>
 
-                    <p className="text-center text-xs text-muted-foreground">
-                        Default: <code>admin@local.dev</code> / password from <code>.env</code>
-                    </p>
                 </form>
             </div>
         </div>

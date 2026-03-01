@@ -88,7 +88,7 @@ npm install -g pm2
 npm run build
 
 # Start with PM2
-pm2 start dist/index.cjs --name "abdullah-portfolio"
+pm2 start dist/index.js --name "abdullah-portfolio"
 
 # Save PM2 process list
 pm2 save
@@ -111,7 +111,7 @@ WorkingDirectory=/path/to/project
 Environment=NODE_ENV=production
 Environment=DATABASE_URL=your-database-url
 Environment=SESSION_SECRET=your-secret
-ExecStart=/usr/bin/node dist/index.cjs
+ExecStart=/usr/bin/node dist/index.js
 Restart=on-failure
 
 [Install]
@@ -142,7 +142,7 @@ ENV PORT=5000
 
 EXPOSE 5000
 
-CMD ["node", "dist/index.cjs"]
+CMD ["node", "dist/index.js"]
 ```
 
 Build and run:
@@ -167,6 +167,11 @@ The server responds on all routes. You can use the root path `/` as a health che
 ## Notes
 
 - The frontend is served statically from `dist/public/`
-- All API routes are under `/api/*`
+- All API routes are under `/api/*` (e.g., Auth is under `/api/auth/login`)
 - The server handles SPA routing (returns index.html for non-API routes)
 - Make sure your database is accessible from your hosting environment
+
+### Common Issues
+
+- **502 Bad Gateway**: Usually means the Node.js process is not running or is crashing. Check logs with `pm2 logs`.
+- **404 Not Found on Login**: Ensure you are calling `/api/auth/login`, not `/api/login`.

@@ -98,7 +98,7 @@ npm start        # Runs production server on port 5000
 ```
 
 ### Output Structure
-- `dist/index.cjs` - Bundled Node.js server
+- `dist/index.js` - Bundled Node.js server
 - `dist/public/` - Static frontend assets
 
 ### Railway / VPS Deployment
