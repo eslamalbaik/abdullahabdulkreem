@@ -1,11 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { eq, asc } from 'drizzle-orm';
+import { storage } from '../server/storage';
+import connectDB from '../server/config/db';
 import * as schema from '../shared/schema';
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
+// Helper to ensure DB is connected
+let cachedDb: any = null;
+async function ensureDb() {
+  if (cachedDb) return cachedDb;
+  await connectDB();
+  cachedDb = true;
+  return cachedDb;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { method, url } = req;
@@ -20,19 +25,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    await ensureDb();
+
     if (path === '/projects' && method === 'GET') {
-      const projects = await db.select().from(schema.projects).orderBy(schema.projects.createdAt);
+      const projects = await storage.getProjects();
       return res.json(projects);
     }
 
     if (path === '/projects/featured' && method === 'GET') {
-      const projects = await db.select().from(schema.projects).where(eq(schema.projects.featured, true)).orderBy(schema.projects.createdAt);
+      const projects = await storage.getFeaturedProjects();
       return res.json(projects);
     }
 
     if (path.startsWith('/projects/') && method === 'GET') {
-      const id = parseInt(path.split('/')[2]);
-      const [project] = await db.select().from(schema.projects).where(eq(schema.projects.id, id));
+      const id = path.split('/')[2];
+      const project = await storage.getProjectById(id);
       if (!project) return res.status(404).json({ error: 'Project not found' });
       return res.json(project);
     }
@@ -41,46 +48,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const category = req.query.category as string | undefined;
       let products;
       if (category) {
-        products = await db.select().from(schema.products).where(eq(schema.products.category, category)).orderBy(schema.products.createdAt);
+        products = await storage.getProductsByCategory(category);
       } else {
-        products = await db.select().from(schema.products).orderBy(schema.products.createdAt);
+        products = await storage.getProducts();
       }
       return res.json(products);
     }
 
     if (path.startsWith('/products/') && method === 'GET') {
-      const id = parseInt(path.split('/')[2]);
-      const [product] = await db.select().from(schema.products).where(eq(schema.products.id, id));
+      const id = path.split('/')[2];
+      const product = await storage.getProductById(id);
       if (!product) return res.status(404).json({ error: 'Product not found' });
       return res.json(product);
     }
 
     if (path === '/articles' && method === 'GET') {
-      const articles = await db.select().from(schema.articles).orderBy(schema.articles.createdAt);
+      const articles = await storage.getArticles();
       return res.json(articles);
     }
 
     if (path.startsWith('/articles/') && method === 'GET') {
       const slug = path.split('/')[2];
-      const [article] = await db.select().from(schema.articles).where(eq(schema.articles.slug, slug));
+      const article = await storage.getArticleBySlug(slug);
       if (!article) return res.status(404).json({ error: 'Article not found' });
       return res.json(article);
     }
 
     if (path === '/identities' && method === 'GET') {
-      const identities = await db.select().from(schema.identities).orderBy(schema.identities.createdAt);
+      const identities = await storage.getIdentities();
       return res.json(identities);
     }
 
     if (path.startsWith('/identities/') && method === 'GET') {
-      const id = parseInt(path.split('/')[2]);
-      const [identity] = await db.select().from(schema.identities).where(eq(schema.identities.id, id));
+      const id = path.split('/')[2];
+      const identity = await storage.getIdentityById(id);
       if (!identity) return res.status(404).json({ error: 'Identity not found' });
       return res.json(identity);
     }
 
     if (path === '/client-logos' && method === 'GET') {
-      const logos = await db.select().from(schema.clientLogos).orderBy(asc(schema.clientLogos.order));
+      const logos = await storage.getClientLogos();
       return res.json(logos);
     }
 
@@ -89,7 +96,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid contact data', details: result.error.issues });
       }
-      const [contact] = await db.insert(schema.contacts).values(result.data).returning();
+      const contact = await storage.createContact(result.data);
       return res.status(201).json(contact);
     }
 
@@ -98,23 +105,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid project data', details: result.error.issues });
       }
-      const [project] = await db.insert(schema.projects).values(result.data).returning();
+      const project = await storage.createProject(result.data);
       return res.status(201).json(project);
     }
 
     if (path.startsWith('/admin/projects/') && method === 'PUT') {
-      const id = parseInt(path.split('/')[3]);
+      const id = path.split('/')[3];
       const result = schema.insertProjectSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid project data', details: result.error.issues });
       }
-      const [project] = await db.update(schema.projects).set(result.data).where(eq(schema.projects.id, id)).returning();
+      const project = await storage.updateProject(id, result.data);
       return res.json(project);
     }
 
     if (path.startsWith('/admin/projects/') && method === 'DELETE') {
-      const id = parseInt(path.split('/')[3]);
-      await db.delete(schema.projects).where(eq(schema.projects.id, id));
+      const id = path.split('/')[3];
+      await storage.deleteProject(id);
       return res.json({ success: true });
     }
 
@@ -123,23 +130,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid product data', details: result.error.issues });
       }
-      const [product] = await db.insert(schema.products).values(result.data).returning();
+      const product = await storage.createProduct(result.data);
       return res.status(201).json(product);
     }
 
     if (path.startsWith('/admin/products/') && method === 'PUT') {
-      const id = parseInt(path.split('/')[3]);
+      const id = path.split('/')[3];
       const result = schema.insertProductSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid product data', details: result.error.issues });
       }
-      const [product] = await db.update(schema.products).set(result.data).where(eq(schema.products.id, id)).returning();
+      const product = await storage.updateProduct(id, result.data);
       return res.json(product);
     }
 
     if (path.startsWith('/admin/products/') && method === 'DELETE') {
-      const id = parseInt(path.split('/')[3]);
-      await db.delete(schema.products).where(eq(schema.products.id, id));
+      const id = path.split('/')[3];
+      await storage.deleteProduct(id);
       return res.json({ success: true });
     }
 
@@ -148,23 +155,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid identity data', details: result.error.issues });
       }
-      const [identity] = await db.insert(schema.identities).values(result.data).returning();
+      const identity = await storage.createIdentity(result.data);
       return res.status(201).json(identity);
     }
 
     if (path.startsWith('/admin/identities/') && method === 'PUT') {
-      const id = parseInt(path.split('/')[3]);
+      const id = path.split('/')[3];
       const result = schema.insertIdentitySchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid identity data', details: result.error.issues });
       }
-      const [identity] = await db.update(schema.identities).set(result.data).where(eq(schema.identities.id, id)).returning();
+      const identity = await storage.updateIdentity(id, result.data);
       return res.json(identity);
     }
 
     if (path.startsWith('/admin/identities/') && method === 'DELETE') {
-      const id = parseInt(path.split('/')[3]);
-      await db.delete(schema.identities).where(eq(schema.identities.id, id));
+      const id = path.split('/')[3];
+      await storage.deleteIdentity(id);
       return res.json({ success: true });
     }
 
@@ -173,23 +180,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid logo data', details: result.error.issues });
       }
-      const [logo] = await db.insert(schema.clientLogos).values(result.data).returning();
+      const logo = await storage.createClientLogo(result.data);
       return res.status(201).json(logo);
     }
 
     if (path.startsWith('/admin/client-logos/') && method === 'PUT') {
-      const id = parseInt(path.split('/')[3]);
+      const id = path.split('/')[3];
       const result = schema.insertClientLogoSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: 'Invalid logo data', details: result.error.issues });
       }
-      const [logo] = await db.update(schema.clientLogos).set(result.data).where(eq(schema.clientLogos.id, id)).returning();
+      const logo = await storage.updateClientLogo(id, result.data);
       return res.json(logo);
     }
 
     if (path.startsWith('/admin/client-logos/') && method === 'DELETE') {
-      const id = parseInt(path.split('/')[3]);
-      await db.delete(schema.clientLogos).where(eq(schema.clientLogos.id, id));
+      const id = path.split('/')[3];
+      await storage.deleteClientLogo(id);
       return res.json({ success: true });
     }
 

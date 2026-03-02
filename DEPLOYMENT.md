@@ -5,7 +5,6 @@ This project is a full-stack Node.js application ready for deployment.
 ## Prerequisites
 
 - Node.js 20+
-- PostgreSQL database (Neon recommended)
 - MongoDB database (Atlas recommended)
 - npm or yarn
 
@@ -15,7 +14,6 @@ Create a `.env` file or set these variables on your hosting platform:
 
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@host:5432/database
 MONGODB_URI=mongodb+srv://...
 
 # Authentication
@@ -26,9 +24,6 @@ JWT_REFRESH_SECRET=your-secure-refresh-secret
 # App
 PORT=5000
 NODE_ENV=production
-
-# Email (Optional)
-RESEND_API_KEY=re_...
 ```
 
 ## Build & Run

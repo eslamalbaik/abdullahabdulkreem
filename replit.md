@@ -22,12 +22,12 @@ Preferred communication style: Simple, everyday language.
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ESM modules
 - **API Design**: RESTful endpoints under `/api/*` prefix
-- **Database ORM**: Drizzle ORM with PostgreSQL dialect
-- **Session Management**: Express sessions with PostgreSQL store (connect-pg-simple)
+- **Database ORM**: Mongoose for MongoDB
+- **Session Management**: JWT based authentication (no persistent session storage needed)
 
 ### Data Storage
-- **Database**: PostgreSQL via Neon Serverless (@neondatabase/serverless)
-- **Schema Location**: `shared/schema.ts` contains all table definitions
+- **Database**: MongoDB via Atlas (@mongodb/atlas)
+- **Schema Location**: `server/models/` contains all Mongoose models
 - **Main Entities**:
   - `projects` - Portfolio work items
   - `products` - Shop items (templates, courses)

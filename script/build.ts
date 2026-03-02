@@ -4,12 +4,10 @@ import { rm, readFile } from "fs/promises";
 
 const allowlist = [
   "@google/generative-ai",
-  "@neondatabase/serverless",
   "axios",
   "connect-pg-simple",
   "cors",
   "date-fns",
-  "drizzle-orm",
   "drizzle-zod",
   "express",
   "express-rate-limit",
@@ -23,7 +21,6 @@ const allowlist = [
   "openid-client",
   "passport",
   "passport-local",
-  "pg",
   "resend",
   "stripe",
   "uuid",

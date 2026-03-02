@@ -8,7 +8,7 @@
 
 | المتغير | الوصف |
 |---------|-------|
-| `DATABASE_URL` | رابط اتصال PostgreSQL (Neon أو أي مزود آخر) |
+| `MONGODB_URI` | رابط اتصال MongoDB (Atlas أو أي مزود آخر) |
 
 ### 2. خطوات النشر
 
@@ -54,18 +54,15 @@
 
 ### 3. إعداد قاعدة البيانات
 
-#### باستخدام Neon (موصى به):
+#### باستخدام MongoDB Atlas (موصى به):
 
-1. أنشئ حساب على [neon.tech](https://neon.tech)
-2. أنشئ مشروع جديد
+1. أنشئ حساب على [mongodb.com/atlas](https://www.mongodb.com/atlas)
+2. أنشئ Cluster جديد
 3. انسخ Connection String
-4. أضفه كمتغير `DATABASE_URL` في Vercel
+4. أضفه كمتغير `MONGODB_URI` في Vercel
 
-#### تهجير قاعدة البيانات:
-
-```bash
-npx drizzle-kit push
-```
+#### ملاحظة:
+لا حاجة لتهجير (Migration) قاعدة البيانات يدوياً في MongoDB، حيث يتم إنشاء المجموعات (Collections) تلقائياً.
 
 ### 4. هيكل المشروع للنشر
 

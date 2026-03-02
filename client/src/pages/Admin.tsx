@@ -8,7 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useUpload } from "@/hooks/use-upload";
 
 interface Course {
-  id: number;
+  id: string | number;
   title: string;
   description?: string;
   image?: string;
@@ -17,8 +17,8 @@ interface Course {
 }
 
 interface Lesson {
-  id: number;
-  courseId: number;
+  id: string | number;
+  courseId: string | number;
   title: string;
   description?: string;
   videoUrl?: string;
@@ -28,7 +28,7 @@ interface Lesson {
 }
 
 interface Project {
-  id: number;
+  id: string | number;
   title: string;
   category: string;
   image: string;
@@ -38,7 +38,7 @@ interface Project {
 }
 
 interface Product {
-  id: number;
+  id: string | number;
   title: string;
   category: string;
   price: number;
@@ -48,7 +48,7 @@ interface Product {
 }
 
 interface Identity {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   price: number;
@@ -58,14 +58,14 @@ interface Identity {
 }
 
 interface ClientLogo {
-  id: number;
+  id: string | number;
   name: string;
   image: string;
   order: number;
 }
 
 interface Testimonial {
-  id: number;
+  id: string | number;
   text: string;
   author: string;
   role: string;
@@ -116,32 +116,32 @@ export default function Admin() {
   const [showTestimonialsManager, setShowTestimonialsManager] = useState(false);
 
   const deleteProjectMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/projects/${id}`),
+    mutationFn: (id: string | number) => apiRequest("DELETE", `/api/projects/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/projects"] }),
   });
 
   const deleteProductMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/products/${id}`),
+    mutationFn: (id: string | number) => apiRequest("DELETE", `/api/admin/products/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/products"] }),
   });
 
   const deleteIdentityMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/identities/${id}`),
+    mutationFn: (id: string | number) => apiRequest("DELETE", `/api/admin/identities/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/identities"] }),
   });
 
   const deleteLogoMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/client-logos/${id}`),
+    mutationFn: (id: string | number) => apiRequest("DELETE", `/api/admin/client-logos/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/client-logos"] }),
   });
 
   const deleteTestimonialMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/testimonials/${id}`),
+    mutationFn: (id: string | number) => apiRequest("DELETE", `/api/admin/testimonials/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] }),
   });
 
   const deleteCourseMutation = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/courses/${id}`),
+    mutationFn: (id: string | number) => apiRequest("DELETE", `/api/admin/courses/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/admin/courses"] }),
   });
 
@@ -182,7 +182,12 @@ export default function Admin() {
     { id: "testimonials" as Tab, label: "قالوا عن عبدالله", icon: MessageSquare },
   ];
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string | number) => {
+    console.log('Attempting to delete item with ID:', id);
+    if (!id) {
+      console.error('Delete aborted: ID is undefined');
+      return;
+    }
     if (confirm("هل أنت متأكد من حذف هذا العنصر؟")) {
       if (activeTab === "projects") deleteProjectMutation.mutate(id);
       if (activeTab === "products") deleteProductMutation.mutate(id);
@@ -302,7 +307,7 @@ export default function Admin() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(project.id)}
+                    onClick={() => handleDelete(project.id || (project as any)._id)}
                     className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                     data-testid={`button-delete-project-${project.id}`}
                   >
@@ -347,7 +352,7 @@ export default function Admin() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => handleDelete(product.id || (product as any)._id)}
                     className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                     data-testid={`button-delete-product-${product.id}`}
                   >
@@ -392,7 +397,7 @@ export default function Admin() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(identity.id)}
+                    onClick={() => handleDelete(identity.id || (identity as any)._id)}
                     className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                     data-testid={`button-delete-identity-${identity.id}`}
                   >
@@ -437,7 +442,7 @@ export default function Admin() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(logo.id)}
+                    onClick={() => handleDelete(logo.id || (logo as any)._id)}
                     className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                     data-testid={`button-delete-logo-${logo.id}`}
                   >
@@ -483,7 +488,7 @@ export default function Admin() {
                       <Pencil className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(testimonial.id)}
+                      onClick={() => handleDelete(testimonial.id || (testimonial as any)._id)}
                       className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                       data-testid={`button-delete-testimonial-${testimonial.id}`}
                     >
@@ -553,7 +558,7 @@ export default function Admin() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(course.id)}
+                    onClick={() => handleDelete(course.id || (course as any)._id)}
                     className="p-2 text-muted-foreground hover:text-destructive transition-colors"
                     data-testid={`button-delete-course-${course.id}`}
                   >
@@ -939,7 +944,8 @@ function AdminForm({
   const mutation = useMutation({
     mutationFn: async (data: any) => {
       const apiType = type === "logos" ? "client-logos" : type;
-      const endpoint = `/api/admin/${apiType}${isEditing ? `/${item.id}` : ""}`;
+      const itemId = item.id || item._id;
+      const endpoint = `/api/admin/${apiType}${isEditing ? `/${itemId}` : ""}`;
       const method = isEditing ? "PUT" : "POST";
       return apiRequest(method, endpoint, data);
     },

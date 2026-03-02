@@ -102,7 +102,8 @@ export class DatabaseStorage implements IStorage {
   private mapDoc<T>(doc: any): T {
     if (!doc) return doc;
     const obj = doc.toObject ? doc.toObject() : doc;
-    return { ...obj, id: obj._id.toString() } as T;
+    const id = obj._id ? obj._id.toString() : (obj.id ? obj.id.toString() : undefined);
+    return { ...obj, id } as T;
   }
 
   async getProjects(): Promise<Project[]> {
@@ -137,29 +138,34 @@ export class DatabaseStorage implements IStorage {
 
   async getProducts(): Promise<Product[]> {
     const docs = await ProductModel.find({ isDeleted: false }).sort({ createdAt: 1 });
-    return docs.map(d => ({
-      ...d.toObject(),
-      id: d._id.toString(),
-      title: (d as any).name || (d as any).title
-    } as unknown as Product));
+    return docs.map(d => {
+      const mapped = this.mapDoc<any>(d);
+      return {
+        ...mapped,
+        title: mapped.name || mapped.title
+      } as unknown as Product;
+    });
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
     const docs = await ProductModel.find({ category, isDeleted: false }).sort({ createdAt: 1 });
-    return docs.map(d => ({
-      ...d.toObject(),
-      id: d._id.toString(),
-      title: (d as any).name || (d as any).title
-    } as unknown as Product));
+    return docs.map(d => {
+      const mapped = this.mapDoc<any>(d);
+      return {
+        ...mapped,
+        title: mapped.name || mapped.title
+      } as unknown as Product;
+    });
   }
 
   async getProductById(id: string | number): Promise<Product | undefined> {
     const doc = await ProductModel.findById(id);
-    return doc ? {
-      ...doc.toObject(),
-      id: doc._id.toString(),
-      title: (doc as any).name || (doc as any).title
-    } as unknown as Product : undefined;
+    if (!doc) return undefined;
+    const mapped = this.mapDoc<any>(doc);
+    return {
+      ...mapped,
+      title: mapped.name || mapped.title
+    } as unknown as Product;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import Project from '../models/Project.js';
+import { storage } from '../storage.js';
 
 /**
  * @desc    Create a new project
@@ -11,9 +11,9 @@ export const createProject = async (req: Request, res: Response, next: NextFunct
         console.log('--- Project Creation Request ---');
         console.log('Request Body:', JSON.stringify(req.body, null, 2));
 
-        const project = await Project.create(req.body);
+        const project = await storage.createProject(req.body);
 
-        console.log('Project created successfully:', project._id);
+        console.log('Project created successfully:', project.id);
         res.status(201).json(project);
     } catch (error: any) {
         console.error('--- Project Creation Error ---');
@@ -37,18 +37,12 @@ export const createProject = async (req: Request, res: Response, next: NextFunct
  */
 export const getProjects = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { featured, category } = req.query;
-        const query: any = {};
-
-        if (featured === 'true') {
-            query.featured = true;
+        console.log('--- Fetching Projects [DEBUG] ---');
+        const projects = await storage.getProjects();
+        console.log(`Fetched ${projects.length} projects`);
+        if (projects.length > 0) {
+            console.log('Sample project ID:', projects[0].id);
         }
-
-        if (category) {
-            query.category = category;
-        }
-
-        const projects = await Project.find(query).sort('-createdAt');
         res.json(projects);
     } catch (error) {
         next(error);
@@ -62,7 +56,7 @@ export const getProjects = async (req: Request, res: Response, next: NextFunctio
  */
 export const getFeaturedProjects = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const projects = await Project.find({ featured: true }).sort('-createdAt');
+        const projects = await storage.getFeaturedProjects();
         res.json(projects);
     } catch (error) {
         next(error);
@@ -76,7 +70,7 @@ export const getFeaturedProjects = async (req: Request, res: Response, next: Nex
  */
 export const getProjectById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const project = await Project.findById(req.params.id);
+        const project = await storage.getProjectById(req.params.id as string);
         if (!project) {
             return res.status(404).json({ error: 'Project not found' });
         }
@@ -96,15 +90,7 @@ export const updateProject = async (req: Request, res: Response, next: NextFunct
         console.log(`--- Project Update Request [ID: ${req.params.id}] ---`);
         console.log('Update Body:', JSON.stringify(req.body, null, 2));
 
-        const project = await Project.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
-
-        if (!project) {
-            return res.status(404).json({ error: 'Project not found' });
-        }
+        const project = await storage.updateProject(req.params.id as string, req.body);
 
         console.log('Project updated successfully');
         res.json(project);
@@ -129,10 +115,7 @@ export const updateProject = async (req: Request, res: Response, next: NextFunct
  */
 export const deleteProject = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const project = await Project.findByIdAndDelete(req.params.id);
-        if (!project) {
-            return res.status(404).json({ error: 'Project not found' });
-        }
+        await storage.deleteProject(req.params.id as string);
         res.json({ success: true, message: 'Project deleted successfully' });
     } catch (error) {
         next(error);

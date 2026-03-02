@@ -28,7 +28,7 @@ export async function registerRoutes(
 
   app.get("/api/products/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id as string;
       const product = await storage.getProductById(id);
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
@@ -72,7 +72,7 @@ export async function registerRoutes(
 
   app.get("/api/identities/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id as string;
       const identity = await storage.getIdentityById(id);
       if (!identity) {
         return res.status(404).json({ error: "Identity not found" });
@@ -226,7 +226,7 @@ export async function registerRoutes(
 
   app.put("/api/admin/products/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       const result = insertProductSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid product data", details: result.error.issues });
@@ -241,7 +241,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/products/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       await storage.deleteProduct(id);
       res.json({ success: true });
     } catch (error) {
@@ -266,7 +266,7 @@ export async function registerRoutes(
 
   app.put("/api/admin/identities/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       const result = insertIdentitySchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid identity data", details: result.error.issues });
@@ -281,7 +281,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/identities/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       await storage.deleteIdentity(id);
       res.json({ success: true });
     } catch (error) {
@@ -317,7 +317,7 @@ export async function registerRoutes(
 
   app.put("/api/admin/client-logos/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       const result = insertClientLogoSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid logo data", details: result.error.issues });
@@ -332,7 +332,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/client-logos/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       await storage.deleteClientLogo(id);
       res.json({ success: true });
     } catch (error) {
@@ -368,7 +368,7 @@ export async function registerRoutes(
 
   app.put("/api/admin/testimonials/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       const result = insertTestimonialSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid testimonial data", details: result.error.issues });
@@ -383,7 +383,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/testimonials/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       await storage.deleteTestimonial(id);
       res.json({ success: true });
     } catch (error) {
@@ -406,7 +406,7 @@ export async function registerRoutes(
 
   app.get("/api/courses/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id as string;
       const course = await storage.getCourseById(id);
       if (!course) {
         return res.status(404).json({ error: "Course not found" });
@@ -420,7 +420,7 @@ export async function registerRoutes(
 
   app.get("/api/courses/:id/lessons", async (req, res) => {
     try {
-      const courseId = parseInt(req.params.id);
+      const courseId = req.params.id as string;
       const lessons = await storage.getLessonsByCourseId(courseId);
       res.json(lessons);
     } catch (error) {
@@ -431,7 +431,7 @@ export async function registerRoutes(
 
   app.get("/api/courses/:id/testimonials", async (req, res) => {
     try {
-      const courseId = parseInt(req.params.id);
+      const courseId = req.params.id as string;
       const testimonials = await storage.getCourseTestimonials(courseId);
       res.json(testimonials);
     } catch (error) {
@@ -443,7 +443,7 @@ export async function registerRoutes(
   // Submit testimonial (only enrolled users)
   app.post("/api/courses/:id/testimonials", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.id);
+      const courseId = req.params.id as string;
       const userId = (req.user as any).id;
       const userName = (req.user as any).username || "مستخدم";
       const userImage = (req.user as any).profileImage || null;
@@ -479,7 +479,7 @@ export async function registerRoutes(
   // Admin reply to testimonial
   app.patch("/api/admin/testimonials/:id/reply", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id as string;
       const { adminReply } = req.body;
 
       if (!adminReply) {
@@ -496,7 +496,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/course-testimonials/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id as string;
       await storage.deleteCourseTestimonial(id);
       res.json({ success: true });
     } catch (error) {
@@ -508,7 +508,7 @@ export async function registerRoutes(
   // Course enrollment routes (authenticated)
   app.get("/api/courses/:courseId/enrollment", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId as string);
+      const courseId = req.params.courseId as string;
       const userId = (req.user as any).id;
       const enrollment = await storage.getCourseEnrollment(courseId, userId);
       res.json({ enrolled: !!enrollment, enrollment });
@@ -520,7 +520,7 @@ export async function registerRoutes(
 
   app.post("/api/courses/:courseId/enroll", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId as string);
+      const courseId = req.params.courseId as string;
       const userId = (req.user as any).id;
 
       const existing = await storage.getCourseEnrollment(courseId, userId);
@@ -539,7 +539,7 @@ export async function registerRoutes(
   // Lesson progress routes (authenticated)
   app.get("/api/courses/:courseId/progress", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId as string);
+      const courseId = req.params.courseId as string;
       const userId = (req.user as any).id;
       const progress = await storage.getUserCourseProgress(courseId, userId);
       res.json(progress);
@@ -595,7 +595,7 @@ export async function registerRoutes(
 
   app.put("/api/admin/courses/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       const result = insertCourseSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid course data", details: result.error.issues });
@@ -610,7 +610,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/courses/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       await storage.deleteCourse(id);
       res.json({ success: true });
     } catch (error) {
@@ -622,7 +622,7 @@ export async function registerRoutes(
   // Admin lessons routes
   app.get("/api/admin/courses/:courseId/lessons", isAuthenticated, async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId as string);
+      const courseId = req.params.courseId as string;
       const lessons = await storage.getLessonsByCourseId(courseId);
       res.json(lessons);
     } catch (error) {
@@ -647,7 +647,7 @@ export async function registerRoutes(
 
   app.put("/api/admin/lessons/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       const result = insertLessonSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid lesson data", details: result.error.issues });
@@ -662,7 +662,7 @@ export async function registerRoutes(
 
   app.delete("/api/admin/lessons/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id as string);
+      const id = req.params.id as string;
       await storage.deleteLesson(id);
       res.json({ success: true });
     } catch (error) {
