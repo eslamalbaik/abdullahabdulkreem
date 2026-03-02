@@ -1,7 +1,11 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 import { registerRoutes } from "./routes.js";
 import { serveStatic } from "./static.js";
 import { createServer } from "http";
@@ -158,7 +162,7 @@ if (process.env.NODE_ENV === "production") {
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
-    app.use(express.static(path.resolve(process.cwd(), "client/public")));
+    app.use(express.static(path.resolve(__dirname, "..", "client/public")));
     const { setupVite } = await import("./vite.js");
     await setupVite(httpServer, app);
   }

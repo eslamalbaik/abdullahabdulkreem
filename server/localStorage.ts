@@ -1,9 +1,13 @@
 import { randomUUID } from "crypto";
 import fs from "fs";
-import path from "path";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 import type { Response } from "express";
 
-const UPLOADS_DIR = path.resolve(process.cwd(), "uploads");
+const UPLOADS_DIR = path.resolve(__dirname, "..", "uploads");
 
 function ensureUploadsDir() {
   if (!fs.existsSync(UPLOADS_DIR)) {

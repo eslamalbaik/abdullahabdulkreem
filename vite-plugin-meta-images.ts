@@ -1,6 +1,10 @@
 import type { Plugin } from 'vite';
 import fs from 'fs';
-import path from 'path';
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Vite plugin that updates og:image and twitter:image meta tags
@@ -17,7 +21,7 @@ export function metaImagesPlugin(): Plugin {
       }
 
       // Check if opengraph image exists in public directory
-      const publicDir = path.resolve(process.cwd(), 'client', 'public');
+      const publicDir = path.resolve(__dirname, 'client', 'public');
       const opengraphPngPath = path.join(publicDir, 'opengraph.png');
       const opengraphJpgPath = path.join(publicDir, 'opengraph.jpg');
       const opengraphJpegPath = path.join(publicDir, 'opengraph.jpeg');
