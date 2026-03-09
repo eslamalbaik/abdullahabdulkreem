@@ -92,7 +92,7 @@ export interface Contact extends InsertContact {
 
 // ===== Client Logos =====
 export const insertClientLogoSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().optional(),
   image: z.string().min(1, "Image is required"),
   order: z.number().default(0),
 });

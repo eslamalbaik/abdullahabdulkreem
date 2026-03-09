@@ -4,7 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFeaturedProjects, fetchProducts } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
-import type { Identity, SiteConfig } from "@shared/schema";
+import type { Identity, SiteConfig, User } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
 
 interface ClientLogo {
   id: number;
@@ -14,6 +15,7 @@ interface ClientLogo {
 }
 
 export default function Home() {
+  const { user } = useAuth();
   const { data: projects = [], isLoading: projectsLoading } = useQuery({
     queryKey: ["featuredProjects"],
     queryFn: fetchFeaturedProjects,
@@ -109,30 +111,35 @@ export default function Home() {
       </section>
 
       {/* Logo Marquee */}
-      {clientLogos.length > 0 && (
-        <section className="py-12 bg-secondary/30 overflow-hidden">
-          <div className="relative flex">
-            <div className="flex shrink-0 animate-marquee-rtl gap-16 pe-16">
-              {clientLogos.map((logo) => (
-                <img
-                  key={`set1-${logo.id}`}
-                  src={logo.image}
-                  alt={logo.name}
-                  className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 shrink-0"
-                />
+      {(clientLogos.length > 0 || (user && user.role === "admin")) && (
+        <section className="py-12 bg-primary/5 overflow-hidden border-y border-primary/10">
+          {clientLogos.length > 0 ? (
+            <div className="relative flex w-max animate-marquee-rtl">
+              {[...Array(8)].map((_, i) => (
+                <div key={`set-${i}`} className="flex shrink-0 gap-10 pe-10">
+                  {clientLogos.map((logo) => (
+                    <div key={`${i}-${logo.id}`} className="bg-[#4f565a] px-4 py-2 rounded-md flex items-center justify-center h-16 w-40 shrink-0 shadow-sm">
+                      <img
+                        src={logo.image}
+                        alt={logo.name}
+                        className="max-h-11 max-w-full opacity-90 brightness-200 grayscale transition-all hover:grayscale-0 hover:opacity-100 hover:brightness-100 object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
-            <div className="flex shrink-0 animate-marquee-rtl gap-16 pe-16">
-              {clientLogos.map((logo) => (
-                <img
-                  key={`set2-${logo.id}`}
-                  src={logo.image}
-                  alt={logo.name}
-                  className="h-12 w-auto opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0 shrink-0"
-                />
-              ))}
+          ) : user && user.role === "admin" ? (
+            <div className="container mx-auto px-6 text-center py-4">
+              <p className="text-muted-foreground mb-4">لا توجد شعارات عملاء حالياً.</p>
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
+              >
+                إضافة شعارات من لوحة التحكم <ArrowLeft className="w-4 h-4" />
+              </Link>
             </div>
-          </div>
+          ) : null}
         </section>
       )}
 

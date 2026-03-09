@@ -1,6 +1,5 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
-import session from "express-session";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 

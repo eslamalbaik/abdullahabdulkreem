@@ -30,6 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'الدورات', icon: <GraduationCap size={20} />, path: '/dashboard/courses' },
         { name: 'الهوية البصرية', icon: <Palette size={20} />, path: '/dashboard/identities' },
         { name: 'الأعمال', icon: <LayoutGrid size={20} />, path: '/dashboard/projects' },
+        { name: 'شعارات العملاء', icon: <Palette size={20} />, path: '/dashboard/logos' },
         { name: 'التوصيات', icon: <MessageSquare size={20} />, path: '/dashboard/testimonials' },
         { name: 'الإعدادات', icon: <Settings size={20} />, path: '/dashboard/settings' },
     ];

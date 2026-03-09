@@ -17,13 +17,15 @@ Create a `.env` file or set these variables on your hosting platform:
 MONGODB_URI=mongodb+srv://...
 
 # Authentication
-SESSION_SECRET=your-secure-random-session-secret
 JWT_SECRET=your-secure-jwt-secret
 JWT_REFRESH_SECRET=your-secure-refresh-secret
 
 # App
 PORT=5000
 NODE_ENV=production
+# Optional: Resend for emails
+RESEND_API_KEY=re_...
+FROM_EMAIL=noreply@yourdomain.com
 ```
 
 ## Build & Run
@@ -35,12 +37,7 @@ npm run build
 ```
 This compiles the frontend (Vite) and backend (ESbuild) into the `dist/` directory.
 
-### 2. Run database migrations
-```bash
-npm run db:push
-```
-
-### 3. Start the production server
+### 2. Start the production server
 ```bash
 npm start
 ```
@@ -104,8 +101,8 @@ Type=simple
 User=your-user
 WorkingDirectory=/path/to/project
 Environment=NODE_ENV=production
-Environment=DATABASE_URL=your-database-url
-Environment=SESSION_SECRET=your-secret
+Environment=MONGODB_URI=your-mongodb-uri
+Environment=JWT_SECRET=your-secret
 ExecStart=/usr/bin/node dist/index.js
 Restart=on-failure
 
@@ -150,8 +147,8 @@ docker build -t abdullah-portfolio .
 
 # Run container
 docker run -p 5000:5000 \
-  -e DATABASE_URL=your-db-url \
-  -e SESSION_SECRET=your-secret \
+  -e MONGODB_URI=your-mongodb-uri \
+  -e JWT_SECRET=your-secret \
   abdullah-portfolio
 ```
 

@@ -5,20 +5,14 @@ import { rm, readFile } from "fs/promises";
 const allowlist = [
   "@google/generative-ai",
   "axios",
-  "connect-pg-simple",
   "cors",
   "date-fns",
-  "drizzle-zod",
   "express",
   "express-rate-limit",
-  "express-session",
   "jsonwebtoken",
-  "memorystore",
-  "multer",
   "nanoid",
   "nodemailer",
   "openai",
-  "openid-client",
   "passport",
   "passport-local",
   "resend",
@@ -65,7 +59,14 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
     banner: {
-      js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",
+      js: `
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+`,
     },
   });
 

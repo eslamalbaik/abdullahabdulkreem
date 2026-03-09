@@ -169,7 +169,7 @@ export default function Footer() {
       <div className="container mx-auto px-6">
         {isHomePage && (
           <div className="mb-16">
-            <h4 className="font-serif font-semibold text-xl mb-6 text-center">قالوا عن عبد الله عبد الحكيم</h4>
+            <h4 className="font-serif font-semibold text-xl mb-6 text-center">قالوا عن عبد الله عبد الكريم</h4>
 
             <div className="relative flex items-center">
               <button
@@ -283,7 +283,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border/50 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} عبد الله عبد الحكيم. جميع الحقوق محفوظة.</p>
+          <p>© {new Date().getFullYear()} عبد الله عبد الكريم. جميع الحقوق محفوظة.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link to="/privacy" className="hover:text-foreground" data-testid="link-privacy">سياسة الخصوصية</Link>
             <Link to="/terms" className="hover:text-foreground" data-testid="link-terms">شروط الاستخدام</Link>

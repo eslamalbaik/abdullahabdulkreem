@@ -1,42 +1,14 @@
 import { Resend } from 'resend';
 
-let connectionSettings: any;
+// Use standard environment variables for Resend
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 
-async function getCredentials() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
-    : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
-    : null;
-
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
-  }
-
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
-      }
-    }
-  ).then(res => res.json()).then(data => data.items?.[0]);
-
-  if (!connectionSettings || (!connectionSettings.settings.api_key)) {
-    throw new Error('Resend not connected');
-  }
-  return { apiKey: connectionSettings.settings.api_key, fromEmail: connectionSettings.settings.from_email };
+if (!RESEND_API_KEY && process.env.NODE_ENV === 'production') {
+  console.warn("RESEND_API_KEY is not set. Email notifications will fail.");
 }
 
-export async function getUncachableResendClient() {
-  const { apiKey, fromEmail } = await getCredentials();
-  return {
-    client: new Resend(apiKey),
-    fromEmail
-  };
-}
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 export async function sendQuestionnaireNotification(data: {
   name: string;
@@ -51,16 +23,16 @@ export async function sendQuestionnaireNotification(data: {
   whatsapp?: string;
   instagram?: string;
 }) {
-  const { client, fromEmail } = await getUncachableResendClient();
-  
-  const contactInfo = data.contactMethod === 'email' 
-    ? data.email 
-    : data.contactMethod === 'whatsapp' 
-    ? data.whatsapp 
-    : data.instagram;
+  if (!resend) return;
 
-  await client.emails.send({
-    from: fromEmail,
+  const contactInfo = data.contactMethod === 'email'
+    ? data.email
+    : data.contactMethod === 'whatsapp'
+      ? data.whatsapp
+      : data.instagram;
+
+  await resend.emails.send({
+    from: FROM_EMAIL,
     to: 'abdullah.slwmhgd@gmail.com',
     subject: `طلب جديد من ${data.name} - استبيان التواصل`,
     html: `
@@ -88,10 +60,10 @@ export async function sendContactNotification(data: {
   projectType: string;
   message: string;
 }) {
-  const { client, fromEmail } = await getUncachableResendClient();
+  if (!resend) return;
 
-  await client.emails.send({
-    from: fromEmail,
+  await resend.emails.send({
+    from: FROM_EMAIL,
     to: 'abdullah.slwmhgd@gmail.com',
     subject: `رسالة جديدة من ${data.name} - نموذج التواصل`,
     html: `
@@ -109,10 +81,10 @@ export async function sendContactNotification(data: {
 }
 
 export async function sendNewsletterNotification(email: string) {
-  const { client, fromEmail } = await getUncachableResendClient();
+  if (!resend) return;
 
-  await client.emails.send({
-    from: fromEmail,
+  await resend.emails.send({
+    from: FROM_EMAIL,
     to: 'abdullah.slwmhgd@gmail.com',
     subject: `اشتراك جديد في النشرة البريدية`,
     html: `

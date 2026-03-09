@@ -28,7 +28,7 @@ export function registerUploadRoutes(app: Express): void {
                 });
             }
 
-            // If not local and no Replit, we might need another provider.
+            // If not local, we might need another provider.
             // For now, we'll assume local is the fallback.
             const { uploadURL, objectPath } = getLocalUploadUrl(ct);
             res.json({

@@ -22,7 +22,6 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-// Compatible with routes expecting isAuthenticated from replit_integrations
 export const isAuthenticated = protect;
 
 export const authorize = (...roles: string[]) => {

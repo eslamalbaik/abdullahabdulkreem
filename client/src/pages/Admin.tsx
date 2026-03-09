@@ -906,7 +906,6 @@ function AdminForm({
       };
     } else if (type === "logos") {
       return {
-        name: item?.name || "",
         image: item?.image || "",
         order: item?.order || 0,
       };
@@ -947,7 +946,8 @@ function AdminForm({
       const itemId = item.id || item._id;
       const endpoint = `/api/admin/${apiType}${isEditing ? `/${itemId}` : ""}`;
       const method = isEditing ? "PUT" : "POST";
-      return apiRequest(method, endpoint, data);
+      const submitData = type === "logos" ? { ...data, name: item?.name || "شعار" } : data;
+      return apiRequest(method, endpoint, submitData);
     },
     onSuccess: () => {
       const queryKey = type === "logos" ? "/api/client-logos" : type === "courses" ? "/api/admin/courses" : `/api/${type}`;
@@ -989,19 +989,7 @@ function AdminForm({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {type === "logos" ? (
-            <div>
-              <label className="block text-sm font-medium mb-2">اسم العميل</label>
-              <input
-                type="text"
-                value={(formData as any).name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-                data-testid="input-name"
-              />
-            </div>
-          ) : (
+          {type === "logos" ? null : (
             <div>
               <label className="block text-sm font-medium mb-2">العنوان</label>
               <input

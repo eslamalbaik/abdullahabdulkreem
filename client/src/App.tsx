@@ -33,6 +33,7 @@ import DashboardProjects from "@/pages/DashboardProjects";
 import DashboardTestimonials from "@/pages/DashboardTestimonials";
 import DashboardCourses from "@/pages/DashboardCourses";
 import DashboardSettings from "@/pages/DashboardSettings";
+import DashboardLogos from "@/pages/DashboardLogos";
 
 // Layouts & Components
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -86,6 +87,7 @@ function App() {
                     <Route path="testimonials" element={<DashboardTestimonials />} />
                     <Route path="courses" element={<DashboardCourses />} />
                     <Route path="settings" element={<DashboardSettings />} />
+                    <Route path="logos" element={<DashboardLogos />} />
                     <Route path="users" element={<div>إدارة المستخدمين</div>} />
                     <Route path="logs" element={<div>سجل النشاطات</div>} />
                   </Route>
