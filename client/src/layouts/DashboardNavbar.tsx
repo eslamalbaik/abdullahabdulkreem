@@ -68,10 +68,21 @@ const DashboardNavbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
                     {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
 
-                <button className="p-2 rounded-full hover:bg-accent text-muted-foreground relative transition-colors">
-                    <Bell size={20} />
-                    <span className="absolute top-2 left-2 w-2 h-2 bg-destructive rounded-full border border-background"></span>
-                </button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className="p-2 rounded-full hover:bg-accent text-muted-foreground relative transition-colors outline-none">
+                            <Bell size={20} />
+                            {/* <span className="absolute top-2 left-2 w-2 h-2 bg-destructive rounded-full border border-background"></span> */}
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 font-tajawal">
+                        <DropdownMenuLabel className="font-bold">الإشعارات</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <div className="py-6 text-center text-sm text-muted-foreground">
+                            لا توجد إشعارات جديدة
+                        </div>
+                    </DropdownMenuContent>
+                </DropdownMenu>
 
                 <div className="h-8 w-px bg-border mx-2"></div>
 

@@ -1,7 +1,8 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/contexts/CartContext";
@@ -27,6 +28,7 @@ import Terms from "@/pages/Terms";
 import NotFound from "@/pages/not-found";
 import LoginPage from "@/pages/LoginPage";
 import DashboardHome from "@/pages/DashboardHome";
+import DashboardContacts from "@/pages/DashboardContacts";
 import DashboardProducts from "@/pages/DashboardProducts";
 import DashboardIdentities from "@/pages/DashboardIdentities";
 import DashboardProjects from "@/pages/DashboardProjects";
@@ -43,7 +45,7 @@ import FloatingAdminButton from "@/components/FloatingAdminButton";
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme" attribute="class">
         <CartProvider>
           <TooltipProvider>
             <div className="flex flex-col min-h-screen bg-background font-sans text-foreground">
@@ -81,6 +83,7 @@ function App() {
                 <Route path="/dashboard" element={<ProtectedRoute />}>
                   <Route element={<DashboardLayout />}>
                     <Route index element={<DashboardHome />} />
+                    <Route path="contacts" element={<DashboardContacts />} />
                     <Route path="products" element={<DashboardProducts />} />
                     <Route path="identities" element={<DashboardIdentities />} />
                     <Route path="projects" element={<DashboardProjects />} />
@@ -98,6 +101,7 @@ function App() {
               </Routes>
             </div>
             <FloatingAdminButton />
+            <SonnerToaster />
             <Toaster />
           </TooltipProvider>
         </CartProvider>

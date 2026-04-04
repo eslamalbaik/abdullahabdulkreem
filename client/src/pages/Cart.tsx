@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -18,7 +18,7 @@ export default function Cart() {
           <ShoppingBag className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
           <h1 className="text-3xl font-serif mb-4">السلة فارغة</h1>
           <p className="text-muted-foreground mb-8">لم تضف أي منتجات للسلة بعد</p>
-          <Link href="/shop">
+          <Link to="/shop">
             <Button>تصفح المتجر</Button>
           </Link>
         </motion.div>
@@ -59,7 +59,7 @@ export default function Cart() {
                   <p className="text-sm text-muted-foreground mb-3">
                     {item.type === "product" ? "منتج" : "هوية بصرية"}
                   </p>
-                  
+
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => updateQuantity(item.id, item.type, item.quantity - 1)}
@@ -104,7 +104,7 @@ export default function Cart() {
           <div className="lg:col-span-1">
             <div className="bg-secondary/30 rounded-xl p-6 sticky top-28">
               <h2 className="text-xl font-serif mb-6">ملخص الطلب</h2>
-              
+
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
                   <div key={`${item.type}-${item.id}`} className="flex justify-between text-sm">
@@ -123,7 +123,7 @@ export default function Cart() {
                 </div>
               </div>
 
-              <Link href="/checkout">
+              <Link to="/checkout">
                 <Button className="w-full" size="lg" data-testid="button-checkout">
                   إتمام الشراء
                   <ArrowRight className="w-4 h-4 mr-2 rotate-180" />

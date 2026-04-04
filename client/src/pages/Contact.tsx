@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, MapPin, Send, Instagram, ChevronLeft } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 const contactSchema = z.object({
   name: z.string().min(2, "الاسم يجب أن يكون أكثر من حرفين"),
@@ -33,11 +34,16 @@ export default function Contact() {
 
   const onSubmit = async (data: ContactFormValues) => {
     try {
-      // Here you would typically send the data to your API
-      console.log("Contact form submitted:", data);
+      await apiRequest("POST", "/api/contact", {
+        name: data.name,
+        email: data.email,
+        projectType: data.subject,
+        message: data.message,
+      });
+
       toast({
-        title: "تم إرسال رسالتك بنجاح",
-        description: "سأقوم بالرد عليك في أقرب وقت ممكن.",
+        title: "تم الإرسال بنجاح",
+        description: "تم استلام رسالتك وسنتواصل معك قريباً.",
       });
       form.reset();
     } catch (error) {
@@ -71,8 +77,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold mb-1">البريد الإلكتروني</h3>
-                  <a href="mailto:contact@abdullah.com" className="text-muted-foreground hover:text-primary transition-colors">
-                    contact@abdullah.com
+                  <a href="mailto:Abdullah.slwmhgd@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+                    Abdullah.slwmhgd@gmail.com
                   </a>
                 </div>
               </div>
@@ -83,8 +89,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold mb-1">الجوال</h3>
-                  <a href="tel:+966500000000" className="text-muted-foreground hover:text-primary transition-colors">
-                    +966 50 000 0000
+                  <a href="tel:+966581258192" className="text-muted-foreground hover:text-primary transition-colors">
+                    +966 58 125 8192
                   </a>
                 </div>
               </div>
@@ -95,14 +101,20 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-bold mb-1">الموقع</h3>
-                  <p className="text-muted-foreground">نجران، المملكة العربية السعودية</p>
+                  <p className="text-muted-foreground">السعودية - الرياض</p>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-4">
               <a
-                href="https://instagram.com"
+                href="mailto:Abdullah.slwmhgd@gmail.com"
+                className="w-10 h-10 border border-border rounded-full flex items-center justify-center hover:border-primary hover:text-primary transition-all group"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/a21_des?igsh=ajBiM21yM2JoaDlp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 border border-border rounded-full flex items-center justify-center hover:border-primary hover:text-primary transition-all group"

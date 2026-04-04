@@ -26,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
 
     const menuItems = [
         { name: 'لوحة التحكم', icon: <LayoutDashboard size={20} />, path: '/dashboard' },
+        { name: 'رسائل التواصل', icon: <MessageSquare size={20} />, path: '/dashboard/contacts' },
         { name: 'المنتجات', icon: <Package size={20} />, path: '/dashboard/products' },
         { name: 'الدورات', icon: <GraduationCap size={20} />, path: '/dashboard/courses' },
         { name: 'الهوية البصرية', icon: <Palette size={20} />, path: '/dashboard/identities' },

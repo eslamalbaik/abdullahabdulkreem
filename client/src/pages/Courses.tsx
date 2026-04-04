@@ -26,8 +26,7 @@ export default function Courses() {
         transition={{ duration: 0.6 }}
         className="mb-20"
       >
-        <span className="text-sm font-mono text-muted-foreground uppercase tracking-widest mb-4 block">التعليم</span>
-        <h1 className="text-6xl font-serif mb-8 max-w-4xl">أتقن فن <br />السرد البصري.</h1>
+        <h1 className="text-6xl font-serif mb-8 max-w-4xl">فن <br />السرد البصري.</h1>
       </motion.div>
 
       {isLoading ? (

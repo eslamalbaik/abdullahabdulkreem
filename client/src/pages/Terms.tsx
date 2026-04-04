@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 export default function Terms() {
@@ -10,8 +10,8 @@ export default function Terms() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <Link 
-          href="/"
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
           data-testid="link-back-home"
         >

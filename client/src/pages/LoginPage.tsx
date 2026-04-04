@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('admin@local.dev');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
             <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md border border-gray-200">
                 <div className="text-center">
                     <h2 className="mt-6 text-3xl font-bold text-gray-900">تسجيل الدخول</h2>
-                    <p className="mt-2 text-sm text-gray-600">لوحة التحكم</p>
+                    <p className="mt-2 text-sm text-gray-600">تسوق واستكشف الدورات والمزيد</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={onSubmit}>
                     <div className="rounded-md shadow-sm -space-y-px">
@@ -69,7 +69,7 @@ const LoginPage: React.FC = () => {
                                 type="email"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                placeholder="admin@example.com"
+                                placeholder="email@example.com"
                                 required
                                 className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                             />

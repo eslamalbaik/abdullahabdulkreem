@@ -233,7 +233,7 @@ export default function Footer() {
               مصمم هويات بصرية مختص في بناء وتطوير العلامات التجارية، أعمل على تحويل الأفكار إلى أنظمة بصرية واضحة تخدم أهداف العمل وتعكس جوهر العلامة. أركّز على التحليل والاستراتيجية قبل التصميم لضمان هوية قابلة للتطبيق والنمو.
             </p>
             <div className="flex gap-4 mt-6">
-              <a href="https://www.instagram.com/a21_des/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
+              <a href="https://www.instagram.com/a21_des?igsh=ajBiM21yM2JoaDlp" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Instagram className="w-6 h-6" />
               </a>
               <a href="https://x.com/A21_Des" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
