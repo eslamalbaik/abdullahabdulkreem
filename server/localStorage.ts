@@ -38,14 +38,20 @@ export function getLocalUploadUrl(contentType: string): {
   ensureUploadsDir();
   const id = randomUUID();
   const ext = getExtension(contentType);
-  const objectPath = `/objects/uploads/${id}${ext}`;
+  const objectPath = `/uploads/${id}${ext}`;
   const uploadURL = `/api/uploads/local/${id}${ext}`;
   return { uploadURL, objectPath };
 }
 
 export function getLocalFilePath(objectPath: string): string | null {
-  if (!objectPath.startsWith("/objects/uploads/")) return null;
-  const fileName = objectPath.replace("/objects/uploads/", "");
+  let fileName = "";
+  if (objectPath.startsWith("/uploads/")) {
+    fileName = objectPath.replace("/uploads/", "");
+  } else if (objectPath.startsWith("/objects/uploads/")) {
+    fileName = objectPath.replace("/objects/uploads/", "");
+  } else {
+    return null;
+  }
   const filePath = path.join(UPLOADS_DIR, fileName);
   return fs.existsSync(filePath) ? filePath : null;
 }
@@ -57,7 +63,7 @@ export function saveLocalUpload(
   ensureUploadsDir();
   const filePath = path.join(UPLOADS_DIR, fileName);
   fs.writeFileSync(filePath, bodyBuffer);
-  return `/objects/uploads/${fileName}`;
+  return `/uploads/${fileName}`;
 }
 
 export function serveLocalFile(filePath: string, res: Response): void {

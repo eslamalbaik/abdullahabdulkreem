@@ -67,9 +67,9 @@ export function registerUploadRoutes(app: Express): void {
         });
     });
 
-    app.get(/^\/objects\/(.+)$/, async (req, res) => {
+    app.get(/^\/(objects|uploads)\/(.+)$/, async (req, res) => {
         try {
-            const objectPath = req.path.startsWith("/") ? req.path : "/objects/" + req.path;
+            const objectPath = req.path;
             const localPath = getLocalFilePath(objectPath);
             if (localPath) {
                 return serveLocalFile(localPath, res);
