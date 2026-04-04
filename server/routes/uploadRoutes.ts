@@ -10,6 +10,7 @@ import {
 export function registerUploadRoutes(app: Express): void {
     const useLocal = isLocalStorageEnabled();
 
+    // ✅ طلب رابط رفع جديد
     app.post("/api/uploads/request-url", async (req, res) => {
         try {
             const { name, contentType } = req.body;
@@ -19,19 +20,9 @@ export function registerUploadRoutes(app: Express): void {
 
             const ct = contentType || "application/octet-stream";
 
-            if (useLocal) {
-                const { uploadURL, objectPath } = getLocalUploadUrl(ct);
-                return res.json({
-                    uploadURL,
-                    objectPath,
-                    metadata: { name, contentType: ct },
-                });
-            }
-
-            // If not local, we might need another provider.
-            // For now, we'll assume local is the fallback.
+            // دائماً نستخدم التخزين المحلي (uploads/ folder)
             const { uploadURL, objectPath } = getLocalUploadUrl(ct);
-            res.json({
+            return res.json({
                 uploadURL,
                 objectPath,
                 metadata: { name, contentType: ct },
@@ -42,6 +33,7 @@ export function registerUploadRoutes(app: Express): void {
         }
     });
 
+    // ✅ استقبال ورفع الملف إلى الـ server
     app.put(/^\/api\/uploads\/local\/(.+)$/, (req, res) => {
         const match = req.path.match(/^\/api\/uploads\/local\/(.+)$/);
         const pathSegments = match?.[1] ?? "";
@@ -55,7 +47,12 @@ export function registerUploadRoutes(app: Express): void {
             try {
                 const buffer = Buffer.concat(chunks);
                 saveLocalUpload(pathSegments, buffer);
-                res.status(200).json({ ok: true });
+                
+                // ✅ نُعيد objectPath الكامل لاستخدامه مباشرةً في الصور
+                res.status(200).json({ 
+                    ok: true,
+                    objectPath: `/uploads/${pathSegments}`
+                });
             } catch (err) {
                 console.error("Local upload save error:", err);
                 res.status(500).json({ error: "Failed to save file" });
@@ -67,6 +64,9 @@ export function registerUploadRoutes(app: Express): void {
         });
     });
 
+    // ✅ تقديم الملفات المرفوعة - يدعم /uploads/ و /objects/
+    // ملاحظة: route /uploads/ مُعرَّف أيضاً في static.ts كـ express.static
+    // هذا route يعالج الحالات التي لا يُعالجها static middleware
     app.get(/^\/(objects|uploads)\/(.+)$/, async (req, res) => {
         try {
             const objectPath = req.path;

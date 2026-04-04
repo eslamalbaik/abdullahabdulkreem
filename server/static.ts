@@ -14,9 +14,30 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // ✅ تقديم مجلد uploads/ كـ static route منفصل
+  // هذا يحل مشكلة عدم ظهور الصور المرفوعة في الإنتاج
+  const uploadsPath = path.resolve(__dirname, "..", "uploads");
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+    console.log(`[static] Created uploads directory: ${uploadsPath}`);
+  }
+
+  app.use("/uploads", express.static(uploadsPath, {
+    maxAge: "7d",          // cache للصور أسبوع
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // CORS header لتمكين عرض الصور من أي domain
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  }));
+  console.log(`[static] Serving uploads from: ${uploadsPath}`);
+
+  // تقديم ملفات الـ frontend
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
+  // fall through to index.html if the file doesn't exist (SPA routing)
   app.use("/{*path}", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });

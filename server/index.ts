@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -159,8 +160,22 @@ if (process.env.NODE_ENV === "production") {
   app.use(errorMiddleware);
 
   if (process.env.NODE_ENV === "production") {
+    // ✅ في الإنتاج: serveStatic تتولى تقديم /uploads و الـ frontend
     serveStatic(app);
   } else {
+    // ✅ في التطوير: نُقدّم /uploads مباشرةً لضمان ظهور الصور المرفوعة
+    const uploadsDir = path.resolve(__dirname, "..", "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    app.use("/uploads", express.static(uploadsDir, {
+      setHeaders: (res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      },
+    }));
+    log(`Serving uploads (dev) from: ${uploadsDir}`);
+
     app.use(express.static(path.resolve(__dirname, "..", "client/public")));
     const { setupVite } = await import("./vite.js");
     await setupVite(httpServer, app);
