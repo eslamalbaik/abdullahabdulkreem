@@ -16,7 +16,7 @@ export function serveStatic(app: Express) {
 
   // ✅ تقديم مجلد uploads/ كـ static route منفصل
   // هذا يحل مشكلة عدم ظهور الصور المرفوعة في الإنتاج
-  const uploadsPath = path.resolve(__dirname, "..", "uploads");
+  const uploadsPath = path.resolve(process.cwd(), "uploads");
   if (!fs.existsSync(uploadsPath)) {
     fs.mkdirSync(uploadsPath, { recursive: true });
     console.log(`[static] Created uploads directory: ${uploadsPath}`);

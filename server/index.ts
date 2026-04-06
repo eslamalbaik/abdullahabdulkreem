@@ -164,7 +164,7 @@ if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
     // ✅ في التطوير: نُقدّم /uploads مباشرةً لضمان ظهور الصور المرفوعة
-    const uploadsDir = path.resolve(__dirname, "..", "uploads");
+    const uploadsDir = path.resolve(process.cwd(), "uploads");
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }

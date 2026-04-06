@@ -7,9 +7,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Ensure uploads directory exists
-const UPLOADS_DIR = path.resolve(__dirname, '..', '..', 'uploads');
+// Using process.cwd() ensures it points to the root of the project where the app is started,
+// which is more reliable than __dirname when bundled for production in dist/index.js
+const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    console.log(`[Multer] Created uploads directory at: ${UPLOADS_DIR}`);
+} else {
+    console.log(`[Multer] Using uploads directory at: ${UPLOADS_DIR}`);
 }
 
 // Configure storage
