@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { useRoute, Link } from "wouter";
+import { useParams, Link } from "react-router-dom";
 import { ArrowRight, ExternalLink, MapPin, Calendar, Briefcase, Package } from "lucide-react";
 
 interface Project {
@@ -28,8 +28,7 @@ function BehanceIcon({ className }: { className?: string }) {
 }
 
 export default function ProjectDetail() {
-  const [, params] = useRoute("/portfolio/:id");
-  const projectId = params?.id;
+  const { id: projectId } = useParams<{ id: string }>();
 
   const { data: project, isLoading } = useQuery<Project>({
     queryKey: ["project", projectId],
@@ -59,7 +58,7 @@ export default function ProjectDetail() {
     return (
       <div className="pt-32 pb-24 container mx-auto px-6 text-center">
         <h1 className="text-4xl font-serif mb-4">المشروع غير موجود</h1>
-        <Link href="/portfolio" className="text-primary hover:underline">
+        <Link to="/portfolio" className="text-primary hover:underline">
           العودة للأعمال
         </Link>
       </div>
@@ -75,7 +74,7 @@ export default function ProjectDetail() {
           transition={{ duration: 0.6 }}
         >
           <Link
-            href="/portfolio"
+            to="/portfolio"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
             data-testid="link-back-portfolio"
           >

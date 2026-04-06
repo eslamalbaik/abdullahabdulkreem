@@ -139,10 +139,12 @@ export class DatabaseStorage implements IStorage {
   async getProducts(): Promise<Product[]> {
     const docs = await ProductModel.find({ isDeleted: false }).sort({ createdAt: 1 });
     return docs.map(d => {
-      const mapped = this.mapDoc<any>(d);
+      const obj = d.toObject();
       return {
-        ...mapped,
-        title: mapped.name || mapped.title
+        ...obj,
+        id: obj._id.toString(),
+        title: obj.title || obj.name,
+        image: obj.image || obj.imageUrl || '',
       } as unknown as Product;
     });
   }
@@ -150,10 +152,12 @@ export class DatabaseStorage implements IStorage {
   async getProductsByCategory(category: string): Promise<Product[]> {
     const docs = await ProductModel.find({ category, isDeleted: false }).sort({ createdAt: 1 });
     return docs.map(d => {
-      const mapped = this.mapDoc<any>(d);
+      const obj = d.toObject();
       return {
-        ...mapped,
-        title: mapped.name || mapped.title
+        ...obj,
+        id: obj._id.toString(),
+        title: obj.title || obj.name,
+        image: obj.image || obj.imageUrl || '',
       } as unknown as Product;
     });
   }
@@ -161,35 +165,55 @@ export class DatabaseStorage implements IStorage {
   async getProductById(id: string | number): Promise<Product | undefined> {
     const doc = await ProductModel.findById(id);
     if (!doc) return undefined;
-    const mapped = this.mapDoc<any>(doc);
+    const obj = doc.toObject();
     return {
-      ...mapped,
-      title: mapped.name || mapped.title
+      ...obj,
+      id: obj._id.toString(),
+      title: obj.title || obj.name,
+      image: obj.image || obj.imageUrl || '',
     } as unknown as Product;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    console.log('[createProduct] Input:', JSON.stringify(insertProduct));
     const doc = await ProductModel.create({
-      ...insertProduct,
-      name: insertProduct.title
+      name: insertProduct.title,
+      title: insertProduct.title,
+      category: insertProduct.category,
+      price: insertProduct.price,
+      description: insertProduct.description || '',
+      image: insertProduct.image,
+      imageUrl: insertProduct.image,
+      featured: insertProduct.featured || false,
     });
+    console.log('[createProduct] Saved doc:', JSON.stringify(doc.toObject()));
+    const obj = doc.toObject();
     return {
-      ...doc.toObject(),
-      id: doc._id.toString(),
-      title: (doc as any).name || (doc as any).title
+      ...obj,
+      id: obj._id.toString(),
+      title: obj.title || obj.name,
+      image: obj.image || obj.imageUrl || '',
     } as unknown as Product;
   }
 
   async updateProduct(id: string | number, insertProduct: InsertProduct): Promise<Product> {
     const doc = await ProductModel.findByIdAndUpdate(id, {
-      ...insertProduct,
-      name: insertProduct.title
+      name: insertProduct.title,
+      title: insertProduct.title,
+      category: insertProduct.category,
+      price: insertProduct.price,
+      description: insertProduct.description || '',
+      image: insertProduct.image,
+      imageUrl: insertProduct.image,
+      featured: insertProduct.featured || false,
     }, { new: true });
     if (!doc) throw new Error("Product not found");
+    const obj = doc.toObject();
     return {
-      ...doc.toObject(),
-      id: doc._id.toString(),
-      title: (doc as any).name || (doc as any).title
+      ...obj,
+      id: obj._id.toString(),
+      title: obj.title || obj.name,
+      image: obj.image || obj.imageUrl || '',
     } as unknown as Product;
   }
 

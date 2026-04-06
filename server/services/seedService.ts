@@ -57,12 +57,9 @@ const seedRoles = async () => {
 
                 // Check if password matches. If not, update it.
                 // We use bcrypt.compare to check against the plain text password from .env
-                const isMatch = await bcrypt.compare(adminPassword, admin.password);
-                if (!isMatch) {
-                    admin.password = adminPassword;
-                    needsSave = true;
-                    console.log(`[Seed] Password mismatch for ${adminEmail}, updating...`);
-                }
+                // [DELETED] The password reset logic here was causing user password changes to be 
+                // overwritten back to the .env password on every server restart.
+
 
                 if (needsSave) {
                     await admin.save();

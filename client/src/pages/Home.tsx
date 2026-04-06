@@ -116,13 +116,13 @@ export default function Home() {
           {clientLogos.length > 0 ? (
             <div className="relative flex w-max animate-marquee-rtl">
               {[...Array(8)].map((_, i) => (
-                <div key={`set-${i}`} className="flex shrink-0 gap-10 pe-10">
+                <div key={`set-${i}`} className="flex shrink-0 gap-4 pe-4">
                   {clientLogos.map((logo) => (
-                    <div key={`${i}-${logo.id}`} className="bg-[#4f565a] px-4 py-2 rounded-md flex items-center justify-center h-16 w-40 shrink-0 shadow-sm">
+                    <div key={`${i}-${logo.id}`} className="px-4 py-2 flex items-center justify-center h-20 w-48 shrink-0">
                       <img
                         src={logo.image}
                         alt={logo.name}
-                        className="max-h-11 max-w-full opacity-90 brightness-200 grayscale transition-all hover:grayscale-0 hover:opacity-100 hover:brightness-100 object-contain"
+                        className="max-h-16 max-w-full opacity-90 brightness-200 grayscale transition-all hover:grayscale-0 hover:opacity-100 hover:brightness-100 object-contain"
                       />
                     </div>
                   ))}

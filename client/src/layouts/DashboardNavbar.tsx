@@ -68,7 +68,7 @@ const DashboardNavbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
                     {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                 </button>
 
-                <DropdownMenu>
+                <DropdownMenu dir="rtl">
                     <DropdownMenuTrigger asChild>
                         <button className="p-2 rounded-full hover:bg-accent text-muted-foreground relative transition-colors outline-none">
                             <Bell size={20} />
@@ -86,7 +86,7 @@ const DashboardNavbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 
                 <div className="h-8 w-px bg-border mx-2"></div>
 
-                <DropdownMenu>
+                <DropdownMenu dir="rtl">
                     <DropdownMenuTrigger asChild>
                         <div className="flex items-center space-x-3 space-x-reverse cursor-pointer p-1 rounded-md hover:bg-accent transition-colors group">
                             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">

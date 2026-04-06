@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, ShoppingCart } from "lucide-react";
@@ -55,7 +55,7 @@ export default function ProductDetail() {
       <div className="pt-32 pb-24 container mx-auto px-6 text-center">
         <h1 className="text-3xl font-serif mb-4">المنتج غير موجود</h1>
         <p className="text-muted-foreground mb-8">عذراً، لم نتمكن من العثور على هذا المنتج</p>
-        <Link href="/shop">
+        <Link to="/shop">
           <Button variant="outline">العودة للمتجر</Button>
         </Link>
       </div>
@@ -69,7 +69,7 @@ export default function ProductDetail() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Link href="/shop" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
+        <Link to="/shop" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowRight className="w-4 h-4" />
           العودة للمتجر
         </Link>

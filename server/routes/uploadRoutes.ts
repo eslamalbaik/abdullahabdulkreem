@@ -1,72 +1,38 @@
 import { Express } from "express";
-import {
-    isLocalStorageEnabled,
-    getLocalUploadUrl,
-    saveLocalUpload,
-    serveLocalFile,
-    getLocalFilePath,
-} from "../localStorage.js";
+import { upload } from "../middlewares/uploadMiddleware.js";
+import { isAuthenticated } from "../middlewares/authMiddleware.js";
+import { serveLocalFile, getLocalFilePath } from "../localStorage.js";
 
 export function registerUploadRoutes(app: Express): void {
-    const useLocal = isLocalStorageEnabled();
-
-    // ✅ طلب رابط رفع جديد
-    app.post("/api/uploads/request-url", async (req, res) => {
+    // ✅ Upload endpoint using Multer
+    // Returns the relative path to be stored in the DB (e.g. /uploads/162343242-logo.png)
+    app.post("/api/uploads", isAuthenticated, upload.single("file"), (req, res) => {
         try {
-            const { name, contentType } = req.body;
-            if (!name) {
-                return res.status(400).json({ error: "Missing required field: name" });
+            if (!req.file) {
+                return res.status(400).json({ error: "No file uploaded" });
             }
 
-            const ct = contentType || "application/octet-stream";
-
-            // دائماً نستخدم التخزين المحلي (uploads/ folder)
-            const { uploadURL, objectPath } = getLocalUploadUrl(ct);
-            return res.json({
-                uploadURL,
+            // Multer saves the file safely. The path should look like /uploads/filename.ext
+            const objectPath = `/uploads/${req.file.filename}`;
+            
+            res.status(200).json({
+                ok: true,
                 objectPath,
-                metadata: { name, contentType: ct },
+                uploadURL: objectPath, // Frontend may expect this based on old behavior
+                metadata: {
+                    name: req.file.originalname,
+                    contentType: req.file.mimetype,
+                    size: req.file.size
+                }
             });
         } catch (error) {
-            console.error("Error generating upload URL:", error);
-            res.status(500).json({ error: "Failed to generate upload URL" });
+            console.error("Upload error:", error);
+            res.status(500).json({ error: "Failed to upload file" });
         }
     });
 
-    // ✅ استقبال ورفع الملف إلى الـ server
-    app.put(/^\/api\/uploads\/local\/(.+)$/, (req, res) => {
-        const match = req.path.match(/^\/api\/uploads\/local\/(.+)$/);
-        const pathSegments = match?.[1] ?? "";
-        if (!pathSegments) {
-            return res.status(400).json({ error: "Invalid path" });
-        }
-
-        const chunks: Buffer[] = [];
-        req.on("data", (chunk: Buffer) => chunks.push(chunk));
-        req.on("end", () => {
-            try {
-                const buffer = Buffer.concat(chunks);
-                saveLocalUpload(pathSegments, buffer);
-                
-                // ✅ نُعيد objectPath الكامل لاستخدامه مباشرةً في الصور
-                res.status(200).json({ 
-                    ok: true,
-                    objectPath: `/uploads/${pathSegments}`
-                });
-            } catch (err) {
-                console.error("Local upload save error:", err);
-                res.status(500).json({ error: "Failed to save file" });
-            }
-        });
-        req.on("error", (err) => {
-            console.error("Local upload stream error:", err);
-            res.status(500).json({ error: "Upload failed" });
-        });
-    });
-
-    // ✅ تقديم الملفات المرفوعة - يدعم /uploads/ و /objects/
-    // ملاحظة: route /uploads/ مُعرَّف أيضاً في static.ts كـ express.static
-    // هذا route يعالج الحالات التي لا يُعالجها static middleware
+    // Provide legacy backward compatibility for files uploaded under /objects/
+    // or when static middleware doesn't catch the request
     app.get(/^\/(objects|uploads)\/(.+)$/, async (req, res) => {
         try {
             const objectPath = req.path;

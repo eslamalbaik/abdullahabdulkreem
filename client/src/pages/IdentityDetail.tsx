@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -63,7 +63,7 @@ export default function IdentityDetail() {
       <div className="pt-32 pb-20">
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-3xl font-bold mb-4">الهوية غير موجودة</h1>
-          <Link href="/identities" className="text-primary hover:underline">
+          <Link to="/identities" className="text-primary hover:underline">
             العودة للهويات البصرية
           </Link>
         </div>
@@ -80,7 +80,7 @@ export default function IdentityDetail() {
           transition={{ duration: 0.5 }}
         >
           <Link 
-            href="/identities" 
+            to="/identities" 
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
             data-testid="link-back-identities"
           >

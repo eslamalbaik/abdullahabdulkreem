@@ -181,16 +181,32 @@ if (process.env.NODE_ENV === "production") {
     await setupVite(httpServer, app);
   }
 
-  const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(
-    {
-      port,
-      host: "0.0.0.0",
-    },
-    () => {
-      log(`serving on port ${port}`);
-      log(`environment: ${process.env.NODE_ENV || 'development'}`);
-      log(`CSP: ${process.env.NODE_ENV === "production" ? 'enabled' : 'disabled'}`);
-    },
-  );
+  let port = parseInt(process.env.PORT || "5000", 10);
+  
+  function startServer(p: number) {
+    httpServer.listen(
+      {
+        port: p,
+        host: "0.0.0.0",
+      },
+      () => {
+        log(`serving on port ${p}`);
+        log(`environment: ${process.env.NODE_ENV || 'development'}`);
+        log(`CSP: ${process.env.NODE_ENV === "production" ? 'enabled' : 'disabled'}`);
+      },
+    );
+  }
+
+  httpServer.on("error", (err: any) => {
+    if (err.code === "EADDRINUSE") {
+      log(`Port ${port} is already in use, trying port ${port + 1}...`);
+      port++;
+      startServer(port);
+    } else {
+      console.error("Server error:", err);
+      process.exit(1);
+    }
+  });
+
+  startServer(port);
 })();
