@@ -79,13 +79,28 @@ export default function ProductDetail() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="aspect-square bg-secondary overflow-hidden rounded-2xl"
+            className="flex flex-col gap-4"
           >
-            <img
-              src={product.image}
-              alt={product.title}
-              className="w-full h-full object-cover"
-            />
+            <div className="aspect-square bg-secondary overflow-hidden rounded-2xl">
+              <img
+                src={product.image}
+                alt={product.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {product.images && product.images.length > 0 && (
+              <div className="grid grid-cols-2 gap-4">
+                {product.images.map((img, index) => (
+                  <div key={index} className="aspect-square bg-secondary overflow-hidden rounded-xl">
+                    <img
+                      src={img}
+                      alt={`${product.title} - صورة ${index + 1}`}
+                      className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           <motion.div

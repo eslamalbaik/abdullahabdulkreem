@@ -11,6 +11,7 @@ interface Product {
     category: string;
     price: number;
     image: string;
+    images?: string[];
     description?: string;
     featured: boolean;
 }
@@ -45,6 +46,70 @@ function ImageUploadField({ label, value, onChange, testId }: {
                         className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50">
                         <Upload className="w-4 h-4" />
                         {isUploading ? "جاري الرفع..." : "اختر صورة"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function MultiImageUploadField({ label, values, onAddUrls, onRemove, testId }: {
+    label: string;
+    values: string[];
+    onAddUrls: (newUrls: string[]) => void;
+    onRemove: (index: number) => void;
+    testId: string;
+}) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading, setUploading] = useState(false);
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        setUploading(true);
+        try {
+            const newUrls: string[] = [];
+            const token = localStorage.getItem("accessToken");
+            for (let i = 0; i < files.length; i++) {
+                const formData = new FormData();
+                formData.append("file", files[i]);
+                const headers: Record<string, string> = {};
+                if (token) headers["Authorization"] = `Bearer ${token}`;
+                const res = await fetch("/api/uploads", { method: "POST", headers, body: formData });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.objectPath) newUrls.push(data.objectPath);
+                }
+            }
+            console.log("[MultiImageUpload] uploaded urls:", newUrls);
+            if (newUrls.length > 0) onAddUrls(newUrls);
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+    return (
+        <div>
+            <label className="block text-sm font-medium mb-2">{label}</label>
+            <div className="space-y-2">
+                {values.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {values.map((url, i) => (
+                            <div key={i} className="relative inline-block">
+                                <img src={url} alt="صورة إضافية" className="w-16 h-16 object-cover rounded-lg border border-border" />
+                                <button type="button" onClick={() => onRemove(i)}
+                                    className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                <div className="flex gap-2">
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" data-testid={testId} />
+                    <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                        className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50">
+                        <Upload className="w-4 h-4" />
+                        {uploading ? "جاري الرفع..." : "إضافة صور"}
                     </button>
                 </div>
             </div>
@@ -154,6 +219,7 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
         category: item?.category || '',
         price: item?.price || 0,
         image: item?.image || '',
+        images: item?.images || [] as string[],
         description: item?.description || '',
         featured: item?.featured || false,
     });
@@ -171,6 +237,7 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        console.log('[ProductForm] submitting:', JSON.stringify(formData));
         mutation.mutate(formData);
     };
 
@@ -182,29 +249,35 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-2">العنوان</label>
-                        <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        <input type="text" value={formData.title} onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary" required />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2">التصنيف</label>
-                        <input type="text" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary" required />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2">السعر (ر.س)</label>
-                        <input type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
+                        <input type="number" value={formData.price} onChange={(e) => setFormData(prev => ({ ...prev, price: parseInt(e.target.value) }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary" required />
                     </div>
                     <ImageUploadField label="الصورة الرئيسية" value={formData.image}
-                        onChange={(url) => setFormData({ ...formData, image: url })} testId="input-product-image" />
+                        onChange={(url) => setFormData(prev => ({ ...prev, image: url }))} testId="input-product-image" />
+                    <MultiImageUploadField
+                        label="صور إضافية (اختياري)"
+                        values={formData.images}
+                        onAddUrls={(newUrls) => setFormData(prev => ({ ...prev, images: [...prev.images, ...newUrls] }))}
+                        onRemove={(idx) => setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                        testId="input-product-images" />
                     <div>
                         <label className="block text-sm font-medium mb-2">الوصف</label>
-                        <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        <textarea value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24" />
                     </div>
                     <div className="flex items-center gap-2">
                         <input type="checkbox" id="featured" checked={formData.featured}
-                            onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="w-4 h-4 rounded border-border" />
+                            onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))} className="w-4 h-4 rounded border-border" />
                         <label htmlFor="featured" className="text-sm font-medium">مميز (يظهر في الصفحة الرئيسية)</label>
                     </div>
                     <div className="flex gap-4 pt-4">
@@ -224,3 +297,4 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
 }
 
 export default DashboardProducts;
+

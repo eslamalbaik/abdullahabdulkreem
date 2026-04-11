@@ -31,6 +31,7 @@ export const insertProductSchema = z.object({
   category: z.string().min(1, "Category is required"),
   price: z.number().min(0, "Price must be positive"),
   image: z.string().min(1, "Image is required"),
+  images: z.array(z.string()).default([]),
   description: z.string().optional(),
   featured: z.boolean().default(false),
   stripeProductId: z.string().optional(),
@@ -66,6 +67,7 @@ export const insertIdentitySchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.number().min(0),
   image: z.string().min(1, "Image is required"),
+  images: z.array(z.string()).default([]),
   includes: z.array(z.string()),
   featured: z.boolean().default(false),
 });
@@ -269,3 +271,48 @@ export type InsertSiteConfig = z.infer<typeof insertSiteConfigSchema>;
 export interface SiteConfig extends InsertSiteConfig {
   updatedAt?: Date | string | null;
 }
+
+// ===== Dynamic Questionnaire System =====
+export const questionTypeSchema = z.enum(["text", "paragraph", "number", "select", "checkbox", "radio"]);
+export type QuestionType = z.infer<typeof questionTypeSchema>;
+
+export const insertDynamicQuestionnaireSchema = z.object({
+  title: z.string().min(1, "العنوان مطلوب"),
+  description: z.string().optional(),
+  isPublished: z.boolean().default(false),
+  slug: z.string().min(1, "الرابط المختصر مطلوب"),
+});
+
+export type InsertDynamicQuestionnaire = z.infer<typeof insertDynamicQuestionnaireSchema>;
+export interface DynamicQuestionnaire extends InsertDynamicQuestionnaire {
+  id: string;
+  createdAt: Date | string;
+}
+
+export const insertDynamicQuestionSchema = z.object({
+  questionnaireId: z.string(),
+  type: questionTypeSchema,
+  label: z.string().min(1, "نص السؤال مطلوب"),
+  description: z.string().optional(),
+  required: z.boolean().default(false),
+  options: z.array(z.string()).optional(),
+  order: z.number().default(0),
+});
+
+export type InsertDynamicQuestion = z.infer<typeof insertDynamicQuestionSchema>;
+export interface DynamicQuestion extends InsertDynamicQuestion {
+  id: string;
+  createdAt: Date | string;
+}
+
+export const insertDynamicResponseSchema = z.object({
+  questionnaireId: z.string(),
+  answers: z.record(z.string(), z.any()),
+});
+
+export type InsertDynamicResponse = z.infer<typeof insertDynamicResponseSchema>;
+export interface DynamicResponse extends InsertDynamicResponse {
+  id: string;
+  submittedAt: Date | string;
+}
+

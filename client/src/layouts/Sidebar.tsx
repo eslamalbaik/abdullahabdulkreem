@@ -10,8 +10,10 @@ import {
     LogOut,
     ChevronRight,
     ChevronLeft,
-    GraduationCap
+    GraduationCap,
+    ClipboardList
 } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -33,8 +35,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'الأعمال', icon: <LayoutGrid size={20} />, path: '/dashboard/projects' },
         { name: 'شعارات العملاء', icon: <Palette size={20} />, path: '/dashboard/logos' },
         { name: 'التوصيات', icon: <MessageSquare size={20} />, path: '/dashboard/testimonials' },
+        { name: 'الاستبيانات', icon: <ClipboardList size={20} />, path: '/dashboard/questionnaires' },
         { name: 'الإعدادات', icon: <Settings size={20} />, path: '/dashboard/settings' },
     ];
+
 
     return (
         <aside

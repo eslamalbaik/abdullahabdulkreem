@@ -11,6 +11,7 @@ interface Identity {
   description: string;
   price: number;
   image: string;
+  images?: string[];
   includes: string[];
 }
 
@@ -103,22 +104,19 @@ export default function IdentityDetail() {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-square rounded-xl overflow-hidden bg-muted">
-                  <img
-                    src={identity.image}
-                    alt={`${identity.title} - معاينة 1`}
-                    className="w-full h-full object-cover opacity-80"
-                  />
+              {identity.images && identity.images.length > 0 && (
+                <div className="grid grid-cols-2 gap-4">
+                  {identity.images.map((img, index) => (
+                    <div key={index} className="aspect-square rounded-xl overflow-hidden bg-muted">
+                      <img
+                        src={img}
+                        alt={`${identity.title} - معاينة ${index + 1}`}
+                        className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
+                      />
+                    </div>
+                  ))}
                 </div>
-                <div className="aspect-square rounded-xl overflow-hidden bg-muted">
-                  <img
-                    src={identity.image}
-                    alt={`${identity.title} - معاينة 2`}
-                    className="w-full h-full object-cover opacity-80"
-                  />
-                </div>
-              </div>
+              )}
             </motion.div>
 
             <motion.div

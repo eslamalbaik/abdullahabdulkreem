@@ -212,10 +212,12 @@ export async function registerRoutes(
 
   app.post("/api/admin/products", isAuthenticated, async (req, res) => {
     try {
+      console.log('[POST /api/admin/products] body:', JSON.stringify(req.body));
       const result = insertProductSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: "Invalid product data", details: result.error.issues });
       }
+      console.log('[POST /api/admin/products] parsed:', JSON.stringify(result.data));
       const product = await storage.createProduct(result.data);
       res.status(201).json(product);
     } catch (error) {

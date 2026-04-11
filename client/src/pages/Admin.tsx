@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X, Star, MessageSquare, GraduationCap, Play, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X, Star, MessageSquare, GraduationCap, Play, Download, ClipboardList } from "lucide-react";
+
 import { apiRequest } from "@/lib/queryClient";
 import { useUpload } from "@/hooks/use-upload";
+import DashboardQuestionnaires from "./DashboardQuestionnaires";
+
 
 interface Course {
   id: string | number;
@@ -72,7 +75,8 @@ interface Testimonial {
   rating: number;
 }
 
-type Tab = "projects" | "products" | "identities" | "logos" | "testimonials" | "courses";
+type Tab = "projects" | "products" | "identities" | "logos" | "testimonials" | "courses" | "questionnaires";
+
 
 export default function Admin() {
   const { user, isLoading, isAuthenticated, logout } = useAuth();
@@ -180,7 +184,9 @@ export default function Admin() {
     { id: "courses" as Tab, label: "الدورات", icon: GraduationCap },
     { id: "logos" as Tab, label: "شعارات العملاء", icon: Image },
     { id: "testimonials" as Tab, label: "قالوا عن عبدالله", icon: MessageSquare },
+    { id: "questionnaires" as Tab, label: "الاستبيانات", icon: ClipboardList },
   ];
+
 
   const handleDelete = (id: string | number) => {
     console.log('Attempting to delete item with ID:', id);
@@ -263,6 +269,7 @@ export default function Admin() {
             {activeTab === "logos" && "شعارات العملاء"}
             {activeTab === "testimonials" && "قالوا عن عبدالله"}
             {activeTab === "courses" && "الدورات التعليمية"}
+            {activeTab === "questionnaires" && "إدارة الاستبيانات"}
           </h2>
           <button
             onClick={handleAdd}
@@ -575,7 +582,12 @@ export default function Admin() {
           </div>
         )}
 
+        {activeTab === "questionnaires" && (
+          <DashboardQuestionnaires />
+        )}
+
         {showLessonsManager && selectedCourse && (
+
           <LessonsManager
             course={selectedCourse}
             onClose={() => {
@@ -928,6 +940,12 @@ function AdminForm({
         certificates: item?.certificates || "",
         courseInfo: item?.courseInfo || "",
       };
+    } else if (type === "questionnaires") {
+      return {
+        title: item?.title || "",
+        slug: item?.slug || "",
+        description: item?.description || "",
+      };
     } else {
       return {
         title: item?.title || "",
@@ -1003,7 +1021,43 @@ function AdminForm({
             </div>
           )}
 
+          {type === "questionnaires" && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2">العنوان</label>
+                <input
+                  type="text"
+                  value={(formData as any).title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                  placeholder="مثلاً: استبيان هوية تجارية"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">الرابط المختصر (Slug)</label>
+                <input
+                  type="text"
+                  value={(formData as any).slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                  placeholder="مثلاً: branding-survey"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">الوصف (اختياري)</label>
+                <textarea
+                  value={(formData as any).description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24"
+                />
+              </div>
+            </>
+          )}
+
           {type === "logos" && (
+
             <div>
               <label className="block text-sm font-medium mb-2">الترتيب (رقم)</label>
               <input
@@ -1246,7 +1300,7 @@ function AdminForm({
                 testId="input-image"
               />
 
-              {type === "projects" && (
+              {(type === "projects" || type === "identities") && (
                 <MultiImageUploadField
                   label="صور إضافية (اختياري)"
                   values={(formData as any).images || []}

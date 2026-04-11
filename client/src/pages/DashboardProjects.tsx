@@ -10,6 +10,7 @@ interface Project {
     title: string;
     category: string;
     image: string;
+    images?: string[];
     year: string;
     description?: string;
     featured: boolean;
@@ -45,6 +46,56 @@ function ImageUploadField({ label, value, onChange, testId }: {
                         className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50">
                         <Upload className="w-4 h-4" />
                         {isUploading ? "جاري الرفع..." : "اختر صورة"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function MultiImageUploadField({ label, values, onAddUrls, onRemove, testId }: {
+    label: string;
+    values: string[];
+    onAddUrls: (newUrls: string[]) => void;
+    onRemove: (index: number) => void;
+    testId: string;
+}) {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { uploadFile, isUploading } = useUpload();
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        const newUrls: string[] = [];
+        for (let i = 0; i < files.length; i++) {
+            const res = await uploadFile(files[i]);
+            if (res?.objectPath) newUrls.push(res.objectPath);
+        }
+        if (newUrls.length > 0) onAddUrls(newUrls);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+    return (
+        <div>
+            <label className="block text-sm font-medium mb-2">{label}</label>
+            <div className="space-y-2">
+                {values.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {values.map((url, i) => (
+                            <div key={i} className="relative inline-block">
+                                <img src={url} alt="صورة إضافية" className="w-16 h-16 object-cover rounded-lg border border-border" />
+                                <button type="button" onClick={() => onRemove(i)}
+                                    className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                <div className="flex gap-2">
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" multiple className="hidden" data-testid={testId} />
+                    <button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading}
+                        className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50">
+                        <Upload className="w-4 h-4" />
+                        {isUploading ? "جاري الرفع..." : "إضافة صور"}
                     </button>
                 </div>
             </div>
@@ -147,6 +198,7 @@ function ProjectForm({ item, onClose }: { item: Project | null; onClose: () => v
         title: item?.title || '',
         category: item?.category || '',
         image: item?.image || '',
+        images: item?.images || [],
         year: item?.year || new Date().getFullYear().toString(),
         description: item?.description || '',
         featured: item?.featured || false,
@@ -176,29 +228,35 @@ function ProjectForm({ item, onClose }: { item: Project | null; onClose: () => v
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-2">العنوان</label>
-                        <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        <input type="text" value={formData.title} onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary" required />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2">التصنيف</label>
-                        <input type="text" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        <input type="text" value={formData.category} onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary" required />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2">السنة</label>
-                        <input type="text" value={formData.year} onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                        <input type="text" value={formData.year} onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary" required />
                     </div>
                     <ImageUploadField label="الصورة الرئيسية" value={formData.image}
-                        onChange={(url) => setFormData({ ...formData, image: url })} testId="input-project-image" />
+                        onChange={(url) => setFormData(prev => ({ ...prev, image: url }))} testId="input-project-image" />
+                    <MultiImageUploadField
+                        label="صور إضافية (اختياري)"
+                        values={formData.images}
+                        onAddUrls={(newUrls) => setFormData(prev => ({ ...prev, images: [...prev.images, ...newUrls] }))}
+                        onRemove={(idx) => setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))}
+                        testId="input-project-images" />
                     <div>
                         <label className="block text-sm font-medium mb-2">الوصف</label>
-                        <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        <textarea value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                             className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary h-24" />
                     </div>
                     <div className="flex items-center gap-2">
                         <input type="checkbox" id="featured" checked={formData.featured}
-                            onChange={(e) => setFormData({ ...formData, featured: e.target.checked })} className="w-4 h-4 rounded border-border" />
+                            onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))} className="w-4 h-4 rounded border-border" />
                         <label htmlFor="featured" className="text-sm font-medium">مميز (يظهر في الصفحة الرئيسية)</label>
                     </div>
                     <div className="flex gap-4 pt-4">

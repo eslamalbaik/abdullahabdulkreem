@@ -36,6 +36,12 @@ import DashboardTestimonials from "@/pages/DashboardTestimonials";
 import DashboardCourses from "@/pages/DashboardCourses";
 import DashboardSettings from "@/pages/DashboardSettings";
 import DashboardLogos from "@/pages/DashboardLogos";
+import DashboardQuestionnaires from "@/pages/DashboardQuestionnaires";
+import QuestionnaireBuilder from "@/pages/QuestionnaireBuilder";
+import QuestionnaireResponses from "@/pages/QuestionnaireResponses";
+import PublicQuestionnaire from "@/pages/PublicQuestionnaire";
+
+
 
 // Layouts & Components
 import DashboardLayout from "@/layouts/DashboardLayout";
@@ -73,6 +79,7 @@ function App() {
                   <Route path="/checkout" element={<Checkout />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/questionnaire" element={<Questionnaire />} />
+                  <Route path="/questionnaire/:slug" element={<PublicQuestionnaire />} />
                   <Route path="/privacy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<Terms />} />
                 </Route>
@@ -91,6 +98,9 @@ function App() {
                     <Route path="courses" element={<DashboardCourses />} />
                     <Route path="settings" element={<DashboardSettings />} />
                     <Route path="logos" element={<DashboardLogos />} />
+                    <Route path="questionnaires" element={<DashboardQuestionnaires />} />
+                    <Route path="questionnaires/:id/builder" element={<QuestionnaireBuilder />} />
+                    <Route path="questionnaires/:id/responses" element={<QuestionnaireResponses />} />
                     <Route path="users" element={<div>إدارة المستخدمين</div>} />
                     <Route path="logs" element={<div>سجل النشاطات</div>} />
                   </Route>

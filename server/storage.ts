@@ -12,7 +12,10 @@ import {
   type LessonProgress, type InsertLessonProgress,
   type CourseTestimonial, type InsertCourseTestimonial,
   type CourseEnrollment, type InsertCourseEnrollment,
-  type SiteConfig
+  type SiteConfig,
+  type DynamicQuestionnaire, type InsertDynamicQuestionnaire,
+  type DynamicQuestion, type InsertDynamicQuestion,
+  type DynamicResponse, type InsertDynamicResponse
 } from "@shared/schema.js";
 
 import ProjectModel from "./models/Project.js";
@@ -29,6 +32,10 @@ import CourseTestimonialModel from "./models/CourseTestimonial.js";
 import CourseEnrollmentModel from "./models/CourseEnrollment.js";
 import SiteConfigModel from "./models/SiteConfig.js";
 import ProductModel from "./models/Product.js";
+import DynamicQuestionnaireModel from "./models/DynamicQuestionnaire.js";
+import DynamicQuestionModel from "./models/DynamicQuestion.js";
+import DynamicResponseModel from "./models/DynamicResponse.js";
+
 
 export interface IStorage {
   getProjects(): Promise<Project[]>;
@@ -96,7 +103,25 @@ export interface IStorage {
 
   getSiteConfigs(): Promise<SiteConfig[]>;
   updateSiteConfig(key: string, value: string): Promise<SiteConfig>;
+
+  // Dynamic Questionnaire
+  getDynamicQuestionnaires(): Promise<DynamicQuestionnaire[]>;
+  getDynamicQuestionnaireById(id: string): Promise<DynamicQuestionnaire | undefined>;
+  getDynamicQuestionnaireBySlug(slug: string): Promise<DynamicQuestionnaire | undefined>;
+  createDynamicQuestionnaire(data: InsertDynamicQuestionnaire): Promise<DynamicQuestionnaire>;
+  updateDynamicQuestionnaire(id: string, data: Partial<InsertDynamicQuestionnaire>): Promise<DynamicQuestionnaire>;
+  deleteDynamicQuestionnaire(id: string): Promise<void>;
+
+  getDynamicQuestions(questionnaireId: string): Promise<DynamicQuestion[]>;
+  getDynamicQuestionById(id: string): Promise<DynamicQuestion | undefined>;
+  createDynamicQuestion(data: InsertDynamicQuestion): Promise<DynamicQuestion>;
+  updateDynamicQuestion(id: string, data: Partial<InsertDynamicQuestion>): Promise<DynamicQuestion>;
+  deleteDynamicQuestion(id: string): Promise<void>;
+
+  getDynamicResponses(questionnaireId: string): Promise<DynamicResponse[]>;
+  createDynamicResponse(data: InsertDynamicResponse): Promise<DynamicResponse>;
 }
+
 
 export class DatabaseStorage implements IStorage {
   private mapDoc<T>(doc: any): T {
@@ -183,6 +208,7 @@ export class DatabaseStorage implements IStorage {
       price: insertProduct.price,
       description: insertProduct.description || '',
       image: insertProduct.image,
+      images: insertProduct.images || [],
       imageUrl: insertProduct.image,
       featured: insertProduct.featured || false,
     });
@@ -204,6 +230,7 @@ export class DatabaseStorage implements IStorage {
       price: insertProduct.price,
       description: insertProduct.description || '',
       image: insertProduct.image,
+      images: insertProduct.images || [],
       imageUrl: insertProduct.image,
       featured: insertProduct.featured || false,
     }, { new: true });
@@ -434,6 +461,74 @@ export class DatabaseStorage implements IStorage {
     );
     return this.mapDoc<SiteConfig>(doc);
   }
+
+  // Dynamic Questionnaire
+  async getDynamicQuestionnaires(): Promise<DynamicQuestionnaire[]> {
+    const docs = await DynamicQuestionnaireModel.find().sort({ createdAt: -1 });
+    return docs.map(d => this.mapDoc<DynamicQuestionnaire>(d));
+  }
+
+  async getDynamicQuestionnaireById(id: string): Promise<DynamicQuestionnaire | undefined> {
+    const doc = await DynamicQuestionnaireModel.findById(id);
+    return doc ? this.mapDoc<DynamicQuestionnaire>(doc) : undefined;
+  }
+
+  async getDynamicQuestionnaireBySlug(slug: string): Promise<DynamicQuestionnaire | undefined> {
+    const doc = await DynamicQuestionnaireModel.findOne({ slug });
+    return doc ? this.mapDoc<DynamicQuestionnaire>(doc) : undefined;
+  }
+
+  async createDynamicQuestionnaire(data: InsertDynamicQuestionnaire): Promise<DynamicQuestionnaire> {
+    const doc = await DynamicQuestionnaireModel.create(data);
+    return this.mapDoc<DynamicQuestionnaire>(doc);
+  }
+
+  async updateDynamicQuestionnaire(id: string, data: Partial<InsertDynamicQuestionnaire>): Promise<DynamicQuestionnaire> {
+    const doc = await DynamicQuestionnaireModel.findByIdAndUpdate(id, data, { new: true });
+    if (!doc) throw new Error("Questionnaire not found");
+    return this.mapDoc<DynamicQuestionnaire>(doc);
+  }
+
+  async deleteDynamicQuestionnaire(id: string): Promise<void> {
+    await DynamicQuestionModel.deleteMany({ questionnaireId: id });
+    await DynamicQuestionnaireModel.findByIdAndDelete(id);
+  }
+
+  async getDynamicQuestions(questionnaireId: string): Promise<DynamicQuestion[]> {
+    const docs = await DynamicQuestionModel.find({ questionnaireId }).sort({ order: 1 });
+    return docs.map(d => this.mapDoc<DynamicQuestion>(d));
+  }
+
+  async getDynamicQuestionById(id: string): Promise<DynamicQuestion | undefined> {
+    const doc = await DynamicQuestionModel.findById(id);
+    return doc ? this.mapDoc<DynamicQuestion>(doc) : undefined;
+  }
+
+  async createDynamicQuestion(data: InsertDynamicQuestion): Promise<DynamicQuestion> {
+    const doc = await DynamicQuestionModel.create(data);
+    return this.mapDoc<DynamicQuestion>(doc);
+  }
+
+  async updateDynamicQuestion(id: string, data: Partial<InsertDynamicQuestion>): Promise<DynamicQuestion> {
+    const doc = await DynamicQuestionModel.findByIdAndUpdate(id, data, { new: true });
+    if (!doc) throw new Error("Question not found");
+    return this.mapDoc<DynamicQuestion>(doc);
+  }
+
+  async deleteDynamicQuestion(id: string): Promise<void> {
+    await DynamicQuestionModel.findByIdAndDelete(id);
+  }
+
+  async getDynamicResponses(questionnaireId: string): Promise<DynamicResponse[]> {
+    const docs = await DynamicResponseModel.find({ questionnaireId }).sort({ submittedAt: -1 });
+    return docs.map(d => this.mapDoc<DynamicResponse>(d));
+  }
+
+  async createDynamicResponse(data: InsertDynamicResponse): Promise<DynamicResponse> {
+    const doc = await DynamicResponseModel.create(data);
+    return this.mapDoc<DynamicResponse>(doc);
+  }
 }
+
 
 export const storage = new DatabaseStorage();

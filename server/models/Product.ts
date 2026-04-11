@@ -8,6 +8,7 @@ export interface IProduct extends Document {
     category: string;
     stock: number;
     image?: string;
+    images?: string[];
     imageUrl?: string;
     featured: boolean;
     isDeleted: boolean;
@@ -47,6 +48,10 @@ const ProductSchema: Schema = new Schema(
         },
         image: {
             type: String,
+        },
+        images: {
+            type: [String],
+            default: []
         },
         imageUrl: {
             type: String,

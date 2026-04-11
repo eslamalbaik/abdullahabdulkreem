@@ -14,6 +14,8 @@ import seedRoles from './services/seedService.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import dynamicQuestionnaireRoutes from './routes/dynamicQuestionnaireRoutes.js';
+
 
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import { activityLogger } from './middlewares/activityLogger.js';
@@ -151,6 +153,8 @@ if (process.env.NODE_ENV === "production") {
   // Product Routes
   app.use('/api/products', productRoutes);
   app.use('/api/projects', projectRoutes);
+  app.use('/api/dynamic-questionnaires', dynamicQuestionnaireRoutes);
+
 
 
   // API Documentation

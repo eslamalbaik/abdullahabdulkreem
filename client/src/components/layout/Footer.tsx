@@ -186,7 +186,7 @@ export default function Footer() {
                     const isCenter = index === 1;
                     return (
                       <motion.div
-                        key={testimonial.author}
+                        key={`${testimonial.author}-${index}`}
                         layout
                         initial={{ opacity: 0, scale: 0.8, x: index === 0 ? 100 : index === 2 ? -100 : 0 }}
                         animate={{
