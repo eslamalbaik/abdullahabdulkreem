@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface Project {
     id: number;
@@ -33,7 +34,7 @@ function ImageUploadField({ label, value, onChange, testId }: {
             <div className="space-y-2">
                 {value && (
                     <div className="relative inline-block">
-                        <img src={value} alt="صورة" className="w-24 h-24 object-cover rounded-lg border border-border" />
+                        <img src={getImageUrl(value)} alt="صورة" className="w-24 h-24 object-cover rounded-lg border border-border" />
                         <button type="button" onClick={() => onChange("")}
                             className="absolute -top-2 -left-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                             <X className="w-4 h-4" />
@@ -81,7 +82,7 @@ function MultiImageUploadField({ label, values, onAddUrls, onRemove, testId }: {
                     <div className="flex flex-wrap gap-2">
                         {values.map((url, i) => (
                             <div key={i} className="relative inline-block">
-                                <img src={url} alt="صورة إضافية" className="w-16 h-16 object-cover rounded-lg border border-border" />
+                                <img src={getImageUrl(url)} alt="صورة إضافية" className="w-16 h-16 object-cover rounded-lg border border-border" />
                                 <button type="button" onClick={() => onRemove(i)}
                                     className="absolute -top-2 -right-2 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                                     <X className="w-3 h-3" />
@@ -158,7 +159,7 @@ const DashboardProjects: React.FC = () => {
                         <motion.div key={project.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                             className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border">
                             {project.image ? (
-                                <img src={project.image} alt={project.title} className="w-20 h-16 object-cover rounded-lg" />
+                                <img src={getImageUrl(project.image)} alt={project.title} className="w-20 h-16 object-cover rounded-lg" />
                             ) : (
                                 <div className="w-20 h-16 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-xs">بدون صورة</div>
                             )}

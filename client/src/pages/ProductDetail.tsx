@@ -10,6 +10,7 @@ import type { Product } from "@shared/schema";
 import { CartSuccessAnimation } from "@/components/ui/CartSuccessAnimation";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { calculateFinalPrice } from "@/lib/discounts";
+import { getImageUrl } from "@/lib/image-utils";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -46,7 +47,7 @@ export default function ProductDetail() {
       title: product.title,
       price: finalPrice,
       originalPrice: product.price,
-      image: product.image,
+      image: getImageUrl(product.image),
       type: "product",
     });
   };
@@ -102,7 +103,7 @@ export default function ProductDetail() {
           >
             <div className="aspect-square bg-secondary overflow-hidden rounded-2xl">
               <img
-                src={product.image}
+                src={getImageUrl(product.image)}
                 alt={product.title}
                 className="w-full h-full object-cover"
               />
@@ -112,7 +113,7 @@ export default function ProductDetail() {
                 {product.images.map((img, index) => (
                   <div key={index} className="aspect-square bg-secondary overflow-hidden rounded-xl">
                     <img
-                      src={img}
+                      src={getImageUrl(img)}
                       alt={`${product.title} - صورة ${index + 1}`}
                       className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-500"
                     />

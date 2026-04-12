@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProjects } from "@/lib/api";
+import { getImageUrl } from "@/lib/image-utils";
 
 export default function Portfolio() {
   const { data: projects = [], isLoading } = useQuery({
@@ -47,7 +48,7 @@ export default function Portfolio() {
               >
                 <div className={`aspect-[4/3] ${i % 3 === 0 ? 'aspect-[21/9]' : ''} overflow-hidden mb-6 bg-secondary/50`}>
                   <img
-                    src={project.image}
+                    src={getImageUrl(project.image)}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />

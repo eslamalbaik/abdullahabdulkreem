@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { ArrowRight, ExternalLink, MapPin, Calendar, Briefcase, Package } from "lucide-react";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface Project {
   id: number;
@@ -131,7 +132,7 @@ export default function ProjectDetail() {
 
           <div className="aspect-video overflow-hidden bg-secondary/50 mb-8">
             <img
-              src={project.image}
+              src={getImageUrl(project.image)}
               alt={project.title}
               className="w-full h-full object-cover"
             />
@@ -169,7 +170,7 @@ export default function ProjectDetail() {
                   className="w-full aspect-video overflow-hidden bg-secondary/50 rounded-3xl"
                 >
                   <img
-                    src={img}
+                    src={getImageUrl(img)}
                     alt={`${project.title} - صورة ${index + 1}`}
                     className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-500"
                   />

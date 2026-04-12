@@ -9,6 +9,7 @@ import type { Product } from "@shared/schema";
 import { CartSuccessAnimation } from "@/components/ui/CartSuccessAnimation";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { calculateFinalPrice } from "@/lib/discounts";
+import { getImageUrl } from "@/lib/image-utils";
 
 export default function Shop() {
   const { data: products = [], isLoading } = useQuery({
@@ -84,7 +85,7 @@ export default function Shop() {
             >
               <div className="aspect-[4/5] bg-secondary mb-6 relative overflow-hidden">
                 <img
-                  src={product.image}
+                  src={getImageUrl(product.image)}
                   alt={product.title}
                   className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity"
                 />

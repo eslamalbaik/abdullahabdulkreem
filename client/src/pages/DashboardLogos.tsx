@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { getImageUrl } from '@/lib/image-utils';
 import { toast } from 'sonner';
 import {
     AlertDialog,
@@ -40,7 +41,7 @@ function ImageUploadField({ label, value, onChange, testId }: {
             <div className="space-y-2">
                 {value && (
                     <div className="relative inline-block">
-                        <img src={value} alt="شعار" className="w-24 h-24 object-contain rounded-lg border border-border bg-white p-2" />
+                        <img src={getImageUrl(value)} alt="شعار" className="w-24 h-24 object-contain rounded-lg border border-border bg-white p-2" />
                         <button type="button" onClick={() => onChange("")}
                             className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
                             <X className="w-4 h-4" />
@@ -181,7 +182,7 @@ const DashboardLogos: React.FC = () => {
                                 />
                             </div>
                             {logo.image ? (
-                                <img src={logo.image} alt={logo.name} className="w-20 h-16 object-contain rounded-lg bg-white p-2" />
+                                <img src={getImageUrl(logo.image)} alt={logo.name} className="w-20 h-16 object-contain rounded-lg bg-white p-2" />
                             ) : (
                                 <div className="w-20 h-16 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-xs">بدون صورة</div>
                             )}

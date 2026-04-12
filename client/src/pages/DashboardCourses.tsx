@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Search, Upload, X, GraduationCap } from 'lucide-r
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { getImageUrl } from '@/lib/image-utils';
 import { Currency } from '@/components/ui/Currency';
 
 interface Course {

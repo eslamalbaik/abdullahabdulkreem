@@ -8,6 +8,7 @@ import { Currency } from "@/components/ui/Currency";
 import { CartSuccessAnimation } from "@/components/ui/CartSuccessAnimation";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { calculateFinalPrice } from "@/lib/discounts";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface Identity {
   id: number;
@@ -53,7 +54,7 @@ export default function IdentityDetail() {
       title: identity.title,
       price: finalPrice,
       originalPrice: identity.price,
-      image: identity.image,
+      image: getImageUrl(identity.image),
       type: "identity",
     });
   };
@@ -117,7 +118,7 @@ export default function IdentityDetail() {
             >
               <div className="aspect-[4/3] rounded-2xl overflow-hidden">
                 <img
-                  src={identity.image}
+                  src={getImageUrl(identity.image)}
                   alt={identity.title}
                   className="w-full h-full object-cover"
                 />
@@ -128,7 +129,7 @@ export default function IdentityDetail() {
                   {identity.images.map((img, index) => (
                     <div key={index} className="aspect-square rounded-xl overflow-hidden bg-muted">
                       <img
-                        src={img}
+                        src={getImageUrl(img)}
                         alt={`${identity.title} - معاينة ${index + 1}`}
                         className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
                       />

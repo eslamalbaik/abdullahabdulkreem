@@ -162,6 +162,11 @@ The server responds on all routes. You can use the root path `/` as a health che
 - All API routes are under `/api/*` (e.g., Auth is under `/api/auth/login`)
 - The server handles SPA routing (returns index.html for non-API routes)
 - Make sure your database is accessible from your hosting environment
+- **Assets (Uploads)**: The server automatically creates an `uploads/` directory in the project root. Ensure the process has write permissions.
+
+### Image URL Utility
+The application uses a centralized utility in `client/src/lib/image-utils.ts` to resolve image paths. In production, it defaults to relative paths (e.g., `/uploads/...`).
+If you decide to serve images from a different domain or CDN, you only need to update the `BASE_URL` in that file.
 
 ### Common Issues
 

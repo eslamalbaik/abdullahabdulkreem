@@ -8,6 +8,7 @@ import type { Identity, SiteConfig, User } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import { Currency } from "@/components/ui/Currency";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface ClientLogo {
   id: number;
@@ -122,7 +123,7 @@ export default function Home() {
                   {clientLogos.map((logo) => (
                     <div key={`${i}-${logo.id}`} className="px-4 py-2 flex items-center justify-center h-20 w-48 shrink-0">
                       <img
-                        src={logo.image}
+                        src={getImageUrl(logo.image)}
                         alt={logo.name}
                         className="max-h-16 max-w-full opacity-90 brightness-200 grayscale transition-all hover:grayscale-0 hover:opacity-100 hover:brightness-100 object-contain"
                       />
@@ -179,7 +180,7 @@ export default function Home() {
                   >
                     <div className="aspect-[4/3] overflow-hidden mb-4 bg-secondary/50 rounded-2xl">
                       <img
-                        src={project.image}
+                        src={getImageUrl(project.image)}
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
@@ -237,7 +238,7 @@ export default function Home() {
                     >
                       <div className="aspect-[4/3] overflow-hidden">
                         <img
-                          src={identity.image}
+                          src={getImageUrl(identity.image)}
                           alt={identity.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
@@ -299,7 +300,7 @@ export default function Home() {
                     <div className="group bg-background p-3 border border-border/50 hover:border-primary/20 transition-colors rounded-xl cursor-pointer" data-testid={`product-${product.id}`}>
                       <div className="aspect-[4/3] overflow-hidden bg-muted mb-3 rounded-lg">
                         <img
-                          src={product.image}
+                          src={getImageUrl(product.image)}
                           alt={product.title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />

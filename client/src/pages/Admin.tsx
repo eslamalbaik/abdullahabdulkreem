@@ -8,6 +8,7 @@ import { Currency } from "@/components/ui/Currency";
 
 import { apiRequest } from "@/lib/queryClient";
 import { useUpload } from "@/hooks/use-upload";
+import { getImageUrl } from "@/lib/image-utils";
 import DashboardQuestionnaires from "./DashboardQuestionnaires";
 import DashboardDiscounts from "./DashboardDiscounts";
 
@@ -296,7 +297,7 @@ export default function Admin() {
               >
                 {project.image ? (
                   <img
-                    src={project.image}
+                    src={getImageUrl(project.image)}
                     alt={project.title}
                     className="w-20 h-16 object-cover rounded-lg"
                   />
@@ -341,7 +342,7 @@ export default function Admin() {
               >
                 {product.image ? (
                   <img
-                    src={product.image}
+                    src={getImageUrl(product.image)}
                     alt={product.title}
                     className="w-20 h-16 object-cover rounded-lg"
                   />
@@ -386,7 +387,7 @@ export default function Admin() {
               >
                 {identity.image ? (
                   <img
-                    src={identity.image}
+                    src={getImageUrl(identity.image)}
                     alt={identity.title}
                     className="w-20 h-16 object-cover rounded-lg"
                   />
@@ -431,7 +432,7 @@ export default function Admin() {
               >
                 {logo.image ? (
                   <img
-                    src={logo.image}
+                    src={getImageUrl(logo.image)}
                     alt={logo.name}
                     className="w-20 h-12 object-contain rounded-lg bg-white p-1"
                   />
@@ -528,7 +529,7 @@ export default function Admin() {
               >
                 {course.image && (
                   <img
-                    src={course.image}
+                    src={getImageUrl(course.image)}
                     alt={course.title}
                     className="w-20 h-16 object-cover rounded-lg"
                   />
@@ -730,7 +731,7 @@ function ImageUploadField({
         {value && (
           <div className="relative inline-block">
             {value && <img
-              src={value}
+              src={getImageUrl(value)}
               alt="صورة"
               className="w-24 h-24 object-cover rounded-lg border border-border"
             />}

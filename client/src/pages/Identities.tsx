@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Currency } from "@/components/ui/Currency";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface Identity {
   id: number;
@@ -54,7 +55,7 @@ export default function Identities() {
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
-                    src={identity.image}
+                    src={getImageUrl(identity.image)}
                     alt={identity.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
