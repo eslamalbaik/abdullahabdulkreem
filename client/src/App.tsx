@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/contexts/CartContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
 // Pages
 import Home from "@/pages/Home";
@@ -40,6 +41,7 @@ import DashboardQuestionnaires from "@/pages/DashboardQuestionnaires";
 import QuestionnaireBuilder from "@/pages/QuestionnaireBuilder";
 import QuestionnaireResponses from "@/pages/QuestionnaireResponses";
 import PublicQuestionnaire from "@/pages/PublicQuestionnaire";
+import DashboardDiscounts from "@/pages/DashboardDiscounts";
 
 
 
@@ -59,6 +61,7 @@ function App() {
                 {/* Public Routes with Shared Layout */}
                 <Route element={
                   <>
+                    <AnnouncementBanner />
                     <Navbar />
                     <main className="flex-grow">
                       <Outlet />
@@ -97,6 +100,7 @@ function App() {
                     <Route path="testimonials" element={<DashboardTestimonials />} />
                     <Route path="courses" element={<DashboardCourses />} />
                     <Route path="settings" element={<DashboardSettings />} />
+                    <Route path="discounts" element={<DashboardDiscounts />} />
                     <Route path="logos" element={<DashboardLogos />} />
                     <Route path="questionnaires" element={<DashboardQuestionnaires />} />
                     <Route path="questionnaires/:id/builder" element={<QuestionnaireBuilder />} />
@@ -111,7 +115,7 @@ function App() {
               </Routes>
             </div>
             <FloatingAdminButton />
-            <SonnerToaster />
+            <SonnerToaster position="top-left" closeButton richColors />
             <Toaster />
           </TooltipProvider>
         </CartProvider>

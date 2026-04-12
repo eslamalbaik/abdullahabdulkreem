@@ -26,7 +26,13 @@ export default function DashboardSettings() {
         identities_title: "هويات جاهزة للبيع",
         identities_description: "هويات بصرية متكاملة جاهزة للتخصيص والاستخدام الفوري",
         products_title: "منتجات للمصممين",
-        products_description: "قوالب وعقود ومحتوى تعليمي لتطوير عملك الإبداعي"
+        products_description: "قوالب وعقود ومحتوى تعليمي لتطوير عملك الإبداعي",
+        banner_enabled: "false",
+        banner_title: "عرض جديد!",
+        banner_message: "استخدم كود خصم خاص لفترة محدودة",
+        banner_cta: "تسوق الآن",
+        banner_link: "/shop",
+        global_discount_percentage: "0"
     });
 
     useEffect(() => {
@@ -175,6 +181,89 @@ export default function DashboardSettings() {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Announcement Banner Control */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="bg-card p-6 rounded-2xl border border-border border-primary/20 shadow-lg shadow-primary/5"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-xl font-bold mb-1 flex items-center gap-2">
+                                <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                شريط الإعلانات العلوي (Announcement Banner)
+                            </h2>
+                            <p className="text-sm text-muted-foreground">شريط يظهر في أعلى الموقع للإعلان عن عروض أو أخبار جديدة</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {settings.banner_enabled === "false" ? <EyeOff className="w-5 h-5 text-muted-foreground" /> : <Eye className="w-5 h-5 text-primary" />}
+                            <Switch
+                                checked={settings.banner_enabled !== "false"}
+                                onCheckedChange={(checked) => handleToggle("banner_enabled", checked)}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label>عنوان الإعلان</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={settings.banner_title || ""}
+                                        onChange={(e) => setSettings(prev => ({ ...prev, banner_title: e.target.value }))}
+                                    />
+                                    <Button size="icon" onClick={() => handleSaveText("banner_title")}>
+                                        <Save className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>نص الرسالة</Label>
+                                <div className="flex gap-2">
+                                    <Textarea
+                                        value={settings.banner_message || ""}
+                                        onChange={(e) => setSettings(prev => ({ ...prev, banner_message: e.target.value }))}
+                                        rows={2}
+                                    />
+                                    <Button size="icon" onClick={() => handleSaveText("banner_message")}>
+                                        <Save className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label>نص زر الانتقال (CTA)</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={settings.banner_cta || ""}
+                                        onChange={(e) => setSettings(prev => ({ ...prev, banner_cta: e.target.value }))}
+                                    />
+                                    <Button size="icon" onClick={() => handleSaveText("banner_cta")}>
+                                        <Save className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>رابط الانتقال (Link)</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        value={settings.banner_link || ""}
+                                        onChange={(e) => setSettings(prev => ({ ...prev, banner_link: e.target.value }))}
+                                        dir="ltr"
+                                    />
+                                    <Button size="icon" onClick={() => handleSaveText("banner_link")}>
+                                        <Save className="w-4 h-4" />
+                                    </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
             </div>
         </div>
     );

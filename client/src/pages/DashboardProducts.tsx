@@ -4,6 +4,11 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { Currency } from '@/components/ui/Currency';
+import { calculateFinalPrice } from '@/lib/discounts';
+import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -133,6 +138,16 @@ const DashboardProducts: React.FC = () => {
         },
     });
 
+    const { data: activeDiscounts = [] } = useQuery<any[]>({
+        queryKey: ['/api/discounts/active'],
+    });
+
+    const { data: configs = [] } = useQuery<any[]>({
+        queryKey: ["/api/site-configs"],
+    });
+
+    const globalPercentage = parseFloat(configs.find(c => c.key === 'global_discount_percentage')?.value || '0');
+
     const deleteMutation = useMutation({
         mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/products/${id}`),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['/api/products'] }),
@@ -184,7 +199,26 @@ const DashboardProducts: React.FC = () => {
                             )}
                             <div className="flex-1">
                                 <h3 className="font-semibold">{product.title}</h3>
-                                <p className="text-sm text-muted-foreground">{product.category} • {product.price} ر.س</p>
+                                <p className="text-sm text-muted-foreground">{product.category} • <Currency amount={product.price} size="sm" /></p>
+                                {(() => {
+                                    const { discountValue, discountName } = calculateFinalPrice(
+                                        product.price,
+                                        product.id,
+                                        'product',
+                                        activeDiscounts,
+                                        globalPercentage
+                                    );
+                                    if (discountValue > 0) {
+                                        return (
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 text-[10px] py-0">
+                                                    خصم نشط: {discountName}
+                                                </Badge>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
                             </div>
                             {product.featured && (
                                 <span className="px-2 py-1 bg-yellow-500/10 text-yellow-600 rounded-full text-xs font-semibold">مميز</span>
@@ -246,6 +280,15 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                 className="bg-background rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <h2 className="text-xl font-bold mb-6">{isEditing ? 'تعديل' : 'إضافة'} منتج</h2>
+                
+                <div className="mb-6 p-3 bg-primary/5 border border-primary/20 rounded-xl flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="font-bold text-primary mb-1">إدارة الخصومات</p>
+                        <p>يتم تطبيق الخصومات على هذا المنتج من خلال إدارة <Link to="/dashboard/discounts" className="text-primary hover:underline font-bold">العروض والخصومات</Link>. يمكنك اختيار هذا المنتج هناك لتطبيق خصم خاص عليه.</p>
+                    </div>
+                </div>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-2">العنوان</label>

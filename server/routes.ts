@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
-import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema, insertCourseSchema, insertLessonSchema } from "@shared/schema.js";
+import { insertContactSchema, insertProjectSchema, insertProductSchema, insertIdentitySchema, insertClientLogoSchema, insertTestimonialSchema, insertQuestionnaireSchema, insertCourseSchema, insertLessonSchema, insertDiscountSchema, insertNotificationSchema } from "@shared/schema.js";
 import { isAuthenticated } from "./middlewares/authMiddleware.js";
 import { registerUploadRoutes } from "./routes/uploadRoutes.js";
 import { sendQuestionnaireNotification, sendContactNotification, sendNewsletterNotification } from "./resend.js";
@@ -97,6 +97,17 @@ export async function registerRoutes(
         console.error("Error sending contact email notification:", emailError);
       }
 
+      try {
+        await storage.createNotification({
+          type: "contact",
+          title: "رسالة تواصل جديدة",
+          message: `رسالة جديدة من ${result.data.name}: ${result.data.projectType}`,
+          data: result.data
+        });
+      } catch (err) {
+        console.error("Error creating contact notification:", err);
+      }
+
       res.status(201).json(contact);
     } catch (error) {
       res.status(500).json({ error: "Failed to submit contact form" });
@@ -129,6 +140,17 @@ export async function registerRoutes(
         console.error("Error sending questionnaire email notification:", emailError);
       }
 
+      try {
+        await storage.createNotification({
+          type: "questionnaire",
+          title: "نموذج استبيان جديد",
+          message: `استبيان جديد من ${result.data.name} - ${result.data.serviceType}`,
+          data: result.data
+        });
+      } catch (err) {
+        console.error("Error creating questionnaire notification:", err);
+      }
+
       res.status(201).json(submission);
     } catch (error) {
       console.error("Error submitting questionnaire:", error);
@@ -153,6 +175,16 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error subscribing to newsletter:", error);
       res.status(500).json({ error: "Failed to subscribe to newsletter" });
+    }
+  });
+
+  app.get("/api/discounts/active", async (_req, res) => {
+    try {
+      const discounts = await storage.getActiveDiscounts();
+      res.json(discounts);
+    } catch (error) {
+      console.error("Error fetching active discounts:", error);
+      res.status(500).json({ error: "Failed to fetch active discounts" });
     }
   });
 
@@ -199,6 +231,33 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/admin/questionnaire-submissions/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+      const submission = await storage.updateQuestionnaireSubmissionStatus(id, status);
+      res.json(submission);
+    } catch (error) {
+      console.error("Error updating questionnaire submission status:", error);
+      res.status(500).json({ error: "Failed to update status" });
+    }
+  });
+
+  app.delete("/api/admin/questionnaire-submissions/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.deleteQuestionnaireSubmission(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting questionnaire submission:", error);
+      res.status(500).json({ error: "Failed to delete questionnaire submission" });
+    }
+  });
+
+
   app.get("/api/admin/contacts", isAuthenticated, async (_req, res) => {
     try {
       const contacts = await storage.getContacts();
@@ -208,6 +267,33 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch contacts" });
     }
   });
+
+  app.patch("/api/admin/contacts/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const { status } = req.body;
+      if (!status || !['pending', 'completed'].includes(status)) {
+        return res.status(400).json({ error: "Invalid status value" });
+      }
+      const contact = await storage.updateContactStatus(id, status);
+      res.json(contact);
+    } catch (error) {
+      console.error("Error updating contact status:", error);
+      res.status(500).json({ error: "Failed to update contact status" });
+    }
+  });
+
+  app.delete("/api/admin/contacts/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.deleteContact(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+      res.status(500).json({ error: "Failed to delete contact" });
+    }
+  });
+
 
 
   app.post("/api/admin/products", isAuthenticated, async (req, res) => {
@@ -340,6 +426,20 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting client logo:", error);
       res.status(500).json({ error: "Failed to delete client logo" });
+    }
+  });
+
+  app.post("/api/admin/client-logos/bulk-delete", isAuthenticated, async (req, res) => {
+    try {
+      const { ids } = req.body;
+      if (!Array.isArray(ids)) {
+        return res.status(400).json({ error: "IDs must be an array" });
+      }
+      await storage.deleteClientLogos(ids);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error bulk deleting client logos:", error);
+      res.status(500).json({ error: "Failed to bulk delete client logos" });
     }
   });
 
@@ -672,6 +772,102 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to delete lesson" });
     }
   });
+
+  // Admin Discount Routes
+  app.get("/api/admin/discounts", isAuthenticated, async (_req, res) => {
+    try {
+      const discounts = await storage.getDiscounts();
+      res.json(discounts);
+    } catch (error) {
+      console.error("Error fetching discounts:", error);
+      res.status(500).json({ error: "Failed to fetch discounts" });
+    }
+  });
+
+  app.post("/api/admin/discounts", isAuthenticated, async (req, res) => {
+    try {
+      const result = insertDiscountSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: "Invalid discount data", details: result.error.issues });
+      }
+      const discount = await storage.createDiscount(result.data as any);
+      res.status(201).json(discount);
+    } catch (error) {
+      console.error("Error creating discount:", error);
+      res.status(500).json({ error: "Failed to create discount" });
+    }
+  });
+
+  app.patch("/api/admin/discounts/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const discount = await storage.updateDiscount(id, req.body);
+      res.json(discount);
+    } catch (error) {
+      console.error("Error updating discount:", error);
+      res.status(500).json({ error: "Failed to update discount" });
+    }
+  });
+
+  app.delete("/api/admin/discounts/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.deleteDiscount(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting discount:", error);
+      res.status(500).json({ error: "Failed to delete discount" });
+    }
+  });
+
+  // Notifications API
+  app.get("/api/admin/notifications", isAuthenticated, async (_req, res) => {
+    try {
+      const notifications = await storage.getNotifications();
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+
+  app.post("/api/notifications", async (req, res) => {
+    try {
+      console.log("[POST /api/notifications] Received payload:", JSON.stringify(req.body));
+      const result = insertNotificationSchema.safeParse(req.body);
+      if (!result.success) {
+        console.error("[POST /api/notifications] Validation failed:", result.error.format());
+        return res.status(400).json({ error: "Invalid notification data", details: result.error.issues });
+      }
+      const notification = await storage.createNotification(result.data);
+      console.log("[POST /api/notifications] Notification created:", notification.id);
+      res.status(201).json(notification);
+    } catch (error) {
+      console.error("[POST /api/notifications] Internal error:", error);
+      res.status(500).json({ error: "Failed to create notification" });
+    }
+  });
+
+  app.patch("/api/admin/notifications/mark-all-read", isAuthenticated, async (_req, res) => {
+    try {
+      await storage.markAllNotificationsAsRead();
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      res.status(500).json({ error: "Failed to mark all as read" });
+    }
+  });
+
+  app.patch("/api/admin/notifications/:id/read", isAuthenticated, async (req, res) => {
+    try {
+      const notification = await storage.markNotificationAsRead(req.params.id);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ error: "Failed to mark notification as read" });
+    }
+  });
+
 
   return httpServer;
 }

@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Currency } from "@/components/ui/Currency";
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 interface Identity {
   id: number;
@@ -77,10 +79,13 @@ export default function Identities() {
                     </ul>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <span className="text-2xl font-bold text-primary" data-testid={`text-identity-price-${identity.id}`}>
-                      {identity.price} ر.س
-                    </span>
+                  <div className="flex items-center justify-between pt-4 border-t border-border gap-4">
+                    <PriceDisplay 
+                      price={identity.price} 
+                      itemId={identity.id} 
+                      itemType="identity" 
+                      size="lg" 
+                    />
                     <button
                       onClick={() => navigate(`/checkout?type=identity&id=${identity.id}`)}
                       className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors"

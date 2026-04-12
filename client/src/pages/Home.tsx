@@ -6,6 +6,8 @@ import { fetchFeaturedProjects, fetchProducts } from "@/lib/api";
 import { apiRequest } from "@/lib/queryClient";
 import type { Identity, SiteConfig, User } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
+import { Currency } from "@/components/ui/Currency";
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 interface ClientLogo {
   id: number;
@@ -244,7 +246,12 @@ export default function Home() {
                         <h3 className="text-lg font-medium mb-1 group-hover:text-primary transition-colors">{identity.title}</h3>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{identity.description}</p>
                         <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-primary">${identity.price}</span>
+                          <PriceDisplay 
+                            price={identity.price} 
+                            itemId={identity.id} 
+                            itemType="identity" 
+                            size="md" 
+                          />
                           {identity.featured && <span className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded">مميز</span>}
                         </div>
                       </div>
@@ -290,11 +297,11 @@ export default function Home() {
                 {products.map((product: any) => (
                   <Link key={product.id} to={`/shop/${product.id}`}>
                     <div className="group bg-background p-3 border border-border/50 hover:border-primary/20 transition-colors rounded-xl cursor-pointer" data-testid={`product-${product.id}`}>
-                      <div className="aspect-square overflow-hidden bg-secondary mb-3 rounded-lg">
+                      <div className="aspect-[4/3] overflow-hidden bg-muted mb-3 rounded-lg">
                         <img
                           src={product.image}
                           alt={product.title}
-                          className="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
                       <div className="flex justify-between items-start">
@@ -302,7 +309,13 @@ export default function Home() {
                           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1 block">{product.category}</span>
                           <h4 className="text-base font-medium leading-snug group-hover:text-primary transition-colors">{product.title}</h4>
                         </div>
-                        <span className="font-mono text-sm">${product.price}</span>
+                        <PriceDisplay 
+                          price={product.price} 
+                          itemId={product.id} 
+                          itemType="product" 
+                          size="sm" 
+                          showBadge={false}
+                        />
                       </div>
                     </div>
                   </Link>

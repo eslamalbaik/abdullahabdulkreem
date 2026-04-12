@@ -2,9 +2,13 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProducts } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Currency } from "@/components/ui/Currency";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
+import { CartSuccessAnimation } from "@/components/ui/CartSuccessAnimation";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { calculateFinalPrice } from "@/lib/discounts";
 
 export default function Shop() {
   const { data: products = [], isLoading } = useQuery({
@@ -14,17 +18,32 @@ export default function Shop() {
   const { addItem } = useCart();
   const { toast } = useToast();
 
+  const { data: activeDiscounts = [] } = useQuery<any[]>({
+    queryKey: ['/api/discounts/active'],
+  });
+
+  const { data: configs = [] } = useQuery<any[]>({
+    queryKey: ["/api/site-configs"],
+  });
+
+  const globalPercentage = parseFloat(configs.find(c => c.key === 'global_discount_percentage')?.value || '0');
+
   const handleAddToCart = (product: Product) => {
+    const { finalPrice } = calculateFinalPrice(
+      product.price,
+      product.id,
+      'product',
+      activeDiscounts,
+      globalPercentage
+    );
+
     addItem({
       id: product.id,
       title: product.title,
-      price: product.price,
+      price: finalPrice,
+      originalPrice: product.price,
       image: product.image,
       type: "product",
-    });
-    toast({
-      title: "تمت الإضافة للسلة",
-      description: `تم إضافة "${product.title}" إلى سلة التسوق`,
     });
   };
 
@@ -72,16 +91,27 @@ export default function Shop() {
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
                 <div className="absolute bottom-4 left-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                   <Button
-                    className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg"
+                    className="w-full bg-white text-black hover:bg-white/90 border-none shadow-lg py-6"
                     data-testid={`button-add-cart-${product.id}`}
                     onClick={() => handleAddToCart(product)}
                   >
-                    أضف للسلة — {product.price} ر.س
+                    أضف للسلة
                   </Button>
                 </div>
               </div>
-              <h3 className="text-xl font-serif mb-1">{product.title}</h3>
-              <p className="text-muted-foreground text-sm mb-3">قالب احترافي</p>
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-serif mb-1">{product.title}</h3>
+                  <p className="text-muted-foreground text-sm mb-3">قالب احترافي</p>
+                </div>
+                <PriceDisplay 
+                  price={product.price} 
+                  itemId={product.id} 
+                  itemType="product" 
+                  size="sm" 
+                  showBadge={true}
+                />
+              </div>
             </motion.div>
           ))}
         </div>

@@ -4,10 +4,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, LogOut, LayoutGrid, Package, Palette, Image, Upload, X, Star, MessageSquare, GraduationCap, Play, Download, ClipboardList } from "lucide-react";
+import { Currency } from "@/components/ui/Currency";
 
 import { apiRequest } from "@/lib/queryClient";
 import { useUpload } from "@/hooks/use-upload";
 import DashboardQuestionnaires from "./DashboardQuestionnaires";
+import DashboardDiscounts from "./DashboardDiscounts";
 
 
 interface Course {
@@ -75,7 +77,7 @@ interface Testimonial {
   rating: number;
 }
 
-type Tab = "projects" | "products" | "identities" | "logos" | "testimonials" | "courses" | "questionnaires";
+type Tab = "projects" | "products" | "identities" | "logos" | "testimonials" | "courses" | "questionnaires" | "discounts";
 
 
 export default function Admin() {
@@ -185,6 +187,7 @@ export default function Admin() {
     { id: "logos" as Tab, label: "شعارات العملاء", icon: Image },
     { id: "testimonials" as Tab, label: "قالوا عن عبدالله", icon: MessageSquare },
     { id: "questionnaires" as Tab, label: "الاستبيانات", icon: ClipboardList },
+    { id: "discounts" as Tab, label: "العروض", icon: Star },
   ];
 
 
@@ -270,6 +273,7 @@ export default function Admin() {
             {activeTab === "testimonials" && "قالوا عن عبدالله"}
             {activeTab === "courses" && "الدورات التعليمية"}
             {activeTab === "questionnaires" && "إدارة الاستبيانات"}
+            {activeTab === "discounts" && "إدارة العروض والخصومات"}
           </h2>
           <button
             onClick={handleAdd}
@@ -347,7 +351,7 @@ export default function Admin() {
                 <div className="flex-1">
                   <h3 className="font-semibold">{product.title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.category} • {product.price} ر.س
+                    {product.category} • <Currency amount={product.price} size="sm" />
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -392,7 +396,7 @@ export default function Admin() {
                 <div className="flex-1">
                   <h3 className="font-semibold">{identity.title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {identity.price} ر.س
+                    <Currency amount={identity.price} size="sm" />
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -537,7 +541,7 @@ export default function Admin() {
                 <div className="flex-1">
                   <h3 className="font-semibold">{course.title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {course.price} ر.س • {course.published ? "منشور" : "مسودة"}
+                    <Currency amount={course.price} size="sm" /> • {course.published ? "منشور" : "مسودة"}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -584,6 +588,10 @@ export default function Admin() {
 
         {activeTab === "questionnaires" && (
           <DashboardQuestionnaires />
+        )}
+        
+        {activeTab === "discounts" && (
+          <DashboardDiscounts />
         )}
 
         {showLessonsManager && selectedCourse && (

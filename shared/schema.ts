@@ -316,3 +316,40 @@ export interface DynamicResponse extends InsertDynamicResponse {
   submittedAt: Date | string;
 }
 
+// ===== Discounts =====
+export const insertDiscountSchema = z.object({
+  name: z.string().min(1, "الاسم مطلوب"),
+  type: z.enum(["percentage", "fixed"]),
+  value: z.number().min(0),
+  startDate: z.string().or(z.date()),
+  endDate: z.string().or(z.date()),
+  scope: z.enum(["product", "identity", "both"]),
+  applicableItems: z.array(z.string()).default([]),
+  active: z.boolean().default(true),
+  isGlobal: z.boolean().default(false),
+});
+
+export type InsertDiscount = z.infer<typeof insertDiscountSchema>;
+export interface Discount extends InsertDiscount {
+  id: string | number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+// ===== Notifications =====
+export const notificationTypeSchema = z.enum(["add_to_cart", "checkout", "contact", "questionnaire", "dynamic_response"]);
+export type NotificationType = z.infer<typeof notificationTypeSchema>;
+
+export const insertNotificationSchema = z.object({
+  type: notificationTypeSchema,
+  title: z.string().min(1),
+  message: z.string().min(1),
+  data: z.record(z.string(), z.any()).optional(),
+});
+
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export interface Notification extends InsertNotification {
+  id: string;
+  read: boolean;
+  createdAt: Date | string;
+}

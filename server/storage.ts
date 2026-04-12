@@ -15,7 +15,9 @@ import {
   type SiteConfig,
   type DynamicQuestionnaire, type InsertDynamicQuestionnaire,
   type DynamicQuestion, type InsertDynamicQuestion,
-  type DynamicResponse, type InsertDynamicResponse
+  type DynamicResponse, type InsertDynamicResponse,
+  type Discount, type InsertDiscount,
+  type Notification, type InsertNotification
 } from "@shared/schema.js";
 
 import ProjectModel from "./models/Project.js";
@@ -35,6 +37,8 @@ import ProductModel from "./models/Product.js";
 import DynamicQuestionnaireModel from "./models/DynamicQuestionnaire.js";
 import DynamicQuestionModel from "./models/DynamicQuestion.js";
 import DynamicResponseModel from "./models/DynamicResponse.js";
+import DiscountModel from "./models/Discount.js";
+import NotificationModel from "./models/Notification.js";
 
 
 export interface IStorage {
@@ -63,6 +67,8 @@ export interface IStorage {
 
   createContact(contact: InsertContact): Promise<Contact>;
   getContacts(): Promise<Contact[]>;
+  deleteContact(id: string): Promise<void>;
+  updateContactStatus(id: string, status: 'pending' | 'completed'): Promise<Contact>;
 
   getClientLogos(): Promise<ClientLogo[]>;
   createClientLogo(logo: InsertClientLogo): Promise<ClientLogo>;
@@ -76,6 +82,8 @@ export interface IStorage {
 
   createQuestionnaireSubmission(submission: InsertQuestionnaire): Promise<QuestionnaireSubmission>;
   getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]>;
+  deleteQuestionnaireSubmission(id: string): Promise<void>;
+  updateQuestionnaireSubmissionStatus(id: string, status: string): Promise<QuestionnaireSubmission>;
 
   getCourses(): Promise<Course[]>;
   getCourseById(id: string | number): Promise<Course | undefined>;
@@ -120,6 +128,18 @@ export interface IStorage {
 
   getDynamicResponses(questionnaireId: string): Promise<DynamicResponse[]>;
   createDynamicResponse(data: InsertDynamicResponse): Promise<DynamicResponse>;
+
+  // Discounts
+  getDiscounts(): Promise<Discount[]>;
+  getActiveDiscounts(): Promise<Discount[]>;
+  getDiscountById(id: string | number): Promise<Discount | undefined>;
+  createDiscount(data: InsertDiscount): Promise<Discount>;
+  updateDiscount(id: string | number, data: Partial<InsertDiscount>): Promise<Discount>;
+  // Notifications
+  getNotifications(): Promise<Notification[]>;
+  createNotification(data: InsertNotification): Promise<Notification>;
+  markNotificationAsRead(id: string): Promise<Notification>;
+  markAllNotificationsAsRead(): Promise<void>;
 }
 
 
@@ -289,8 +309,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getContacts(): Promise<Contact[]> {
-    const docs = await ContactModel.find().sort({ createdAt: 1 });
+    const docs = await ContactModel.find().sort({ createdAt: -1 });
     return docs.map(d => this.mapDoc<Contact>(d));
+  }
+
+  async deleteContact(id: string): Promise<void> {
+    await ContactModel.findByIdAndDelete(id);
+  }
+
+  async updateContactStatus(id: string, status: 'pending' | 'completed'): Promise<Contact> {
+    const doc = await ContactModel.findByIdAndUpdate(id, { status }, { new: true });
+    if (!doc) throw new Error('Contact not found');
+    return this.mapDoc<Contact>(doc);
   }
 
   async getClientLogos(): Promise<ClientLogo[]> {
@@ -311,6 +341,10 @@ export class DatabaseStorage implements IStorage {
 
   async deleteClientLogo(id: string | number): Promise<void> {
     await ClientLogoModel.findByIdAndDelete(id);
+  }
+
+  async deleteClientLogos(ids: (string | number)[]): Promise<void> {
+    await ClientLogoModel.deleteMany({ _id: { $in: ids } });
   }
 
   async getTestimonials(): Promise<Testimonial[]> {
@@ -339,8 +373,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getQuestionnaireSubmissions(): Promise<QuestionnaireSubmission[]> {
-    const docs = await QuestionnaireModel.find().sort({ createdAt: 1 });
+    const docs = await QuestionnaireModel.find().sort({ createdAt: -1 });
     return docs.map(d => this.mapDoc<QuestionnaireSubmission>(d));
+  }
+
+  async deleteQuestionnaireSubmission(id: string): Promise<void> {
+    await QuestionnaireModel.findByIdAndDelete(id);
+  }
+
+  async updateQuestionnaireSubmissionStatus(id: string, status: string): Promise<QuestionnaireSubmission> {
+    const doc = await QuestionnaireModel.findByIdAndUpdate(id, { status }, { new: true });
+    if (!doc) throw new Error("Questionnaire submission not found");
+    return this.mapDoc<QuestionnaireSubmission>(doc);
   }
 
   async getCourses(): Promise<Course[]> {
@@ -527,6 +571,63 @@ export class DatabaseStorage implements IStorage {
   async createDynamicResponse(data: InsertDynamicResponse): Promise<DynamicResponse> {
     const doc = await DynamicResponseModel.create(data);
     return this.mapDoc<DynamicResponse>(doc);
+  }
+
+  // Discounts
+  async getDiscounts(): Promise<Discount[]> {
+    const docs = await DiscountModel.find().sort({ createdAt: -1 });
+    return docs.map(d => this.mapDoc<Discount>(d));
+  }
+
+  async getActiveDiscounts(): Promise<Discount[]> {
+    const now = new Date();
+    const docs = await DiscountModel.find({
+      active: true,
+      startDate: { $lte: now },
+      endDate: { $gte: now }
+    }).sort({ createdAt: -1 });
+    return docs.map(d => this.mapDoc<Discount>(d));
+  }
+
+  async getDiscountById(id: string | number): Promise<Discount | undefined> {
+    const doc = await DiscountModel.findById(id);
+    return doc ? this.mapDoc<Discount>(doc) : undefined;
+  }
+
+  async createDiscount(data: InsertDiscount): Promise<Discount> {
+    const doc = await DiscountModel.create(data);
+    return this.mapDoc<Discount>(doc);
+  }
+
+  async updateDiscount(id: string | number, data: Partial<InsertDiscount>): Promise<Discount> {
+    const doc = await DiscountModel.findByIdAndUpdate(id, data, { new: true });
+    if (!doc) throw new Error("Discount not found");
+    return this.mapDoc<Discount>(doc);
+  }
+
+  async deleteDiscount(id: string | number): Promise<void> {
+    await DiscountModel.findByIdAndDelete(id);
+  }
+
+  // Notifications
+  async getNotifications(): Promise<Notification[]> {
+    const docs = await NotificationModel.find().sort({ createdAt: -1 }).limit(50);
+    return docs.map(d => this.mapDoc<Notification>(d));
+  }
+
+  async createNotification(data: InsertNotification): Promise<Notification> {
+    const doc = await NotificationModel.create(data);
+    return this.mapDoc<Notification>(doc);
+  }
+
+  async markNotificationAsRead(id: string): Promise<Notification> {
+    const doc = await NotificationModel.findByIdAndUpdate(id, { read: true }, { new: true });
+    if (!doc) throw new Error("Notification not found");
+    return this.mapDoc<Notification>(doc);
+  }
+
+  async markAllNotificationsAsRead(): Promise<void> {
+    await NotificationModel.updateMany({ read: false }, { read: true });
   }
 }
 

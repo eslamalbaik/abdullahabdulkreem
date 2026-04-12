@@ -4,9 +4,20 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ClientLogo {
-    id: number;
+    id: string;
     name: string;
     image: string;
     order: number;
@@ -54,25 +65,62 @@ const DashboardLogos: React.FC = () => {
     const [search, setSearch] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [editingItem, setEditingItem] = useState<ClientLogo | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+    const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
 
     const { data: logos = [], isLoading } = useQuery<ClientLogo[]>({
         queryKey: ['/api/client-logos'],
     });
 
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
     const deleteMutation = useMutation({
-        mutationFn: (id: number) => apiRequest("DELETE", `/api/admin/client-logos/${id}`),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['/api/client-logos'] }),
+        mutationFn: (id: string) => apiRequest("DELETE", `/api/admin/client-logos/${id}`),
+        onSuccess: (data, id) => {
+            queryClient.invalidateQueries({ queryKey: ['/api/client-logos'] });
+            setSelectedIds(prev => prev.filter(sid => sid !== id));
+            toast.success("تم حذف الشعار بنجاح");
+            setConfirmDeleteId(null);
+        },
+        onError: () => toast.error("فشل حذف الشعار"),
     });
 
-    const handleDelete = (id: number) => {
-        if (confirm("هل أنت متأكد من حذف هذا الشعار؟")) {
-            deleteMutation.mutate(id);
-        }
+    const bulkDeleteMutation = useMutation({
+        mutationFn: (ids: string[]) => apiRequest("POST", "/api/admin/client-logos/bulk-delete", { ids }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['/api/client-logos'] });
+            setSelectedIds([]);
+            toast.success("تم حذف الشعارات المختارة بنجاح");
+            setConfirmBulkDelete(false);
+        },
+        onError: () => toast.error("فشل حذف الشعارات المختارة"),
+    });
+
+    const handleDelete = (id: string) => {
+        setConfirmDeleteId(id);
+    };
+
+    const handleBulkDelete = () => {
+        setConfirmBulkDelete(true);
     };
 
     const filtered = logos.filter(l =>
         l.name?.toLowerCase().includes(search.toLowerCase())
     );
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length === filtered.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(filtered.map(l => l.id));
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -85,10 +133,32 @@ const DashboardLogos: React.FC = () => {
                 </button>
             </div>
 
-            <div className="relative max-w-md">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                <input type="text" placeholder="بحث في الشعارات..." value={search} onChange={(e) => setSearch(e.target.value)}
-                    className="pr-10 pl-4 py-2 bg-accent border-transparent focus:bg-background focus:border-primary border rounded-md outline-none transition-all w-full" />
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                <div className="relative max-w-md w-full">
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                    <input type="text" placeholder="بحث في الشعارات..." value={search} onChange={(e) => setSearch(e.target.value)}
+                        className="pr-10 pl-4 py-2 bg-accent border-transparent focus:bg-background focus:border-primary border rounded-md outline-none transition-all w-full" />
+                </div>
+
+                {filtered.length > 0 && (
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={toggleSelectAll}
+                            className="text-sm font-medium text-primary hover:underline"
+                        >
+                            {selectedIds.length === filtered.length ? "إلغاء تحديد الكل" : "تحديد الكل"}
+                        </button>
+                        {selectedIds.length > 0 && (
+                            <button
+                                onClick={handleBulkDelete}
+                                className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                حذف المختار ({selectedIds.length})
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {isLoading ? (
@@ -101,7 +171,15 @@ const DashboardLogos: React.FC = () => {
                 <div className="grid gap-4">
                     {filtered.map((logo) => (
                         <motion.div key={logo.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-4 p-4 bg-card rounded-xl border border-border">
+                            className={`flex items-center gap-4 p-4 bg-card rounded-xl border transition-all ${selectedIds.includes(logo.id) ? 'border-primary ring-1 ring-primary/20 bg-primary/5' : 'border-border'}`}>
+                            <div className="flex items-center justify-center">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedIds.includes(logo.id)}
+                                    onChange={() => toggleSelect(logo.id)}
+                                    className="w-5 h-5 rounded border-border text-primary focus:ring-primary cursor-pointer"
+                                />
+                            </div>
                             {logo.image ? (
                                 <img src={logo.image} alt={logo.name} className="w-20 h-16 object-contain rounded-lg bg-white p-2" />
                             ) : (
@@ -128,6 +206,42 @@ const DashboardLogos: React.FC = () => {
             {showForm && (
                 <LogoForm item={editingItem} onClose={() => { setShowForm(false); setEditingItem(null); }} />
             )}
+
+            {/* Delete Confirmation */}
+            <AlertDialog open={!!confirmDeleteId} onOpenChange={() => setConfirmDeleteId(null)}>
+                <AlertDialogContent dir="rtl">
+                    <AlertDialogHeader className="text-right">
+                        <AlertDialogTitle>هل أنت متأكد من حذف هذا الشعار؟</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            لا يمكن التراجع عن هذا الإجراء بعد التنفيذ.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-row-reverse gap-2">
+                        <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => confirmDeleteId && deleteMutation.mutate(confirmDeleteId)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            تأكيد الحذف
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Bulk Delete Confirmation */}
+            <AlertDialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
+                <AlertDialogContent dir="rtl">
+                    <AlertDialogHeader className="text-right">
+                        <AlertDialogTitle>حذف {selectedIds.length} شعارات مختارة؟</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            سيتم حذف جميع الشعارات المحددة بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-row-reverse gap-2">
+                        <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => bulkDeleteMutation.mutate(selectedIds)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            تأكيد حذف الكل
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { CartNotification } from "@/components/ui/CartNotification";
 
 export default function Navbar() {
   const { pathname } = useLocation();
@@ -28,7 +29,8 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <CartNotification />
+      <nav className="sticky top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link to="/" className="hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="الشعار" className="h-20" />

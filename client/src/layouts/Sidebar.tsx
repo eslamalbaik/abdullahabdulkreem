@@ -11,7 +11,10 @@ import {
     ChevronRight,
     ChevronLeft,
     GraduationCap,
-    ClipboardList
+    ClipboardList,
+    Star,
+    ExternalLink,
+    Globe
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -36,6 +39,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'شعارات العملاء', icon: <Palette size={20} />, path: '/dashboard/logos' },
         { name: 'التوصيات', icon: <MessageSquare size={20} />, path: '/dashboard/testimonials' },
         { name: 'الاستبيانات', icon: <ClipboardList size={20} />, path: '/dashboard/questionnaires' },
+        { name: 'العروض', icon: <Star size={20} />, path: '/dashboard/discounts' },
         { name: 'الإعدادات', icon: <Settings size={20} />, path: '/dashboard/settings' },
     ];
 
@@ -76,7 +80,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                 ))}
             </nav>
 
-            <div className="p-4 border-t">
+            <div className="p-2 border-t space-y-2">
+                <Link
+                    to="/"
+                    className={cn(
+                        "flex items-center w-full px-3 py-2 text-primary hover:bg-primary/10 rounded-md transition-colors",
+                        !isOpen && "justify-center"
+                    )}
+                >
+                    <Globe size={20} />
+                    {isOpen && <span className="mr-3 font-medium">عرض الموقع</span>}
+                </Link>
                 <button
                     onClick={logout}
                     className={cn(

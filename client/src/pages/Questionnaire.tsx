@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ArrowLeft, Check, Mail, MessageCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { Confetti } from "@/components/ui/Confetti";
 
 interface FormData {
   name: string;
@@ -120,12 +121,13 @@ export default function Questionnaire() {
 
   if (isSubmitted) {
     return (
-      <div className="pt-32 pb-20 min-h-screen bg-background">
+      <div className="pt-32 pb-20 min-h-screen bg-background relative overflow-hidden">
+        <Confetti count={100} />
         <div className="container mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto text-center"
+            className="max-w-2xl mx-auto text-center relative z-10"
           >
             <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-10 h-10 text-white" />

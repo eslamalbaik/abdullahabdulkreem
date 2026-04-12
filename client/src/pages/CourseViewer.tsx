@@ -5,6 +5,7 @@ import { Check, Lock, Play, Download, ChevronRight, ArrowRight, Star, Monitor, A
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useParams } from "react-router-dom";
+import { Currency } from "@/components/ui/Currency";
 
 interface Course {
   id: number;
@@ -230,7 +231,7 @@ export default function CourseViewer() {
                         className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
                         data-testid="button-enroll-video"
                       >
-                        {enrollMutation.isPending ? "جاري التسجيل..." : `اشترك الآن - ${course?.price} ر.س`}
+                        {enrollMutation.isPending ? "جاري التسجيل..." : <span>اشترك الآن - <Currency amount={course?.price || 0} /></span>}
                       </button>
                     </>
                   )}
@@ -524,7 +525,9 @@ export default function CourseViewer() {
                   >
                     تسجيل الدخول للاشتراك
                   </Link>
-                  <p className="text-center text-lg font-bold">{course?.price} ر.س</p>
+                  <p className="text-center text-xl font-bold text-red-600">
+                    <Currency amount={course?.price || 0} size="lg" logoClassName="text-red-600" />
+                  </p>
                 </div>
               ) : isEnrolled ? (
                 <div className="space-y-3">
@@ -556,7 +559,9 @@ export default function CourseViewer() {
                   >
                     {enrollMutation.isPending ? "جاري التسجيل..." : "اشترك الآن"}
                   </button>
-                  <p className="text-center text-lg font-bold">{course?.price} ر.س</p>
+                  <p className="text-center text-xl font-bold text-red-600">
+                    <Currency amount={course?.price || 0} size="lg" logoClassName="text-red-600" />
+                  </p>
                 </div>
               )}
             </div>

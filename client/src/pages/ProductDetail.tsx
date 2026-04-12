@@ -3,9 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Currency } from "@/components/ui/Currency";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
+import { CartSuccessAnimation } from "@/components/ui/CartSuccessAnimation";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { calculateFinalPrice } from "@/lib/discounts";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -17,18 +21,33 @@ export default function ProductDetail() {
     enabled: !!id,
   });
 
+  const { data: activeDiscounts = [] } = useQuery<any[]>({
+    queryKey: ['/api/discounts/active'],
+  });
+
+  const { data: configs = [] } = useQuery<any[]>({
+    queryKey: ["/api/site-configs"],
+  });
+
+  const globalPercentage = parseFloat(configs.find(c => c.key === 'global_discount_percentage')?.value || '0');
+
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || !id) return;
+    const { finalPrice } = calculateFinalPrice(
+      product.price,
+      id,
+      'product',
+      activeDiscounts,
+      globalPercentage
+    );
+    
     addItem({
       id: product.id,
       title: product.title,
-      price: product.price,
+      price: finalPrice,
+      originalPrice: product.price,
       image: product.image,
       type: "product",
-    });
-    toast({
-      title: "تمت الإضافة للسلة",
-      description: `تم إضافة "${product.title}" إلى سلة التسوق`,
     });
   };
 
@@ -113,7 +132,13 @@ export default function ProductDetail() {
               {product.category}
             </span>
             <h1 className="text-4xl font-serif mb-4">{product.title}</h1>
-            <p className="text-3xl font-bold text-primary mb-6">{product.price} ر.س</p>
+            <PriceDisplay 
+              price={product.price} 
+              itemId={product.id} 
+              itemType="product" 
+              size="lg" 
+              className="mb-6" 
+            />
             
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
               {product.description}
@@ -141,7 +166,7 @@ export default function ProductDetail() {
               data-testid="button-add-to-cart"
             >
               <ShoppingCart className="w-5 h-5 ml-2" />
-              أضف للسلة — {product.price} ر.س
+              أضف للسلة
             </Button>
           </motion.div>
         </div>

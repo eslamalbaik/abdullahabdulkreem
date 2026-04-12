@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Check, GraduationCap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Currency } from "@/components/ui/Currency";
 
 interface Course {
   id: number;
@@ -95,7 +96,9 @@ export default function Courses() {
                       عرض الدورة
                     </Button>
                   </Link>
-                  <span className="text-xl font-serif">{course.price} ر.س</span>
+                  <span className="text-2xl font-bold text-red-600">
+                    <Currency amount={course.price} logoClassName="text-red-600" />
+                  </span>
                 </div>
               </div>
             </motion.div>

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Currency } from "@/components/ui/Currency";
 import { useCart } from "@/contexts/CartContext";
 
 export default function Cart() {
@@ -87,7 +88,7 @@ export default function Cart() {
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
-                  <span className="font-bold text-lg">{item.price * item.quantity} ر.س</span>
+                  <span className="font-bold text-lg"><Currency amount={item.price * item.quantity} /></span>
                 </div>
               </motion.div>
             ))}
@@ -111,7 +112,7 @@ export default function Cart() {
                     <span className="text-muted-foreground">
                       {item.title} × {item.quantity}
                     </span>
-                    <span>{item.price * item.quantity} ر.س</span>
+                    <span><Currency amount={item.price * item.quantity} size="sm" /></span>
                   </div>
                 ))}
               </div>
@@ -119,7 +120,7 @@ export default function Cart() {
               <div className="border-t border-border pt-4 mb-6">
                 <div className="flex justify-between text-lg font-bold">
                   <span>الإجمالي</span>
-                  <span className="text-primary">{totalPrice} ر.س</span>
+                  <span className="text-red-600 font-bold"><Currency amount={totalPrice} logoClassName="text-red-600" /></span>
                 </div>
               </div>
 

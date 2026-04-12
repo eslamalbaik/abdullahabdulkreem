@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Search, Upload, X, GraduationCap } from 'lucide-r
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { Currency } from '@/components/ui/Currency';
 
 interface Course {
     id: number;
@@ -113,7 +114,7 @@ const DashboardCourses: React.FC = () => {
                             )}
                             <div className="flex-1">
                                 <h3 className="font-semibold">{course.title}</h3>
-                                <p className="text-sm text-muted-foreground">{course.price} ر.س</p>
+                                <p className="text-sm text-muted-foreground"><Currency amount={course.price} size="sm" /></p>
                             </div>
                             {course.published ? (
                                 <span className="px-2 py-1 bg-green-500/10 text-green-600 rounded-full text-xs font-semibold">منشور</span>

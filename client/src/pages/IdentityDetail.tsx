@@ -1,9 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, ShoppingCart } from "lucide-react";
+import { Check, ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { Currency } from "@/components/ui/Currency";
+import { CartSuccessAnimation } from "@/components/ui/CartSuccessAnimation";
+import { PriceDisplay } from "@/components/PriceDisplay";
+import { calculateFinalPrice } from "@/lib/discounts";
 
 interface Identity {
   id: number;
@@ -24,18 +28,33 @@ export default function IdentityDetail() {
     queryKey: [`/api/identities/${id}`],
   });
 
+  const { data: activeDiscounts = [] } = useQuery<any[]>({
+    queryKey: ['/api/discounts/active'],
+  });
+
+  const { data: configs = [] } = useQuery<any[]>({
+    queryKey: ["/api/site-configs"],
+  });
+
+  const globalPercentage = parseFloat(configs.find(c => c.key === 'global_discount_percentage')?.value || '0');
+
   const handleAddToCart = () => {
-    if (!identity) return;
+    if (!identity || !id) return;
+    const { finalPrice } = calculateFinalPrice(
+      identity.price,
+      id,
+      'identity',
+      activeDiscounts,
+      globalPercentage
+    );
+
     addItem({
       id: identity.id,
       title: identity.title,
-      price: identity.price,
+      price: finalPrice,
+      originalPrice: identity.price,
       image: identity.image,
       type: "identity",
-    });
-    toast({
-      title: "تمت الإضافة للسلة",
-      description: `تم إضافة "${identity.title}" إلى سلة التسوق`,
     });
   };
 
@@ -157,9 +176,12 @@ export default function IdentityDetail() {
               <div className="bg-gradient-to-br from-primary/5 to-secondary/20 border border-primary/20 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-6">
                   <span className="text-muted-foreground">السعر</span>
-                  <span className="text-3xl font-bold text-primary" data-testid="text-identity-price">
-                    {identity.price} ر.س
-                  </span>
+                  <PriceDisplay 
+                    price={identity.price} 
+                    itemId={identity.id} 
+                    itemType="identity" 
+                    size="lg" 
+                  />
                 </div>
                 
                 <button 
