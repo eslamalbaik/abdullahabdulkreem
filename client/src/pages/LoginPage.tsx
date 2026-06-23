@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 
 const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const [email, setEmail] = useState('admin@local.dev');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
