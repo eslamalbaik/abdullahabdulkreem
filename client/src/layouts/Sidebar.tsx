@@ -10,7 +10,9 @@ import {
     LogOut,
     ChevronRight,
     ChevronLeft,
-    GraduationCap
+    GraduationCap,
+    ClipboardList,
+    Mail
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -30,6 +32,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { name: 'الدورات', icon: <GraduationCap size={20} />, path: '/dashboard/courses' },
         { name: 'الهوية البصرية', icon: <Palette size={20} />, path: '/dashboard/identities' },
         { name: 'الأعمال', icon: <LayoutGrid size={20} />, path: '/dashboard/projects' },
+        { name: 'طلبات العملاء', icon: <ClipboardList size={20} />, path: '/dashboard/questionnaire' },
+        { name: 'رسائل التواصل', icon: <Mail size={20} />, path: '/dashboard/contacts' },
         { name: 'التوصيات', icon: <MessageSquare size={20} />, path: '/dashboard/testimonials' },
         { name: 'الإعدادات', icon: <Settings size={20} />, path: '/dashboard/settings' },
     ];

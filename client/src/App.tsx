@@ -30,6 +30,8 @@ import DashboardHome from "@/pages/DashboardHome";
 import DashboardProducts from "@/pages/DashboardProducts";
 import DashboardIdentities from "@/pages/DashboardIdentities";
 import DashboardProjects from "@/pages/DashboardProjects";
+import DashboardQuestionnaire from "@/pages/DashboardQuestionnaire";
+import DashboardContacts from "@/pages/DashboardContacts";
 import DashboardTestimonials from "@/pages/DashboardTestimonials";
 import DashboardCourses from "@/pages/DashboardCourses";
 import DashboardSettings from "@/pages/DashboardSettings";
@@ -83,6 +85,8 @@ function App() {
                     <Route path="products" element={<DashboardProducts />} />
                     <Route path="identities" element={<DashboardIdentities />} />
                     <Route path="projects" element={<DashboardProjects />} />
+                    <Route path="questionnaire" element={<DashboardQuestionnaire />} />
+                    <Route path="contacts" element={<DashboardContacts />} />
                     <Route path="testimonials" element={<DashboardTestimonials />} />
                     <Route path="courses" element={<DashboardCourses />} />
                     <Route path="settings" element={<DashboardSettings />} />

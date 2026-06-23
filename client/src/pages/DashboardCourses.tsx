@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2, Search, Upload, X, GraduationCap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, getErrorMessage } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
 
 interface Course {
@@ -153,6 +153,8 @@ function CourseForm({ item, onClose }: { item: Course | null; onClose: () => voi
         published: item?.published ?? true,
     });
 
+    const [error, setError] = useState<string | null>(null);
+
     const mutation = useMutation({
         mutationFn: async (data: any) => {
             const endpoint = `/api/admin/courses${isEditing ? `/${item!.id}` : ''}`;
@@ -162,10 +164,12 @@ function CourseForm({ item, onClose }: { item: Course | null; onClose: () => voi
             queryClient.invalidateQueries({ queryKey: ['/api/courses'] });
             onClose();
         },
+        onError: (err) => setError(getErrorMessage(err)),
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
         mutation.mutate(formData);
     };
 
@@ -197,6 +201,12 @@ function CourseForm({ item, onClose }: { item: Course | null; onClose: () => voi
                             onChange={(e) => setFormData({ ...formData, published: e.target.checked })} className="w-4 h-4 rounded border-border" />
                         <label htmlFor="published" className="text-sm font-medium">نشر الدورة</label>
                     </div>
+                    {error && (
+                        <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm" role="alert">
+                            <X className="w-4 h-4 mt-0.5 shrink-0" />
+                            <span>{error}</span>
+                        </div>
+                    )}
                     <div className="flex gap-4 pt-4">
                         <button type="submit" disabled={mutation.isPending}
                             className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50">

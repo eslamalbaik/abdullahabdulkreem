@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, getErrorMessage } from "@/lib/queryClient";
 import { Mail, Phone, MapPin, Send, Instagram, ChevronLeft } from "lucide-react";
 
 const contactSchema = z.object({
@@ -33,8 +34,12 @@ export default function Contact() {
 
   const onSubmit = async (data: ContactFormValues) => {
     try {
-      // Here you would typically send the data to your API
-      console.log("Contact form submitted:", data);
+      await apiRequest("POST", "/api/contact", {
+        name: data.name,
+        email: data.email,
+        projectType: data.subject,
+        message: data.message,
+      });
       toast({
         title: "تم إرسال رسالتك بنجاح",
         description: "سأقوم بالرد عليك في أقرب وقت ممكن.",
@@ -44,7 +49,7 @@ export default function Contact() {
       toast({
         variant: "destructive",
         title: "حدث خطأ ما",
-        description: "يرجى المحاولة مرة أخرى لاحقاً.",
+        description: getErrorMessage(error),
       });
     }
   };
