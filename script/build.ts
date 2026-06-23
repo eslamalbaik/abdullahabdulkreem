@@ -51,11 +51,23 @@ async function buildAll() {
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
-    format: "esm",              // ← هنا الحل
-    outfile: "dist/index.js",   // ← مو cjs
+    format: "esm",
+    outfile: "dist/index.js",
     minify: true,
     external: externals,
     logLevel: "info",
+    // يعرّف require/__dirname/__filename داخل حزمة ESM حتى تشتغل مكتبات CommonJS
+    // (يحل خطأ: Dynamic require of "node:events" is not supported)
+    banner: {
+      js: [
+        "import { createRequire as __cr } from 'module';",
+        "import { fileURLToPath as __furl } from 'url';",
+        "import { dirname as __dn } from 'path';",
+        "const require = __cr(import.meta.url);",
+        "const __filename = __furl(import.meta.url);",
+        "const __dirname = __dn(__filename);",
+      ].join("\n"),
+    },
   });
 
   console.log("build complete! outputs in dist/");

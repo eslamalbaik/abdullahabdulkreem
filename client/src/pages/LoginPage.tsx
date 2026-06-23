@@ -36,48 +36,62 @@ const LoginPage: React.FC = () => {
             });
 
             if (res.ok || res.redirected) {
-                toast.success('Login successful');
+                toast.success('تم تسجيل الدخول بنجاح');
                 // Passport redirects to "/" on success — navigate to dashboard
                 navigate('/dashboard');
             } else {
                 const text = await res.text();
                 const isFailMsg = text.includes('فشل') || text.includes('غير صحيحة');
-                toast.error(isFailMsg ? 'Invalid email or password' : `Login failed (${res.status})`);
+                toast.error(isFailMsg ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة' : `فشل تسجيل الدخول (${res.status})`);
             }
         } catch (err: any) {
-            toast.error('Network error — is the server running?');
+            toast.error('تعذّر الاتصال بالخادم — تأكد من أن الخادم يعمل');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background px-4">
-            <div className="max-w-md w-full space-y-8 p-10 bg-card rounded-xl shadow-lg border">
+        <div dir="rtl" className="min-h-screen flex items-center justify-center bg-background px-4">
+            <div className="max-w-md w-full space-y-8 p-10 bg-card rounded-2xl shadow-lg border">
                 <div className="text-center">
-                    <h2 className="mt-6 text-3xl font-extrabold text-foreground">Sign in to your account</h2>
-                    <p className="mt-2 text-sm text-muted-foreground">Admin Dashboard Access</p>
+                    <img
+                        src="/logo.png"
+                        alt="الشعار"
+                        className="mx-auto h-16 w-auto object-contain mb-4"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <h2 className="text-2xl font-extrabold text-foreground">تسجيل الدخول</h2>
+                    <p className="mt-2 text-sm text-muted-foreground">الدخول إلى لوحة التحكم</p>
                 </div>
-                <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
+                <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+                    <div className="space-y-4">
                         <div>
+                            <label htmlFor="email" className="block text-sm font-medium mb-1.5">البريد الإلكتروني</label>
                             <input
+                                id="email"
+                                name="email"
                                 type="email"
+                                autoComplete="username"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
-                                placeholder="Email address"
+                                placeholder="admin@example.com"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input bg-background placeholder-muted-foreground text-foreground rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                                className="appearance-none relative block w-full px-3 py-2.5 border border-input bg-background placeholder-muted-foreground text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
                             />
                         </div>
-                        <div className="mt-4">
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium mb-1.5">كلمة المرور</label>
                             <input
+                                id="password"
+                                name="password"
                                 type="password"
+                                autoComplete="current-password"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                placeholder="Password"
+                                placeholder="••••••••"
                                 required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-input bg-background placeholder-muted-foreground text-foreground rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                                className="appearance-none relative block w-full px-3 py-2.5 border border-input bg-background placeholder-muted-foreground text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm"
                             />
                         </div>
                     </div>
@@ -86,14 +100,14 @@ const LoginPage: React.FC = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-60"
+                            className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-semibold rounded-lg text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors disabled:opacity-60"
                         >
-                            {loading ? 'Signing in…' : 'Sign in'}
+                            {loading ? 'جاري الدخول…' : 'دخول إلى لوحة التحكم'}
                         </button>
                     </div>
 
                     <p className="text-center text-xs text-muted-foreground">
-                        Default: <code>admin@local.dev</code> / password from <code>.env</code>
+                        الوصول مقيّد للمسؤولين المصرّح لهم فقط
                     </p>
                 </form>
             </div>
