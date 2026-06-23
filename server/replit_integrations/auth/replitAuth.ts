@@ -74,19 +74,24 @@ export async function setupAuth(app: Express) {
     passport.use(
       new LocalStrategy({ usernameField: "email" }, async (u, p, cb) => {
         try {
-          // 1. Check database first (for changed passwords)
-          const dbUser = await authStorage.getUserByEmail(u);
-          if (dbUser && dbUser.password) {
-            const bcrypt = await import("bcryptjs");
-            const isValid = await bcrypt.default.compare(p, dbUser.password);
-            if (isValid) {
-              return cb(null, dbUser);
+          // 1. Try the database first (best-effort — قد تفشل لو قاعدة البيانات غير متاحة)
+          try {
+            const dbUser = await authStorage.getUserByEmail(u);
+            if (dbUser && dbUser.password) {
+              const bcrypt = await import("bcryptjs");
+              const isValid = await bcrypt.default.compare(p, dbUser.password);
+              if (isValid) {
+                return cb(null, dbUser);
+              }
             }
+          } catch (dbErr: any) {
+            console.warn(
+              `[auth] DB lookup failed, falling back to .env admin: ${dbErr?.message}`
+            );
           }
 
-          // 2. Fallback to .env (initial login)
+          // 2. Fallback to .env admin credentials (يعمل حتى لو قاعدة البيانات معطّلة)
           if (password && u === email && p === password) {
-            // Upsert the admin user into DB if they don't exist yet
             const adminUser = {
               id: "local-admin",
               email,
@@ -94,7 +99,12 @@ export async function setupAuth(app: Express) {
               lastName: "Local",
               role: "admin",
             };
-            await authStorage.upsertUser(adminUser as any);
+            // محاولة حفظ المستخدم بقاعدة البيانات (اختيارية — نتجاهل الفشل)
+            try {
+              await authStorage.upsertUser(adminUser as any);
+            } catch {
+              /* قاعدة البيانات غير متاحة — نكمل بدونها */
+            }
             return cb(null, adminUser);
           }
 
