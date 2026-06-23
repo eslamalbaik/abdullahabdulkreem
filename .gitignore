@@ -5,3 +5,13 @@ server/public
 uploads
 vite.config.ts.*
 *.tar.gz
+
+# Environment & secrets — must never be committed
+.env
+.env.*
+!.env.example
+
+# Logs & temp
+*.log
+check-env.js
+check-env.mjs

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Check, Lock, Play, Download, ChevronRight, ArrowRight, Star, Monitor, Award, Clock, Info } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
-import { Link, useParams } from "wouter";
+import { Link, useParams } from "react-router-dom";
 
 interface Course {
   id: number;
@@ -199,7 +199,7 @@ export default function CourseViewer() {
     <div className="pt-24 pb-12 min-h-screen bg-background">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link href="/courses" className="hover:text-foreground transition-colors">الدورات</Link>
+          <Link to="/courses" className="hover:text-foreground transition-colors">الدورات</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground">{course.title}</span>
         </div>

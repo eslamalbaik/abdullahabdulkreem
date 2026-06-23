@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { MultiImageUploadField } from '@/components/MultiImageUploadField';
 
 interface Product {
     id: number;
@@ -11,6 +12,7 @@ interface Product {
     category: string;
     price: number;
     image: string;
+    images?: string[];
     description?: string;
     featured: boolean;
 }
@@ -154,6 +156,7 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
         category: item?.category || '',
         price: item?.price || 0,
         image: item?.image || '',
+        images: item?.images || [],
         description: item?.description || '',
         featured: item?.featured || false,
     });
@@ -197,6 +200,8 @@ function ProductForm({ item, onClose }: { item: Product | null; onClose: () => v
                     </div>
                     <ImageUploadField label="الصورة الرئيسية" value={formData.image}
                         onChange={(url) => setFormData({ ...formData, image: url })} testId="input-product-image" />
+                    <MultiImageUploadField label="صور إضافية للمنتج" value={formData.images}
+                        onChange={(urls) => setFormData({ ...formData, images: urls })} testId="input-product-images" />
                     <div>
                         <label className="block text-sm font-medium mb-2">الوصف</label>
                         <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}

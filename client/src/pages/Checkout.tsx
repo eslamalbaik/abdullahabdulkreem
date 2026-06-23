@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation } from "wouter";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Check, CreditCard, Smartphone, Building2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+
+// رقم واتساب المتجر بصيغة دولية بدون "+" أو أصفار بادئة (+966 58 125 8192)
+const STORE_WHATSAPP_NUMBER = "966581258192";
 
 interface PaymentMethod {
   id: string;
@@ -79,7 +82,7 @@ const paymentMethods: PaymentMethod[] = [
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const [selectedPayment, setSelectedPayment] = useState<string>("");
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isLoading, isAuthenticated } = useAuth();
   
@@ -147,7 +150,7 @@ export default function Checkout() {
         >
           <h1 className="text-3xl font-serif mb-4">السلة فارغة</h1>
           <p className="text-muted-foreground mb-8">أضف منتجات للسلة أولاً</p>
-          <Link href="/shop">
+          <Link to="/shop">
             <Button>تصفح المتجر</Button>
           </Link>
         </motion.div>
@@ -176,13 +179,36 @@ export default function Checkout() {
       return;
     }
 
+    // بناء رسالة الطلب التي ستُرسل عبر واتساب
+    const paymentName =
+      paymentMethods.find((m) => m.id === selectedPayment)?.nameAr || selectedPayment;
+
+    const itemsText = items
+      .map((item) => {
+        const typeLabel = item.type === "identity" ? "هوية بصرية" : "منتج";
+        return `• ${item.title} (${typeLabel}) × ${item.quantity} = ${item.price * item.quantity} ر.س`;
+      })
+      .join("\n");
+
+    const message =
+      `🛒 *طلب جديد*\n\n` +
+      `👤 الاسم: ${formData.name}\n` +
+      `📧 البريد: ${formData.email}\n` +
+      `📱 الجوال: ${formData.phone}\n` +
+      `💳 طريقة الدفع: ${paymentName}\n\n` +
+      `📦 *تفاصيل الطلب:*\n${itemsText}\n\n` +
+      `💰 *الإجمالي: ${totalPrice} ر.س*`;
+
+    const whatsappUrl = `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+
     toast({
-      title: "تم استلام طلبك!",
-      description: "سيتم التواصل معك قريباً لإتمام عملية الدفع",
+      title: "تم تجهيز طلبك!",
+      description: "تم فتح واتساب لإرسال تفاصيل الطلب وإتمام عملية الدفع",
     });
-    
+
     clearCart();
-    setLocation("/");
+    navigate("/");
   };
 
   return (
@@ -192,7 +218,7 @@ export default function Checkout() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Link href="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8" data-testid="link-back-cart">
+        <Link to="/cart" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8" data-testid="link-back-cart">
           <ArrowRight className="w-4 h-4 rotate-180" />
           العودة للسلة
         </Link>

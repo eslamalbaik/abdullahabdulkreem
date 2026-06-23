@@ -4,12 +4,14 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { MultiImageUploadField } from '@/components/MultiImageUploadField';
 
 interface Project {
     id: number;
     title: string;
     category: string;
     image: string;
+    images?: string[];
     year: string;
     description?: string;
     featured: boolean;
@@ -147,6 +149,7 @@ function ProjectForm({ item, onClose }: { item: Project | null; onClose: () => v
         title: item?.title || '',
         category: item?.category || '',
         image: item?.image || '',
+        images: item?.images || [],
         year: item?.year || new Date().getFullYear().toString(),
         description: item?.description || '',
         featured: item?.featured || false,
@@ -191,6 +194,8 @@ function ProjectForm({ item, onClose }: { item: Project | null; onClose: () => v
                     </div>
                     <ImageUploadField label="الصورة الرئيسية" value={formData.image}
                         onChange={(url) => setFormData({ ...formData, image: url })} testId="input-project-image" />
+                    <MultiImageUploadField label="صور إضافية (معرض الأعمال)" value={formData.images}
+                        onChange={(urls) => setFormData({ ...formData, images: urls })} testId="input-project-images" />
                     <div>
                         <label className="block text-sm font-medium mb-2">الوصف</label>
                         <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}

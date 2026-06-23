@@ -1,11 +1,31 @@
 import { motion } from "framer-motion";
-import { Link } from "wouter";
+import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 
+// رقم واتساب المتجر بصيغة دولية بدون "+" أو أصفار بادئة (+966 58 125 8192)
+const STORE_WHATSAPP_NUMBER = "966581258192";
+
 export default function Cart() {
   const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart();
+
+  const handleCheckout = () => {
+    const itemsText = items
+      .map((item) => {
+        const typeLabel = item.type === "identity" ? "هوية بصرية" : "منتج";
+        return `• ${item.title} (${typeLabel}) × ${item.quantity} = ${item.price * item.quantity} ر.س`;
+      })
+      .join("\n");
+
+    const message =
+      `🛒 *طلب جديد*\n\n` +
+      `📦 *تفاصيل الطلب:*\n${itemsText}\n\n` +
+      `💰 *الإجمالي: ${totalPrice} ر.س*`;
+
+    const whatsappUrl = `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
+  };
 
   if (items.length === 0) {
     return (
@@ -18,7 +38,7 @@ export default function Cart() {
           <ShoppingBag className="w-16 h-16 mx-auto mb-6 text-muted-foreground" />
           <h1 className="text-3xl font-serif mb-4">السلة فارغة</h1>
           <p className="text-muted-foreground mb-8">لم تضف أي منتجات للسلة بعد</p>
-          <Link href="/shop">
+          <Link to="/shop">
             <Button>تصفح المتجر</Button>
           </Link>
         </motion.div>
@@ -123,12 +143,10 @@ export default function Cart() {
                 </div>
               </div>
 
-              <Link href="/checkout">
-                <Button className="w-full" size="lg" data-testid="button-checkout">
-                  إتمام الشراء
-                  <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
-                </Button>
-              </Link>
+              <Button className="w-full" size="lg" onClick={handleCheckout} data-testid="button-checkout">
+                إتمام الشراء عبر واتساب
+                <ArrowRight className="w-4 h-4 mr-2 rotate-180" />
+              </Button>
             </div>
           </div>
         </div>

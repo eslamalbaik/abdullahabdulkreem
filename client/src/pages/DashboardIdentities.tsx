@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Search, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { apiRequest } from '@/lib/queryClient';
 import { useUpload } from '@/hooks/use-upload';
+import { MultiImageUploadField } from '@/components/MultiImageUploadField';
 
 interface Identity {
     id: number;
@@ -11,6 +12,7 @@ interface Identity {
     description: string;
     price: number;
     image: string;
+    images?: string[];
     includes: string[];
     featured: boolean;
 }
@@ -153,6 +155,7 @@ function IdentityForm({ item, onClose }: { item: Identity | null; onClose: () =>
         description: item?.description || '',
         price: item?.price || 0,
         image: item?.image || '',
+        images: item?.images || [],
         includes: item?.includes?.join('\n') || '',
         featured: item?.featured || false,
     });
@@ -201,6 +204,8 @@ function IdentityForm({ item, onClose }: { item: Identity | null; onClose: () =>
                     </div>
                     <ImageUploadField label="الصورة الرئيسية" value={formData.image}
                         onChange={(url) => setFormData({ ...formData, image: url })} testId="input-identity-image" />
+                    <MultiImageUploadField label="صور إضافية للهوية" value={formData.images}
+                        onChange={(urls) => setFormData({ ...formData, images: urls })} testId="input-identity-images" />
                     <div>
                         <label className="block text-sm font-medium mb-2">الوصف</label>
                         <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}

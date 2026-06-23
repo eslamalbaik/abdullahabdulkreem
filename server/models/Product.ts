@@ -53,8 +53,7 @@ const ProductSchema: Schema = new Schema(
     { timestamps: true }
 );
 
-// Indexing
-ProductSchema.index({ name: 1 });
+// Indexing (name index removed - defined inline causes duplicate warning)
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ isDeleted: 1 });
 

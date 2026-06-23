@@ -28,7 +28,6 @@ const RoleSchema: Schema = new Schema(
     { timestamps: true }
 );
 
-// Indexing
-RoleSchema.index({ name: 1 });
+// name index is auto-created by unique:true above
 
 export default mongoose.model<IRole>('Role', RoleSchema);

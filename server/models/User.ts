@@ -47,8 +47,7 @@ const UserSchema: Schema = new Schema(
 );
 
 // Indexing
-UserSchema.index({ email: 1 });
-UserSchema.index({ isDeleted: 1 });
+UserSchema.index({ isDeleted: 1 }); // email index is auto-created by unique:true
 
 // Hash password before saving
 UserSchema.pre<IUser>('save', async function (next) {
